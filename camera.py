@@ -10,17 +10,17 @@ inpHeight = 416      # Height of network's input image
 
 # Get Camera Footage
 cap = cv2.VideoCapture(0)
-cap.set(cv2.CAP_PROP_FPS, 10)
+cap.set(cv2.CAP_PROP_FPS, 60)
 
 # Load names of classes
-classesFile = "/Users/joshginn/Desktop/Python/ObjDetect/network/coco.names";
+classesFile = "network/coco.names";
 classes = None
 with open(classesFile, 'rt') as f:
     classes = f.read().rstrip('\n').split('\n')
 
 # Give the configuration and weight files for the model and load the network using them.
-modelConfiguration = "/Users/joshginn/Desktop/Python/ObjDetect/network/yolov3.cfg";
-modelWeights = "/Users/joshginn/Desktop/Python/ObjDetect/network/yolov3.weights";
+modelConfiguration = "network/yolov3.cfg";
+modelWeights = "network/yolov3.weights";
 
 # Configure the network
 net = cv2.dnn.readNetFromDarknet(modelConfiguration, modelWeights)
