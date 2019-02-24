@@ -5,13 +5,14 @@ import datetime
 # Initialise the parameters
 confThreshold = 0.5  # Confidence threshold
 nmsThreshold = 0.4   # Non-maximum suppression threshold
-inpWidth = 416       # Width of network's input image
-inpHeight = 416      # Height of network's input image
-outputPeopleCount = 1
+inpSize = [416,416]  # Width and Height of network's input image
+# inpWidth = 416       # Width of network's input image
+# inpHeight = 416      # Height of network's input image
+outputPeopleCount = 0
 windowSize = [896,504]
 
 # Modules
-mod_ClockOn = 0;
+mod_ClockOn = 1;
 
 # Get Camera Footage
 cap = cv2.VideoCapture(0)
@@ -40,18 +41,22 @@ def getOutputsNames(net):
 # Draw the predicted bounding box
 def drawPred(classId, conf, left, top, right, bottom):
     # Draw a bounding box.
-    cv2.rectangle(frame, (left, top), (right, bottom), (255, 178, 50), 2)
+    color = [255,178,50,0]
+    cv2.rectangle(frame, (left, top), (right, bottom), (color[0],color[1],color[2]), 2)
     # Looks for people
     if classId == 0:
         # Lower Confidence
         if conf < 0.7:
             # Orange
-            cv2.rectangle(frame, (left, top), (right, bottom), (51, 255, 255), 2)
+            color = [51,255,255,0]
+            cv2.rectangle(frame, (left, top), (right, bottom), (color[0],color[1],color[2]), 2)
         else:
             # Green
-            cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
+            color = [0,255,0,0]
+            cv2.rectangle(frame, (left, top), (right, bottom), (color[0],color[1],color[2]), 2)
     else:
-        cv2.rectangle(frame, (left, top), (right, bottom), (255, 0, 0), 2)
+        color = [255,0,0,255]
+        cv2.rectangle(frame, (left, top), (right, bottom), (color[0],color[1],color[2]), 2)
     label = '%.2f' % conf
 
     # Get the label for the class name and its confidence
@@ -62,8 +67,8 @@ def drawPred(classId, conf, left, top, right, bottom):
     #Display the label at the top of the bounding box
     labelSize, baseLine = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
     top = max(top, labelSize[1])
-    cv2.rectangle(frame, (left, top - round(1.5*labelSize[1])), (left + round(1*labelSize[0]), top + baseLine), (255, 255, 255), cv2.FILLED)
-    cv2.putText(frame, label, (left, top), cv2.FONT_HERSHEY_SIMPLEX, 0.50, (0,0,0), 1)
+    cv2.rectangle(frame, (left, top - round(1.5*labelSize[1])), (left + round(1*labelSize[0]), top + baseLine), (color[0],color[1],color[2]), cv2.FILLED)
+    cv2.putText(frame, label, (left, top), cv2.FONT_HERSHEY_SIMPLEX, 0.50, (color[3],color[3],color[3]), 1)
 
 def peopleCounter(peopleCount, objectCount):
     # Output People Count combined with total count.
@@ -138,7 +143,7 @@ while(True):
     ret, frame = cap.read()
 
     # Create a 4D blob from a frame.
-    blob = cv2.dnn.blobFromImage(frame, 1/255, (inpWidth, inpHeight), [0,0,0], 1, crop=False)
+    blob = cv2.dnn.blobFromImage(frame, 1/255, (inpSize[0], inpSize[1]), [0,0,0], 1, crop=False)
 
     # Sets the input to the network
     net.setInput(blob)
