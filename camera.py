@@ -7,6 +7,11 @@ confThreshold = 0.5  # Confidence threshold
 nmsThreshold = 0.4   # Non-maximum suppression threshold
 inpWidth = 416       # Width of network's input image
 inpHeight = 416      # Height of network's input image
+outputPeopleCount = 1
+windowSize = [896,504]
+
+# Modules
+mod_ClockOn = 0;
 
 # Get Camera Footage
 cap = cv2.VideoCapture(0)
@@ -60,8 +65,17 @@ def drawPred(classId, conf, left, top, right, bottom):
     cv2.rectangle(frame, (left, top - round(1.5*labelSize[1])), (left + round(1*labelSize[0]), top + baseLine), (255, 255, 255), cv2.FILLED)
     cv2.putText(frame, label, (left, top), cv2.FONT_HERSHEY_SIMPLEX, 0.50, (0,0,0), 1)
 
+def peopleCounter(peopleCount, objectCount):
+    # Output People Count combined with total count.
+    if peopleCount > 0:
+        print("Object Count: ",currentDT.strftime("%X"),peopleCount,"/",objectCount,("#" * peopleCount))
+    else:
+        print("No People Detected!")
+
 # Remove the bounding boxes with low confidence using non-maxima suppression
 def postprocess(frame, outs):
+    global outputPeopleCount
+
     frameHeight = frame.shape[0]
     frameWidth = frame.shape[1]
 
@@ -103,12 +117,8 @@ def postprocess(frame, outs):
                 else:
                     objectCount = objectCount + 1
 
-    # Output People Count combined with total count.
-    if peopleCount > 0:
-        print("Object Count: ",currentDT.strftime("%X"),peopleCount,"/",objectCount,("#" * peopleCount))
-        cv2.putText(frame, str(peopleCount), (0, 35), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255))
-    else:
-        print("No People Detected!")
+    peopleCounter(peopleCount, objectCount)
+    outputPeopleCount = peopleCount
 
     # Perform non maximum suppression to eliminate redundant overlapping boxes with
     # lower confidences.
@@ -143,9 +153,12 @@ while(True):
     winName = 'Object Detection Demo v0.2'
 
     cv2.namedWindow(winName, cv2.WINDOW_NORMAL)
-    cv2.resizeWindow(winName, 600,400)
+    cv2.resizeWindow(winName, windowSize[0],windowSize[1])
 
-    cv2.putText(frame, currentDT.strftime("%X"), (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255))
+    if mod_ClockOn == 1:
+        cv2.putText(frame, currentDT.strftime("%X"), (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255))
+
+    cv2.putText(frame, str(outputPeopleCount), (200, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0))
 
     cv2.imshow(winName,frame)
 
