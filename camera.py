@@ -11,16 +11,16 @@ nmsThreshold = 0.4   # Non-maximum suppression threshold
 inpSize = [416,416]  # Width and Height of network's input image
 outputPeopleCount = 0
 windowSize = [896,504]
-processingTime = 1;
+processingTime = 1
 winName = 'Object Detection App v0.2'
 
 # TCP Socket Connections
 socketHost = '192.168.1.123'
-socketPort = 5000
+socketPort = 5500
 
 # Modules
 mod_ClockOn = 1
-mod_RemoteSend = 0
+mod_RemoteSend = 1
 mod_OutputWindow = 1
 
 # Remote Send

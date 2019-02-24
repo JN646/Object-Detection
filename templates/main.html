@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+          var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
+  </head>
+  <body>
+    <script type=text/javascript>
+    $(function()
+    {
+      $(document).ready(function() {
+      { $.getJSON($SCRIPT_ROOT + '/_add_numbers' , {}, function(data) { $("#result").text(data.people_count);}); return false; };
+      });
+    });
+  </script>
+    <script type="text/javascript">
+    $(document).ready(function() {
+      $.getJSON($SCRIPT_ROOT + '/_add_numbers', function(data) {
+           $('#result').html("random_number: " + data.people_count);
+       });
+      });
+    </script>
+    <h1>Random Number</h1>
+    <p>
+      <span id='random_number'></span>
+      <span id=result>?</span>
+    <p><a href=# id=calculate>calculate server side</a>
+  </body>
+</html>
