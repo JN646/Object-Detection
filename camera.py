@@ -11,6 +11,8 @@ nmsThreshold = 0.4   # Non-maximum suppression threshold
 inpSize = [416,416]  # Width and Height of network's input image
 outputPeopleCount = 0
 windowSize = [896,504]
+processingTime = 1;
+winName = 'Object Detection App v0.2'
 
 # TCP Socket Connections
 socketHost = '192.168.1.123'
@@ -192,8 +194,6 @@ while(True):
 
     if mod_OutputWindow == 1:
         # Render Window
-        winName = 'Object Detection Demo v0.2'
-
         cv2.namedWindow(winName, cv2.WINDOW_NORMAL)
         cv2.resizeWindow(winName, windowSize[0],windowSize[1])
 
@@ -203,6 +203,9 @@ while(True):
         cv2.putText(frame, str(outputPeopleCount), (200, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0))
 
         cv2.imshow(winName,frame)
+
+        if processingTime > 0:
+            time.sleep(processingTime)
 
         # q key to exit.
         if cv2.waitKey(1) & 0xFF == ord('q'):
