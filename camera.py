@@ -1,3 +1,4 @@
+# Import
 import numpy as np
 import cv2
 import datetime
@@ -13,15 +14,29 @@ outputPeopleCount = 0
 windowSize = [896,504]
 processingTime = 1
 winName = 'Object Detection App v0.2'
+targetClassId = 0
 
 # TCP Socket Connections
+feedName = 'Camera1'
 socketHost = '192.168.1.123'
 socketPort = 5500
 
 # Modules
 mod_ClockOn = 1
-mod_RemoteSend = 1
+mod_RemoteSend = 0
 mod_OutputWindow = 1
+
+# Print Intro Messages
+print('Object Detection App')
+if feedName != '':
+    print('Working on:',feedName)
+else:
+    print('Working on unknown source.')
+
+if processingTime > 0:
+    print('Processing wait time is set to',processingTime,'seconds.')
+else:
+    print('Processing wait time is disabled.')
 
 # Remote Send
 if mod_RemoteSend == 1:
@@ -66,17 +81,15 @@ def getOutputsNames(net):
 # Send TCP People Count to Server
 def sendOutputPeople(outputPeopleCount):
     message = str(outputPeopleCount)
-    # print(message)
     sock.sendall(bytes(message, encoding='utf-8'))
-    # time.sleep(1) # delays for 1 seconds
 
 # Draw the predicted bounding box
-def drawPred(classId, conf, left, top, right, bottom):
+def drawPred(classId, targetClassId, conf, left, top, right, bottom):
     # Draw a bounding box.
     color = [255,178,50,0]
     cv2.rectangle(frame, (left, top), (right, bottom), (color[0],color[1],color[2]), 2)
     # Looks for people
-    if classId == 0:
+    if classId == targetClassId:
         # Lower Confidence
         if conf < 0.7:
             # Orange
@@ -110,7 +123,7 @@ def peopleCounter(peopleCount, objectCount):
         if mod_RemoteSend == 1:
             sendOutputPeople(peopleCount)
     else:
-        print("No People Detected!")
+        print("No Targets Detected!")
 
         if mod_RemoteSend == 1:
             sendOutputPeople(peopleCount)
@@ -155,9 +168,9 @@ def postprocess(frame, outs):
                 currentDT = datetime.datetime.now()
 
                 # Look for people
-                if classId == 0:
+                if classId == targetClassId:
                     peopleCount = peopleCount + 1
-                else:
+                elif classId != targetClassId:
                     objectCount = objectCount + 1
 
     peopleCounter(peopleCount, objectCount)
@@ -173,7 +186,7 @@ def postprocess(frame, outs):
         top = box[1]
         width = box[2]
         height = box[3]
-        drawPred(classIds[i], confidences[i], left, top, left + width, top + height)
+        drawPred(classIds[i], targetClassId, confidences[i], left, top, left + width, top + height)
 
 while(True):
     currentDT = datetime.datetime.now()
