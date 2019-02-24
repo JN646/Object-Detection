@@ -18,7 +18,7 @@ socketPort = 5000
 
 # Modules
 mod_ClockOn = 1
-mod_RemoteSend = 0
+mod_RemoteSend = 1
 
 # Remote Send
 if mod_RemoteSend == 1:
@@ -57,6 +57,13 @@ def getOutputsNames(net):
     layersNames = net.getLayerNames()
     return [layersNames[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
+# Send TCP People Count to Server
+def sendOutputPeople(outputPeopleCount):
+    message = str(outputPeopleCount)
+    # print(message)
+    sock.sendall(bytes(message, encoding='utf-8'))
+    # time.sleep(1) # delays for 1 seconds
+
 # Draw the predicted bounding box
 def drawPred(classId, conf, left, top, right, bottom):
     # Draw a bounding box.
@@ -93,8 +100,14 @@ def peopleCounter(peopleCount, objectCount):
     # Output People Count combined with total count.
     if peopleCount > 0:
         print("Object Count: ",currentDT.strftime("%X"),peopleCount,"/",objectCount,("#" * peopleCount))
+
+        if mod_RemoteSend == 1:
+            sendOutputPeople(peopleCount)
     else:
         print("No People Detected!")
+
+        if mod_RemoteSend == 1:
+            sendOutputPeople(peopleCount)
 
 # Remove the bounding boxes with low confidence using non-maxima suppression
 def postprocess(frame, outs):
@@ -185,6 +198,19 @@ while(True):
     cv2.putText(frame, str(outputPeopleCount), (200, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0))
 
     cv2.imshow(winName,frame)
+
+
+    # if mod_RemoteSend == 1:
+    #     try:
+    #         while True:
+    #           message = b'STATUS [OK]'
+    #           # print('sending {!r}'.format(message))
+    #           # sock.sendall(message)
+    #           # time.sleep(1) # delays for 1 seconds
+    #
+    #     finally:
+    #         print('closing socket')
+    #         sock.close()
 
     # q key to exit.
     if cv2.waitKey(1) & 0xFF == ord('q'):
