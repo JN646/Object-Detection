@@ -18,7 +18,8 @@ socketPort = 5000
 
 # Modules
 mod_ClockOn = 1
-mod_RemoteSend = 1
+mod_RemoteSend = 0
+mod_OutputWindow = 1
 
 # Remote Send
 if mod_RemoteSend == 1:
@@ -32,6 +33,9 @@ if mod_RemoteSend == 1:
     sock.connect(server_address)
 else:
     print('Module: Remote send module disabled.')
+
+if mod_OutputWindow == 0:
+    print('Module: Output window module disabled.')
 
 # Get Camera Footage
 cap = cv2.VideoCapture(0)
@@ -186,35 +190,25 @@ while(True):
     # Remove the bounding boxes with low confidence
     postprocess(frame, outs)
 
-    # Render Window
-    winName = 'Object Detection Demo v0.2'
+    if mod_OutputWindow == 1:
+        # Render Window
+        winName = 'Object Detection Demo v0.2'
 
-    cv2.namedWindow(winName, cv2.WINDOW_NORMAL)
-    cv2.resizeWindow(winName, windowSize[0],windowSize[1])
+        cv2.namedWindow(winName, cv2.WINDOW_NORMAL)
+        cv2.resizeWindow(winName, windowSize[0],windowSize[1])
 
-    if mod_ClockOn == 1:
-        cv2.putText(frame, currentDT.strftime("%X"), (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255))
+        if mod_ClockOn == 1:
+            cv2.putText(frame, currentDT.strftime("%X"), (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255))
 
-    cv2.putText(frame, str(outputPeopleCount), (200, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0))
+        cv2.putText(frame, str(outputPeopleCount), (200, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0))
 
-    cv2.imshow(winName,frame)
+        cv2.imshow(winName,frame)
 
-
-    # if mod_RemoteSend == 1:
-    #     try:
-    #         while True:
-    #           message = b'STATUS [OK]'
-    #           # print('sending {!r}'.format(message))
-    #           # sock.sendall(message)
-    #           # time.sleep(1) # delays for 1 seconds
-    #
-    #     finally:
-    #         print('closing socket')
-    #         sock.close()
-
-    # q key to exit.
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+        # q key to exit.
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
 cap.release()
-cv2.destroyAllWindows()
+
+if mod_OutputWindow == 1:
+    cv2.destroyAllWindows()
