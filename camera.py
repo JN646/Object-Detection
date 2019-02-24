@@ -1,18 +1,37 @@
 import numpy as np
 import cv2
 import datetime
+import socket
+import sys
+import time
 
 # Initialise the parameters
 confThreshold = 0.5  # Confidence threshold
 nmsThreshold = 0.4   # Non-maximum suppression threshold
 inpSize = [416,416]  # Width and Height of network's input image
-# inpWidth = 416       # Width of network's input image
-# inpHeight = 416      # Height of network's input image
 outputPeopleCount = 0
 windowSize = [896,504]
 
+# TCP Socket Connections
+socketHost = '192.168.1.123'
+socketPort = 5000
+
 # Modules
-mod_ClockOn = 1;
+mod_ClockOn = 1
+mod_RemoteSend = 0
+
+# Remote Send
+if mod_RemoteSend == 1:
+    # Create a TCP/IP socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # Connect the socket to the port where the server is listening
+    server_address = (socketHost, socketPort)
+    print('connecting to {} port {}'.format(*server_address))
+
+    sock.connect(server_address)
+else:
+    print('Module: Remote send module disabled.')
 
 # Get Camera Footage
 cap = cv2.VideoCapture(0)
@@ -167,6 +186,7 @@ while(True):
 
     cv2.imshow(winName,frame)
 
+    # q key to exit.
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
