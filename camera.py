@@ -1,16 +1,16 @@
 # Import
-import numpy as np
-import cv2
-import datetime
-import socket
-import sys
-import time
-from colorama import Fore, Back, Style
+import numpy as np                      # Include numpy
+import cv2                              # Include OpenCV 4
+import datetime                         # Include date and time
+import socket                           # Include Socket.IO
+import sys                              # Include System
+import time                             # Include Time package
+from colorama import Fore, Back, Style  # Include terminal colours.
 
 # Initialise the parameters
-confThreshold = 0.5  # Confidence threshold
-nmsThreshold = 0.4   # Non-maximum suppression threshold
-inpSize = [416,416]  # Width and Height of network's input image
+confThreshold = 0.5  # Confidence threshold.
+nmsThreshold = 0.4   # Non-maximum suppression threshold.
+inpSize = [416,416]  # Width and Height of network's input image.
 outputPeopleCount = 0
 windowSize = [896,504]
 processingTime = 1
@@ -96,15 +96,13 @@ def drawPred(classId, targetClassId, conf, left, top, right, bottom):
     if classId == targetClassId:
         # Lower Confidence
         if conf < 0.7:
-            # Orange
-            color = [51,255,255,0]
+            color = [51,255,255,0] # Orange
             cv2.rectangle(frame, (left, top), (right, bottom), (color[0],color[1],color[2]), 2)
         else:
-            # Green
-            color = [0,255,0,0]
+            color = [0,255,0,0] # Green
             cv2.rectangle(frame, (left, top), (right, bottom), (color[0],color[1],color[2]), 2)
     else:
-        color = [255,0,0,255]
+        color = [255,0,0,255] # Blue
         cv2.rectangle(frame, (left, top), (right, bottom), (color[0],color[1],color[2]), 2)
     label = '%.2f' % conf
 
@@ -124,28 +122,24 @@ def peopleCounter(peopleCount, objectCount):
     if peopleCount > 0:
         print(Fore.GREEN + "Object Count: ",currentDT.strftime("%X"),peopleCount,"/",objectCount,("#" * peopleCount))
 
+        # Send count over TCP if remote send is active.
         if mod_RemoteSend == 1:
             sendOutputPeople(peopleCount)
     else:
         print(Fore.YELLOW + "No Targets Detected!")
 
+        # Send count over TCP if remote send is active.
         if mod_RemoteSend == 1:
             sendOutputPeople(peopleCount)
 
 # Remove the bounding boxes with low confidence using non-maxima suppression
 def postprocess(frame, outs):
+    # Define variables.
     global outputPeopleCount
-
     frameHeight = frame.shape[0]
     frameWidth = frame.shape[1]
 
-    # Arrays
-    classIds = []
-    confidences = []
-    boxes = []
-
-    # Scan through all the bounding boxes output from the network and keep only the
-    # ones with high confidence scores.
+    # Scan through all the bounding boxes output from the network and keep only the ones with high confidence scores.
     # Assign the box's class label as the class with the highest score.
     classIds = []
     confidences = []
