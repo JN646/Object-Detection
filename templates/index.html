@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Object Detection Output</title>
+  <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+  <script src="static/js/application.js"></script>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <style media="screen">
+    .feedBlock {
+      min-height: 200px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid">
+    <div class="jumbotron text-center">
+      <h1 class='display-4'>Welcome to the event!</h1>
+      <h1 class='lead'>Count the people</h1>
+    </div>
+    <div class='col-md-12'>
+      <div class='row'>
+        <!-- Count Block -->
+        <div class='col'>
+          <div class='col-md-12 border p-3 feedBlock'>
+            <h2 class='text-center'>Room 1</h2>
+            <div id="log" class='display-4 text-center'>
+            </div>
+          </div>
+        </div>
+
+        <!-- Count BLock -->
+        <div class='col'>
+          <div class='col-md-12 border p-3 feedBlock'>
+            <h2 class='text-center'>Room 2</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
