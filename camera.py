@@ -223,6 +223,7 @@ while(True):
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
+# Release the camera feed.
 cap.release()
 
 if mod_OutputWindow == 1:
