@@ -5,6 +5,7 @@ import datetime
 import socket
 import sys
 import time
+from colorama import Fore, Back, Style
 
 # Initialise the parameters
 confThreshold = 0.5  # Confidence threshold
@@ -29,14 +30,14 @@ mod_OutputWindow = 1
 # Print Intro Messages
 print('Object Detection App')
 if feedName != '':
-    print('Working on:',feedName)
+    print(Fore.GREEN + 'Working on:',feedName)
 else:
-    print('Working on unknown source.')
+    print(Fore.RED + 'Working on unknown source.')
 
 if processingTime > 0:
-    print('Processing wait time is set to',processingTime,'seconds.')
+    print(Fore.GREEN + 'Processing wait time is set to',processingTime,'seconds.')
 else:
-    print('Processing wait time is disabled.')
+    print(Fore.YELLOW + 'Processing wait time is disabled.')
 
 # Remote Send
 if mod_RemoteSend == 1:
@@ -45,14 +46,14 @@ if mod_RemoteSend == 1:
 
     # Connect the socket to the port where the server is listening
     server_address = (socketHost, socketPort)
-    print('connecting to {} port {}'.format(*server_address))
+    print(Fore.GREEN + 'connecting to {} port {}'.format(*server_address))
 
     sock.connect(server_address)
 else:
-    print('Module: Remote send module disabled.')
+    print(Fore.YELLOW + 'Module: Remote send module disabled.')
 
 if mod_OutputWindow == 0:
-    print('Module: Output window module disabled.')
+    print(Fore.YELLOW + 'Module: Output window module disabled.')
 
 # Get Camera Footage
 cap = cv2.VideoCapture(0)
@@ -80,8 +81,11 @@ def getOutputsNames(net):
 
 # Send TCP People Count to Server
 def sendOutputPeople(outputPeopleCount):
-    message = str(outputPeopleCount)
-    sock.sendall(bytes(message, encoding='utf-8'))
+    if outputPeopleCount >= 0:
+        message = str(outputPeopleCount)
+        sock.sendall(bytes(message, encoding='utf-8'))
+    else:
+        outputPeopleCount = 0
 
 # Draw the predicted bounding box
 def drawPred(classId, targetClassId, conf, left, top, right, bottom):
@@ -118,12 +122,12 @@ def drawPred(classId, targetClassId, conf, left, top, right, bottom):
 def peopleCounter(peopleCount, objectCount):
     # Output People Count combined with total count.
     if peopleCount > 0:
-        print("Object Count: ",currentDT.strftime("%X"),peopleCount,"/",objectCount,("#" * peopleCount))
+        print(Fore.GREEN + "Object Count: ",currentDT.strftime("%X"),peopleCount,"/",objectCount,("#" * peopleCount))
 
         if mod_RemoteSend == 1:
             sendOutputPeople(peopleCount)
     else:
-        print("No Targets Detected!")
+        print(Fore.YELLOW + "No Targets Detected!")
 
         if mod_RemoteSend == 1:
             sendOutputPeople(peopleCount)
@@ -173,6 +177,7 @@ def postprocess(frame, outs):
                 elif classId != targetClassId:
                     objectCount = objectCount + 1
 
+    # Output Counter
     peopleCounter(peopleCount, objectCount)
     outputPeopleCount = peopleCount
 
