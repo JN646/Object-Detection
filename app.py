@@ -1,11 +1,22 @@
-# Start with a basic flask app webpage.
+# ==============================================================================
+# Project:      Object Detection Application
+# File name:    app.py
+# Author:       JGinn DAlexander
+# Year:         2019
+# ==============================================================================
+
+# ==============================================================================
+# Imports
+# ==============================================================================
 from flask_socketio import SocketIO, emit
 from flask import Flask, render_template, url_for, copy_current_request_context
 from random import random
 from time import sleep
 from threading import Thread, Event
-import camera
 
+# ==============================================================================
+# Define Flask App
+# ==============================================================================
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 app.config['DEBUG'] = True
@@ -32,11 +43,17 @@ class RandomThread(Thread):
     def run(self):
         self.randomNumberGenerator()
 
+# ==============================================================================
+# Routing
+# ==============================================================================
 @app.route('/')
 def index():
     #only by sending this page first will the client be connected to the socketio instance
     return render_template('index.html')
 
+# ==============================================================================
+# Socket Connect
+# ==============================================================================
 @socketio.on('connect', namespace='/test')
 def test_connect():
     # need visibility of the global thread object
@@ -50,8 +67,15 @@ def test_connect():
         thread.start()
 
 @socketio.on('disconnect', namespace='/test')
+
+# ==============================================================================
+# Socket Disconnect
+# ==============================================================================
 def test_disconnect():
     print('Client disconnected')
 
+# ==============================================================================
+# Main Routine
+# ==============================================================================
 if __name__ == '__main__':
     socketio.run(app)

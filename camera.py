@@ -22,11 +22,11 @@ from colorama import Fore, Back, Style  # Include terminal colours.
 confThreshold = 0.5         # Confidence threshold.
 nmsThreshold = 0.4          # Non-maximum suppression threshold.
 inpSize = [416,416]         # Width and Height of network's input image.
-outputTargetCount = 0
-windowSize = [896,504]
-processingTime = 0
-winName = 'Object Detection App v0.2'
-targetClassId = 0
+outputTargetCount = 0       # Initial Target Count.
+windowSize = [896,504]      # Window Size.
+processingTime = 0          # Processing delay time.
+winName = 'ODAv02'          # Application window name.
+targetClassId = 0           # Target object class.
 
 # TCP Socket Connections
 feedName = 'Camera1'
@@ -34,56 +34,10 @@ socketHost = '192.168.1.123'
 socketPort = 5500
 
 # Modules
-mod_ClockOn = 1
-mod_RemoteSend = 0
-mod_OutputWindow = 1
-
-# Print Intro Messages
-print('Object Detection App')
-if feedName != '':
-    print(Fore.GREEN + 'Working on:',feedName)
-else:
-    print(Fore.RED + 'Working on unknown source.')
-
-if processingTime > 0:
-    print(Fore.GREEN + 'Processing wait time is set to',processingTime,'seconds.')
-else:
-    print(Fore.YELLOW + 'Processing wait time is disabled.')
-
-# Remote Send
-if mod_RemoteSend == 1:
-    # Create a TCP/IP socket
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    # Connect the socket to the port where the server is listening
-    server_address = (socketHost, socketPort)
-    print(Fore.GREEN + 'connecting to {} port {}'.format(*server_address))
-
-    sock.connect(server_address)
-else:
-    print(Fore.YELLOW + 'Module: Remote send module disabled.')
-
-if mod_OutputWindow == 0:
-    print(Fore.YELLOW + 'Module: Output window module disabled.')
-
-# Get Camera Footage
-cap = cv2.VideoCapture(0)
-cap.set(cv2.CAP_PROP_FPS, 60)
-
-# Load names of classes
-classesFile = "network/coco.names";
-classes = None
-with open(classesFile, 'rt') as f:
-    classes = f.read().rstrip('\n').split('\n')
-
-# Give the configuration and weight files for the model and load the network using them.
-modelConfiguration = "network/yolov3.cfg";
-modelWeights = "network/yolov3.weights";
-
-# Configure the network
-net = cv2.dnn.readNetFromDarknet(modelConfiguration, modelWeights)
-net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
-net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
+mod_ClockOn = 1             # GUI Clock.
+mod_TargetCount = 1         # GUI Target count.
+mod_RemoteSend = 0          # Send count through sockets.
+mod_OutputWindow = 1        # GUI Window.
 
 # ==============================================================================
 # Get Output Names
@@ -96,11 +50,8 @@ def getOutputsNames(net):
 # Send Count to TCP Server
 # ==============================================================================
 def sendOutputTarget(outputTargetCount):
-    if outputTargetCount >= 0:
-        message = str(outputTargetCount)
-        sock.sendall(bytes(message, encoding='utf-8'))
-    else:
-        outputTargetCount = 0
+    message = str(outputTargetCount)
+    sock.sendall(bytes(message, encoding='utf-8'))
 
 # ==============================================================================
 # Draw Predicted Bounding Box
@@ -196,7 +147,12 @@ def postprocess(frame, outs):
 
     # Output Counter
     targetCounter(targetCount, objectCount)
-    outputTargetCount = targetCount
+
+    # Set output target count.
+    if outputTargetCount >= 0:
+        outputTargetCount = targetCount
+    else:
+        outputTargetCount = 0
 
     # Perform non maximum suppression to eliminate redundant overlapping boxes with
     # lower confidences.
@@ -212,6 +168,58 @@ def postprocess(frame, outs):
 
 # ==============================================================================
 # Main Sequence
+# ==============================================================================
+# Print Intro Messages
+print('# ============================= #')
+print('# Object Detection App          #')
+print('# v0.2 - 2019                   #')
+print('# ============================= #')
+if feedName != '':
+    print(Fore.GREEN + 'Working on:',feedName)
+else:
+    print(Fore.RED + 'Working on unknown source.')
+
+if processingTime > 0:
+    print(Fore.GREEN + 'Processing wait time is set to',processingTime,'seconds.')
+else:
+    print(Fore.YELLOW + 'Processing wait time is disabled.')
+
+# Remote Send
+if mod_RemoteSend == 1:
+    # Create a TCP/IP socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # Connect the socket to the port where the server is listening
+    server_address = (socketHost, socketPort)
+    print(Fore.GREEN + 'connecting to {} port {}'.format(*server_address))
+
+    sock.connect(server_address)
+else:
+    print(Fore.YELLOW + 'Module: Remote send module disabled.')
+
+if mod_OutputWindow == 0:
+    print(Fore.YELLOW + 'Module: Output window module disabled.')
+
+# Get Camera Footage
+cap = cv2.VideoCapture(0)
+
+# Load names of classes
+classesFile = "network/coco.names";
+classes = None
+with open(classesFile, 'rt') as f:
+    classes = f.read().rstrip('\n').split('\n')
+
+# Give the configuration and weight files for the model and load the network using them.
+modelConfiguration = "network/yolov3.cfg";
+modelWeights = "network/yolov3.weights";
+
+# Configure the network
+net = cv2.dnn.readNetFromDarknet(modelConfiguration, modelWeights)
+net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
+net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
+
+# ==============================================================================
+# Main Loop
 # ==============================================================================
 while(True):
     # Get current date and time.
@@ -240,10 +248,11 @@ while(True):
 
         # Display the clock.
         if mod_ClockOn == 1:
-            cv2.putText(frame, currentDT.strftime("%X"), (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255))
+            cv2.putText(frame, currentDT.strftime("%X"), (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
 
         # Display the target object count.
-        cv2.putText(frame, str(outputTargetCount), (200, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0))
+        if mod_TargetCount == 1:
+            cv2.putText(frame, str(outputTargetCount), (200, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0))
 
         # Show the window
         cv2.imshow(winName,frame)
