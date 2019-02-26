@@ -1,4 +1,13 @@
-# Import
+# ==============================================================================
+# Project:      Object Detection Application
+# File name:    camera.py
+# Author:       JGinn DAlexander
+# Year:         2019
+# ==============================================================================
+
+# ==============================================================================
+# Imports
+# ==============================================================================
 import numpy as np                      # Include numpy
 import cv2                              # Include OpenCV 4
 import datetime                         # Include date and time
@@ -7,13 +16,15 @@ import sys                              # Include System
 import time                             # Include Time package
 from colorama import Fore, Back, Style  # Include terminal colours.
 
+# ==============================================================================
 # Initialise the parameters
-confThreshold = 0.5  # Confidence threshold.
-nmsThreshold = 0.4   # Non-maximum suppression threshold.
-inpSize = [416,416]  # Width and Height of network's input image.
-outputPeopleCount = 0
+# ==============================================================================
+confThreshold = 0.5         # Confidence threshold.
+nmsThreshold = 0.4          # Non-maximum suppression threshold.
+inpSize = [416,416]         # Width and Height of network's input image.
+outputTargetCount = 0
 windowSize = [896,504]
-processingTime = 1
+processingTime = 0
 winName = 'Object Detection App v0.2'
 targetClassId = 0
 
@@ -74,25 +85,31 @@ net = cv2.dnn.readNetFromDarknet(modelConfiguration, modelWeights)
 net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
 net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
 
-# Get the names of the output layers
+# ==============================================================================
+# Get Output Names
+# ==============================================================================
 def getOutputsNames(net):
     layersNames = net.getLayerNames()
     return [layersNames[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
-# Send TCP People Count to Server
-def sendOutputPeople(outputPeopleCount):
-    if outputPeopleCount >= 0:
-        message = str(outputPeopleCount)
+# ==============================================================================
+# Send Count to TCP Server
+# ==============================================================================
+def sendOutputTarget(outputTargetCount):
+    if outputTargetCount >= 0:
+        message = str(outputTargetCount)
         sock.sendall(bytes(message, encoding='utf-8'))
     else:
-        outputPeopleCount = 0
+        outputTargetCount = 0
 
-# Draw the predicted bounding box
+# ==============================================================================
+# Draw Predicted Bounding Box
+# ==============================================================================
 def drawPred(classId, targetClassId, conf, left, top, right, bottom):
     # Draw a bounding box.
     color = [255,178,50,0]
     cv2.rectangle(frame, (left, top), (right, bottom), (color[0],color[1],color[2]), 2)
-    # Looks for people
+    # Looks for target object.
     if classId == targetClassId:
         # Lower Confidence
         if conf < 0.7:
@@ -117,25 +134,31 @@ def drawPred(classId, targetClassId, conf, left, top, right, bottom):
     cv2.rectangle(frame, (left, top - round(1.5*labelSize[1])), (left + round(1*labelSize[0]), top + baseLine), (color[0],color[1],color[2]), cv2.FILLED)
     cv2.putText(frame, label, (left, top), cv2.FONT_HERSHEY_SIMPLEX, 0.50, (color[3],color[3],color[3]), 1)
 
-def peopleCounter(peopleCount, objectCount):
+# ==============================================================================
+# Target Object Counter
+# ==============================================================================
+def targetCounter(targetCount, objectCount):
     # Output People Count combined with total count.
-    if peopleCount > 0:
-        print(Fore.GREEN + "Object Count: ",currentDT.strftime("%X"),peopleCount,"/",objectCount,("#" * peopleCount))
+    if targetCount > 0:
+        print(Fore.GREEN + "Object Count: ",currentDT.strftime("%X"),targetCount,"/",objectCount,("#" * targetCount))
 
         # Send count over TCP if remote send is active.
         if mod_RemoteSend == 1:
-            sendOutputPeople(peopleCount)
+            sendOutputTarget(targetCount)
     else:
         print(Fore.YELLOW + "No Targets Detected!")
 
         # Send count over TCP if remote send is active.
         if mod_RemoteSend == 1:
-            sendOutputPeople(peopleCount)
+            sendOutputTarget(targetCount)
 
+# ==============================================================================
+# Post Process
+# ==============================================================================
 # Remove the bounding boxes with low confidence using non-maxima suppression
 def postprocess(frame, outs):
     # Define variables.
-    global outputPeopleCount
+    global outputTargetCount
     frameHeight = frame.shape[0]
     frameWidth = frame.shape[1]
 
@@ -144,7 +167,7 @@ def postprocess(frame, outs):
     classIds = []
     confidences = []
     boxes = []
-    peopleCount = 0
+    targetCount = 0
     objectCount = 0
 
     for out in outs:
@@ -167,13 +190,13 @@ def postprocess(frame, outs):
 
                 # Look for people
                 if classId == targetClassId:
-                    peopleCount = peopleCount + 1
+                    targetCount = targetCount + 1
                 elif classId != targetClassId:
                     objectCount = objectCount + 1
 
     # Output Counter
-    peopleCounter(peopleCount, objectCount)
-    outputPeopleCount = peopleCount
+    targetCounter(targetCount, objectCount)
+    outputTargetCount = targetCount
 
     # Perform non maximum suppression to eliminate redundant overlapping boxes with
     # lower confidences.
@@ -187,9 +210,14 @@ def postprocess(frame, outs):
         height = box[3]
         drawPred(classIds[i], targetClassId, confidences[i], left, top, left + width, top + height)
 
+# ==============================================================================
+# Main Sequence
+# ==============================================================================
 while(True):
+    # Get current date and time.
     currentDT = datetime.datetime.now()
 
+    # Read the camera feed.
     ret, frame = cap.read()
 
     # Create a 4D blob from a frame.
@@ -204,18 +232,23 @@ while(True):
     # Remove the bounding boxes with low confidence
     postprocess(frame, outs)
 
+    # If OutputWindow is Active.
     if mod_OutputWindow == 1:
         # Render Window
         cv2.namedWindow(winName, cv2.WINDOW_NORMAL)
         cv2.resizeWindow(winName, windowSize[0],windowSize[1])
 
+        # Display the clock.
         if mod_ClockOn == 1:
             cv2.putText(frame, currentDT.strftime("%X"), (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255))
 
-        cv2.putText(frame, str(outputPeopleCount), (200, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0))
+        # Display the target object count.
+        cv2.putText(frame, str(outputTargetCount), (200, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0))
 
+        # Show the window
         cv2.imshow(winName,frame)
 
+        # Pause the application if the processing time if more than 0
         if processingTime > 0:
             time.sleep(processingTime)
 
@@ -223,8 +256,12 @@ while(True):
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
+# ==============================================================================
+# Closing Remarks
+# ==============================================================================
 # Release the camera feed.
 cap.release()
 
+# Destroy all windows.
 if mod_OutputWindow == 1:
     cv2.destroyAllWindows()
