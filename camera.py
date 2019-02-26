@@ -40,6 +40,14 @@ mod_RemoteSend = 0          # Send count through sockets.
 mod_OutputWindow = 1        # GUI Window.
 
 # ==============================================================================
+# Script Failure
+# ==============================================================================
+def fatalError():
+    print(Fore.RED + 'FATAL: Cannot recover, terminating script!')
+    time.sleep(3)
+    sys.exit()
+
+# ==============================================================================
 # Get Output Names
 # ==============================================================================
 def getOutputsNames(net):
@@ -170,35 +178,45 @@ def postprocess(frame, outs):
 # Main Sequence
 # ==============================================================================
 # Print Intro Messages
-print('# ============================= #')
-print('# Object Detection App          #')
-print('# v0.2 - 2019                   #')
-print('# ============================= #')
-if feedName != '':
-    print(Fore.GREEN + 'Working on:',feedName)
-else:
-    print(Fore.RED + 'Working on unknown source.')
+print(Fore.WHITE + '# ============================= #')
+print(Fore.WHITE + '# Object Detection App          #')
+print(Fore.WHITE + '# v0.2 - 2019                   #')
+print(Fore.WHITE + '# ============================= #')
+
+# Wait for key press
+input(Fore.WHITE + 'Press enter to continue: ')
+
+# Notification
+if feedName:
+    if feedName != '':
+        print(Fore.GREEN + 'Working on:',feedName)
+    else:
+        print(Fore.RED + 'Working on unknown source. [DANGER]')
+        fatalError()
 
 if processingTime > 0:
-    print(Fore.GREEN + 'Processing wait time is set to',processingTime,'seconds.')
+    print(Fore.GREEN + 'Processing wait time is set to',processingTime,'seconds. [OK]')
 else:
-    print(Fore.YELLOW + 'Processing wait time is disabled.')
+    print(Fore.YELLOW + 'Processing wait time is disabled. [INFO]')
 
 # Remote Send
 if mod_RemoteSend == 1:
     # Create a TCP/IP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
     # Connect the socket to the port where the server is listening
     server_address = (socketHost, socketPort)
     print(Fore.GREEN + 'connecting to {} port {}'.format(*server_address))
-
+    # Connect to server.
     sock.connect(server_address)
 else:
-    print(Fore.YELLOW + 'Module: Remote send module disabled.')
+    print(Fore.YELLOW + 'Module: Remote send module disabled. [INFO]')
 
+# GUI Window
 if mod_OutputWindow == 0:
-    print(Fore.YELLOW + 'Module: Output window module disabled.')
+    print(Fore.YELLOW + 'Module: Output window module disabled. [INFO]')
+
+# Wait for key press
+input(Fore.WHITE + 'Press enter to continue: ')
 
 # Get Camera Footage
 cap = cv2.VideoCapture(0)
