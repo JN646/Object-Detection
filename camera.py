@@ -80,6 +80,7 @@ def drawPred(classId, targetClassId, conf, left, top, right, bottom):
     else:
         color = [255,0,0,255] # Blue
         cv2.rectangle(frame, (left, top), (right, bottom), (color[0],color[1],color[2]), 2)
+
     label = '%.2f' % conf
 
     # Get the label for the class name and its confidence
