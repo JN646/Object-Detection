@@ -37,8 +37,18 @@ socketPort = 5500
 # Modules
 mod_ClockOn = 1             # GUI Clock.
 mod_TargetCount = 1         # GUI Target count.
-mod_RemoteSend = 0         # Send count through sockets.
+mod_RemoteSend = 0          # Send count through sockets.
 mod_OutputWindow = 1        # GUI Window.
+mod_OutputFile = 1          # Output to a file.
+
+# ==============================================================================
+# Output to file
+# ==============================================================================
+def outputToFile():
+    if mod_OutputFile == 1:
+        with open('file.txt', 'a') as file:
+            outputString = str(currentDT) + ',' + str(feedName) + ',' + str(outputTargetCount) + '\n'
+            file.write(str(outputString))
 
 # ==============================================================================
 # Script Failure
@@ -222,6 +232,12 @@ else:
 if mod_OutputWindow == 0:
     print(Fore.YELLOW + 'Module: Output window module disabled. [INFO]')
 
+# Output to file.
+if mod_OutputFile == 0:
+    print(Fore.YELLOW + 'Module: Output to file module disabled. [INFO]')
+else:
+    print(Fore.GREEN + 'Module: Output to file module enabled. [OK]')
+
 # Wait for key press
 input(Fore.WHITE + 'Press enter to continue: ')
 
@@ -265,12 +281,8 @@ while(True):
     # Remove the bounding boxes with low confidence
     postprocess(frame, outs)
 
-    # f = open("outputFile.txt","w+")
-    # f.write("Object Count: %d\r\n" % (outputTargetCount))
-
-    with open('file.txt', 'a') as file:
-        outputString = str(currentDT) + ',' + str(feedName) + ',' + str(outputTargetCount) + '\n'
-        file.write(str(outputString))
+    # Output to file
+    outputToFile()
 
     # If OutputWindow is Active.
     if mod_OutputWindow == 1:
@@ -302,7 +314,10 @@ while(True):
 # ==============================================================================
 # Release the camera feed.
 cap.release()
-f.close()
+
+# Close the write to file if Output mode is on.
+if mod_OutputFile == 1:
+    f.close()
 
 # Destroy all windows.
 if mod_OutputWindow == 1:
