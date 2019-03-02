@@ -14,6 +14,7 @@ import datetime                         # Include date and time
 import socket                           # Include Socket.IO
 import sys                              # Include System
 import time                             # Include Time package
+import os.path                          # Path file tools
 import scn_PeopleCount as scenario      # Load Scenario File
 from colorama import Fore, Back, Style  # Include terminal colours
 
@@ -34,6 +35,7 @@ videoCameraInputSource = 'run.mp4'  # Video camera input source.
 modelName = 'YOLOv3'
 modelConfiguration = 'network/yolov3.cfg'
 modelWeights = 'network/yolov3.weights'
+classesFile = "network/coco.names";
 
 # TCP Socket Connections
 feedName = 'Camera1'
@@ -49,12 +51,37 @@ mod_TargetCount = 1         # GUI Target count.
 mod_RemoteSend = 0          # Send count through sockets.
 mod_OutputWindow = 1        # GUI Window.
 mod_OutputFile = 1          # Output to a file.
+mod_terminalCount = 0       # Terminal count display.
+
+# ==============================================================================
+# Output Screenshot
+# ==============================================================================
+def outputScreenshot():
+    # Get the current frame.
+    print(Fore.GREEN + 'Outputting Screengrab. [OK]')
+    success,image = cap.read()
+
+    # Set filename and path.
+    fileName = '{0:%y%m%d-%H%M%S}'.format(datetime.datetime.now()) + "_grab"
+    path = "grabs/"
+
+    # If file created successfully.
+    if success:
+        cv2.imwrite(path + fileName + ".jpg", image)     # save frame as JPEG file
+        print(Fore.GREEN + 'File created. [OK]')
+    else:
+        print(Fore.RED + 'File not created. [DANGER]')
 
 # ==============================================================================
 # Output to file
 # ==============================================================================
 def outputToFile():
     if mod_OutputFile == 1:
+        # Check to see if the name is blank, create a file if it is.
+        # if outputToFileName != '':
+        #     outputToFileName = 'OutputFile.txt'
+
+        # Write to the file.
         with open(outputToFileName, 'a') as file:
             outputString = str(currentDT) + ',' + str(feedName) + ',' + str(outputTargetCount) + '\n'
             file.write(str(outputString))
@@ -78,6 +105,9 @@ def getOutputsNames(net):
 # Send Count to TCP Server
 # ==============================================================================
 def sendOutputTarget(outputTargetCount):
+    if outputTargetCount == '':
+        outputTargetCount = 0
+
     message = str(outputTargetCount)
     sock.sendall(bytes(message, encoding='utf-8'))
 
@@ -120,13 +150,15 @@ def drawPred(classId, targetClassId, conf, left, top, right, bottom):
 def targetCounter(targetCount, objectCount):
         # Output People Count combined with total count.
     if targetCount > 0:
-        print(Fore.GREEN + "Object Count: ",currentDT.strftime("%X"),targetCount,"/",objectCount,("#" * targetCount))
+        if mod_terminalCount == 1:
+            print(Fore.GREEN + "Object Count: ",currentDT.strftime("%X"),targetCount,"/",objectCount,("#" * targetCount))
 
         # Send count over TCP if remote send is active.
         if mod_RemoteSend == 1:
             sendOutputTarget(targetCount)
     else:
-        print(Fore.YELLOW + "No Targets Detected!")
+        if mod_terminalCount == 1:
+            print(Fore.YELLOW + "No Targets Detected!")
 
         # Send count over TCP if remote send is active.
         if mod_RemoteSend == 1:
@@ -201,7 +233,8 @@ def postprocess(frame, outs):
 # Print Intro Messages
 print(Fore.WHITE + '# ============================= #')
 print(Fore.WHITE + '# Object Detection App          #')
-print(Fore.WHITE + '# v0.2 - 2019                   #')
+print(Fore.WHITE + '# v0.2                          #')
+print(Fore.WHITE + '# 2019                          #')
 print(Fore.WHITE + '# ============================= #')
 
 # Wait for key press
@@ -223,19 +256,28 @@ if modelName:
         fatalError()
 
     if modelConfiguration != '':
-        print(Fore.GREEN + 'NETWORK: Configuration Loaded. [OK]')
+        if os.path.isfile(modelConfiguration):
+            print(Fore.GREEN + 'NETWORK: Configuration Loaded. [OK]')
+        else:
+            print(Fore.RED + 'NETWORK: Configuration file not found. [DANGER]')
     else:
         print(Fore.RED + 'NETWORK: No configuration specified. [DANGER]')
         fatalError()
 
     if modelWeights != '':
-        print(Fore.GREEN + 'NETWORK: Weights Loaded. [OK]')
+        if os.path.isfile(modelWeights):
+            print(Fore.GREEN + 'NETWORK: Weights Loaded. [OK]')
+        else:
+            print(Fore.RED + 'NETWORK: Weights file not found. [DANGER]')
     else:
         print(Fore.RED + 'NETWORK: No weights specified. [DANGER]')
         fatalError()
 
 if scenario.getScenarioName() != '':
-    print(Fore.GREEN + 'Scenario loaded: ' + scenario.getScenarioName() + ' [OK]')
+    if os.path.isfile(scenario.getScenarioName()):
+        print(Fore.GREEN + 'Scenario loaded: ' + scenario.getScenarioName() + ' [OK]')
+    else:
+        print(Fore.RED + 'Scenario file not found. [DANGER]')
 else:
     print(Fore.RED + 'No Scenario Found! [DANGER]')
 
@@ -277,14 +319,21 @@ input(Fore.WHITE + 'Press enter to continue: ')
 # Get Camera Footage
 cap = cv2.VideoCapture(videoCameraInputSource)
 
+if not cap.isOpened():
+    print(Fore.RED + 'Cannot open camera feed. [DANGER]')
+    exit()
+
 # ==============================================================================
 # Load Network and Label data
 # ==============================================================================
 # Load names of classes
-classesFile = "network/coco.names";
 classes = None
-with open(classesFile, 'rt') as f:
-    classes = f.read().rstrip('\n').split('\n')
+if os.path.exists(classesFile):
+    with open(classesFile, 'rt') as f:
+        classes = f.read().rstrip('\n').split('\n')
+else:
+    print(Fore.RED + 'NETWORK: No label file specified. [DANGER]')
+    fatalError()
 
 # Configure the network
 net = cv2.dnn.readNetFromDarknet(modelConfiguration, modelWeights)
@@ -336,6 +385,9 @@ while(True):
         # Pause the application if the processing time if more than 0
         if processingTime > 0:
             time.sleep(processingTime)
+
+        if cv2.waitKey(1) & 0xFF == ord('p'):
+            outputScreenshot() # Output Screenshot.
 
         # q key to exit.
         if cv2.waitKey(1) & 0xFF == ord('q'):
