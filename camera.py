@@ -14,7 +14,8 @@ import datetime                         # Include date and time
 import socket                           # Include Socket.IO
 import sys                              # Include System
 import time                             # Include Time package
-from colorama import Fore, Back, Style  # Include terminal colours.
+import scn_PeopleCount as scenario      # Load Scenario File
+from colorama import Fore, Back, Style  # Include terminal colours
 
 # ==============================================================================
 # Initialise the parameters
@@ -36,7 +37,7 @@ socketPort = 5500
 # Modules
 mod_ClockOn = 1             # GUI Clock.
 mod_TargetCount = 1         # GUI Target count.
-mod_RemoteSend = 0          # Send count through sockets.
+mod_RemoteSend = 0         # Send count through sockets.
 mod_OutputWindow = 1        # GUI Window.
 
 # ==============================================================================
@@ -98,7 +99,7 @@ def drawPred(classId, targetClassId, conf, left, top, right, bottom):
 # Target Object Counter
 # ==============================================================================
 def targetCounter(targetCount, objectCount):
-    # Output People Count combined with total count.
+        # Output People Count combined with total count.
     if targetCount > 0:
         print(Fore.GREEN + "Object Count: ",currentDT.strftime("%X"),targetCount,"/",objectCount,("#" * targetCount))
 
@@ -148,7 +149,7 @@ def postprocess(frame, outs):
 
                 currentDT = datetime.datetime.now()
 
-                # Look for people
+                # What to look for
                 if classId == targetClassId:
                     targetCount = targetCount + 1
                 elif classId != targetClassId:
@@ -194,6 +195,11 @@ if feedName:
     else:
         print(Fore.RED + 'Working on unknown source. [DANGER]')
         fatalError()
+
+if scenario.getScenarioName() != '':
+    print(Fore.GREEN + 'Scenario loaded: ' + scenario.getScenarioName() + ' [OK]')
+else:
+    print(Fore.RED + 'No Scenario Found! [DANGER]')
 
 if processingTime > 0:
     print(Fore.GREEN + 'Processing wait time is set to',processingTime,'seconds. [OK]')
@@ -259,6 +265,13 @@ while(True):
     # Remove the bounding boxes with low confidence
     postprocess(frame, outs)
 
+    # f = open("outputFile.txt","w+")
+    # f.write("Object Count: %d\r\n" % (outputTargetCount))
+
+    with open('file.txt', 'a') as file:
+        outputString = str(currentDT) + ',' + str(feedName) + ',' + str(outputTargetCount) + '\n'
+        file.write(str(outputString))
+
     # If OutputWindow is Active.
     if mod_OutputWindow == 1:
         # Render Window
@@ -289,6 +302,7 @@ while(True):
 # ==============================================================================
 # Release the camera feed.
 cap.release()
+f.close()
 
 # Destroy all windows.
 if mod_OutputWindow == 1:
