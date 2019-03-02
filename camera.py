@@ -28,11 +28,20 @@ windowSize = [896,504]      # Window Size.
 processingTime = 0          # Processing delay time.
 winName = 'ODAv02'          # Application window name.
 targetClassId = 0           # Target object class.
+videoCameraInputSource = 'run.mp4'  # Video camera input source.
+
+# Network Config
+modelName = 'YOLOv3'
+modelConfiguration = 'network/yolov3.cfg'
+modelWeights = 'network/yolov3.weights'
 
 # TCP Socket Connections
 feedName = 'Camera1'
 socketHost = '192.168.1.123'
 socketPort = 5500
+
+# Output to file
+outputToFileName = 'file.txt'
 
 # Modules
 mod_ClockOn = 1             # GUI Clock.
@@ -46,7 +55,7 @@ mod_OutputFile = 1          # Output to a file.
 # ==============================================================================
 def outputToFile():
     if mod_OutputFile == 1:
-        with open('file.txt', 'a') as file:
+        with open(outputToFileName, 'a') as file:
             outputString = str(currentDT) + ',' + str(feedName) + ',' + str(outputTargetCount) + '\n'
             file.write(str(outputString))
 
@@ -206,6 +215,25 @@ if feedName:
         print(Fore.RED + 'Working on unknown source. [DANGER]')
         fatalError()
 
+if modelName:
+    if modelName != '':
+        print(Fore.GREEN + 'Using on:',modelName)
+    else:
+        print(Fore.RED + 'Working on unknown network. [DANGER]')
+        fatalError()
+
+    if modelConfiguration != '':
+        print(Fore.GREEN + 'NETWORK: Configuration Loaded. [OK]')
+    else:
+        print(Fore.RED + 'NETWORK: No configuration specified. [DANGER]')
+        fatalError()
+
+    if modelWeights != '':
+        print(Fore.GREEN + 'NETWORK: Weights Loaded. [OK]')
+    else:
+        print(Fore.RED + 'NETWORK: No weights specified. [DANGER]')
+        fatalError()
+
 if scenario.getScenarioName() != '':
     print(Fore.GREEN + 'Scenario loaded: ' + scenario.getScenarioName() + ' [OK]')
 else:
@@ -216,11 +244,12 @@ if processingTime > 0:
 else:
     print(Fore.YELLOW + 'Processing wait time is disabled. [INFO]')
 
-# Remote Send
+# MODULES
+# Remote Send.
 if mod_RemoteSend == 1:
-    # Create a TCP/IP socket
+    # Create a TCP/IP socket.
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # Connect the socket to the port where the server is listening
+    # Connect the socket to the port where the server is listening.
     server_address = (socketHost, socketPort)
     print(Fore.GREEN + 'connecting to {} port {}'.format(*server_address))
     # Connect to server.
@@ -228,7 +257,7 @@ if mod_RemoteSend == 1:
 else:
     print(Fore.YELLOW + 'Module: Remote send module disabled. [INFO]')
 
-# GUI Window
+# GUI Window.
 if mod_OutputWindow == 0:
     print(Fore.YELLOW + 'Module: Output window module disabled. [INFO]')
 
@@ -238,21 +267,24 @@ if mod_OutputFile == 0:
 else:
     print(Fore.GREEN + 'Module: Output to file module enabled. [OK]')
 
+# Confirm start.
 # Wait for key press
 input(Fore.WHITE + 'Press enter to continue: ')
 
+# ==============================================================================
+# Get Input
+# ==============================================================================
 # Get Camera Footage
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(videoCameraInputSource)
 
+# ==============================================================================
+# Load Network and Label data
+# ==============================================================================
 # Load names of classes
 classesFile = "network/coco.names";
 classes = None
 with open(classesFile, 'rt') as f:
     classes = f.read().rstrip('\n').split('\n')
-
-# Give the configuration and weight files for the model and load the network using them.
-modelConfiguration = "network/yolov3.cfg";
-modelWeights = "network/yolov3.weights";
 
 # Configure the network
 net = cv2.dnn.readNetFromDarknet(modelConfiguration, modelWeights)
@@ -307,18 +339,22 @@ while(True):
 
         # q key to exit.
         if cv2.waitKey(1) & 0xFF == ord('q'):
+            print('Exiting...')
             break
 
 # ==============================================================================
 # Closing Remarks
 # ==============================================================================
 # Release the camera feed.
+print(Fore.GREEN + 'Exiting camera feed.')
 cap.release()
 
 # Close the write to file if Output mode is on.
 if mod_OutputFile == 1:
     f.close()
+    print(Fore.GREEN + 'Output file closed.')
 
 # Destroy all windows.
 if mod_OutputWindow == 1:
     cv2.destroyAllWindows()
+    print(Fore.GREEN + 'GUI window closed.')
