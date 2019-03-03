@@ -10,11 +10,12 @@
 # ==============================================================================
 import socket
 import sys
+import csv
 import datetime                         # Include date and time
 from colorama import Fore, Back, Style  # Include terminal colours
 
 # Output to file
-outputToFileName = 'server.txt'
+outputToFileName = 'server.csv'
 
 # Modules
 mod_OutputFile = 1          # Output to a file.
@@ -36,12 +37,22 @@ def outputToFile():
         # Get current date and time
         currentDT = getCurrentTime()
 
-        # Write to the file.
+        # Map data to columns.
+        row = [str(currentDT.strftime("%x")), str(currentDT.strftime("%X")), str(client_address), str(data)]
+
+        # Amend CSV.
         with open(outputToFileName, 'a') as file:
-            print(client_address,'received {!r}'.format(data))
-            outputString = str(currentDT) + ',' + str(client_address) + ',' + str(data) + '\n'
-            # outputString = str(currentDT) + ',' + str(feedName) + ',' + str(outputTargetCount) + '\n'
-            file.write(str(outputString))
+            writer = csv.writer(file)
+            writer.writerow(row)
+
+        # Write to the file.
+        # try:
+        #     with open(outputToFileName, 'a') as file:
+        #         print(client_address,'received {!r}'.format(data))
+        #         outputString = str(currentDT) + ',' + str(client_address) + ',' + str(data) + '\n'
+        #         file.write(str(outputString))
+        # except:
+        #     print(Fore.RED + '[DANGER] Could not open output file.')
 
 # ==============================================================================
 # Socket Setup
@@ -79,14 +90,6 @@ while True:
     connection, client_address = sock.accept()
     try:
         print(Fore.GREEN + '[OK] connection from', client_address)
-
-        # On Connection write to file
-        if mod_OutputFile == 1:
-            # Write to the file.
-            with open(outputToFileName, 'a') as file:
-                currentDT = getCurrentTime()
-                outputString = str(currentDT) + ',' + 'Connection from' + str(client_address) + '\n'
-                file.write(str(outputString))
 
         # Receive the data in small chunks and retransmit it
         while True:

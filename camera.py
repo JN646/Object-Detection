@@ -16,19 +16,20 @@ import sys                              # Include System
 import time                             # Include Time package
 import os.path                          # Path file tools
 import scn_PeopleCount as scenario      # Load Scenario File
+import csv                              # Include CSV
 from colorama import Fore, Back, Style  # Include terminal colours
 
 # ==============================================================================
 # Initialise the parameters
 # ==============================================================================
-confThreshold = 0.5         # Confidence threshold.
-nmsThreshold = 0.4          # Non-maximum suppression threshold.
-inpSize = [416,416]         # Width and Height of network's input image.
-outputTargetCount = 0       # Initial Target Count.
-windowSize = [896,504]      # Window Size.
-processingTime = 0          # Processing delay time.
-winName = 'ODAv02'          # Application window name.
-targetClassId = 0           # Target object class.
+confThreshold = 0.5                 # Confidence threshold.
+nmsThreshold = 0.4                  # Non-maximum suppression threshold.
+inpSize = [416,416]                 # Width and Height of network's input image.
+outputTargetCount = 0               # Initial Target Count.
+windowSize = [896,504]              # Window Size.
+processingTime = 0                  # Processing delay time.
+winName = 'ODAv02'                  # Application window name.
+targetClassId = 0                   # Target object class.
 videoCameraInputSource = 'run.mp4'  # Video camera input source.
 
 # Network Config
@@ -43,7 +44,7 @@ socketHost = '192.168.1.123'
 socketPort = 5500
 
 # Output to file
-outputToFileName = 'file.txt'
+outputToFileName = 'file.csv'
 
 # Modules
 mod_ClockOn = 1             # GUI Clock.
@@ -77,14 +78,13 @@ def outputScreenshot():
 # ==============================================================================
 def outputToFile():
     if mod_OutputFile == 1:
-        # Check to see if the name is blank, create a file if it is.
-        # if outputToFileName != '':
-        #     outputToFileName = 'OutputFile.txt'
+        # Map data to columns.
+        row = [str(currentDT.strftime("%x")), str(currentDT.strftime("%X")), str(feedName), str(outputTargetCount)]
 
-        # Write to the file.
+        # Amend CSV.
         with open(outputToFileName, 'a') as file:
-            outputString = str(currentDT) + ',' + str(feedName) + ',' + str(outputTargetCount) + '\n'
-            file.write(str(outputString))
+            writer = csv.writer(file)
+            writer.writerow(row)
 
 # ==============================================================================
 # Script Failure
