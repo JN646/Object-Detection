@@ -48,7 +48,7 @@ outputToFileName = 'file.txt'
 # Modules
 mod_ClockOn = 1             # GUI Clock.
 mod_TargetCount = 1         # GUI Target count.
-mod_RemoteSend = 0          # Send count through sockets.
+mod_RemoteSend = 1          # Send count through sockets.
 mod_OutputWindow = 1        # GUI Window.
 mod_OutputFile = 1          # Output to a file.
 mod_terminalCount = 0       # Terminal count display.
@@ -139,10 +139,10 @@ def drawPred(classId, targetClassId, conf, left, top, right, bottom):
         label = '%s:%s' % (classes[classId], label)
 
     #Display the label at the top of the bounding box
-    labelSize, baseLine = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+    labelSize, baseLine = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.3, 1)
     top = max(top, labelSize[1])
     cv2.rectangle(frame, (left, top - round(1.5*labelSize[1])), (left + round(1*labelSize[0]), top + baseLine), (color[0],color[1],color[2]), cv2.FILLED)
-    cv2.putText(frame, label, (left, top), cv2.FONT_HERSHEY_SIMPLEX, 0.50, (color[3],color[3],color[3]), 1)
+    cv2.putText(frame, label, (left, top), cv2.FONT_HERSHEY_SIMPLEX, 0.3, (color[3],color[3],color[3]), 1)
 
 # ==============================================================================
 # Target Object Counter
@@ -238,53 +238,53 @@ print(Fore.WHITE + '# 2019                          #')
 print(Fore.WHITE + '# ============================= #')
 
 # Wait for key press
-input(Fore.WHITE + 'Press enter to continue: ')
+input(Fore.WHITE + 'Press enter to continue... ')
 
 # Notification
 if feedName:
     if feedName != '':
         print(Fore.GREEN + 'Working on:',feedName)
     else:
-        print(Fore.RED + 'Working on unknown source. [DANGER]')
+        print(Fore.RED + '[DANGER] Working on unknown source.')
         fatalError()
 
 if modelName:
     if modelName != '':
-        print(Fore.GREEN + 'Using on:',modelName)
+        print(Fore.GREEN + '[OK] Using on:',modelName)
     else:
-        print(Fore.RED + 'Working on unknown network. [DANGER]')
+        print(Fore.RED + '[DANGER] Working on unknown network.')
         fatalError()
 
     if modelConfiguration != '':
         if os.path.isfile(modelConfiguration):
-            print(Fore.GREEN + 'NETWORK: Configuration Loaded. [OK]')
+            print(Fore.GREEN + '[OK] NETWORK: Configuration Loaded.')
         else:
-            print(Fore.RED + 'NETWORK: Configuration file not found. [DANGER]')
+            print(Fore.RED + '[DANGER] NETWORK: Configuration file not found.')
     else:
-        print(Fore.RED + 'NETWORK: No configuration specified. [DANGER]')
+        print(Fore.RED + '[DANGER] NETWORK: No configuration specified.')
         fatalError()
 
     if modelWeights != '':
         if os.path.isfile(modelWeights):
-            print(Fore.GREEN + 'NETWORK: Weights Loaded. [OK]')
+            print(Fore.GREEN + '[OK] NETWORK: Weights Loaded.')
         else:
-            print(Fore.RED + 'NETWORK: Weights file not found. [DANGER]')
+            print(Fore.RED + '[DANGER] NETWORK: Weights file not found.')
     else:
-        print(Fore.RED + 'NETWORK: No weights specified. [DANGER]')
+        print(Fore.RED + '[DANGER] NETWORK: No weights specified.')
         fatalError()
 
 if scenario.getScenarioName() != '':
     if os.path.isfile(scenario.getScenarioName()):
-        print(Fore.GREEN + 'Scenario loaded: ' + scenario.getScenarioName() + ' [OK]')
+        print(Fore.GREEN + '[OK] Scenario loaded: ' + scenario.getScenarioName())
     else:
-        print(Fore.RED + 'Scenario file not found. [DANGER]')
+        print(Fore.RED + '[DANGER] Scenario file not found.')
 else:
-    print(Fore.RED + 'No Scenario Found! [DANGER]')
+    print(Fore.RED + '[DANGER] No Scenario Found!')
 
 if processingTime > 0:
-    print(Fore.GREEN + 'Processing wait time is set to',processingTime,'seconds. [OK]')
+    print(Fore.GREEN + '[OK] Processing wait time is set to',processingTime,'seconds.')
 else:
-    print(Fore.YELLOW + 'Processing wait time is disabled. [INFO]')
+    print(Fore.YELLOW + '[INFO] Processing wait time is disabled.')
 
 # MODULES
 # Remote Send.
@@ -297,21 +297,21 @@ if mod_RemoteSend == 1:
     # Connect to server.
     sock.connect(server_address)
 else:
-    print(Fore.YELLOW + 'Module: Remote send module disabled. [INFO]')
+    print(Fore.YELLOW + '[INFO] Module: Remote send module disabled.')
 
 # GUI Window.
 if mod_OutputWindow == 0:
-    print(Fore.YELLOW + 'Module: Output window module disabled. [INFO]')
+    print(Fore.YELLOW + '[INFO] Module: Output window module disabled.')
 
 # Output to file.
 if mod_OutputFile == 0:
-    print(Fore.YELLOW + 'Module: Output to file module disabled. [INFO]')
+    print(Fore.YELLOW + '[INFO] Module: Output to file module disabled.')
 else:
-    print(Fore.GREEN + 'Module: Output to file module enabled. [OK]')
+    print(Fore.GREEN + '[OK] Module: Output to file module enabled.')
 
 # Confirm start.
 # Wait for key press
-input(Fore.WHITE + 'Press enter to continue: ')
+input(Fore.WHITE + 'Press enter to continue... ')
 
 # ==============================================================================
 # Get Input
@@ -320,7 +320,7 @@ input(Fore.WHITE + 'Press enter to continue: ')
 cap = cv2.VideoCapture(videoCameraInputSource)
 
 if not cap.isOpened():
-    print(Fore.RED + 'Cannot open camera feed. [DANGER]')
+    print(Fore.RED + '[DANGER] Cannot open camera feed.')
     exit()
 
 # ==============================================================================
@@ -332,7 +332,7 @@ if os.path.exists(classesFile):
     with open(classesFile, 'rt') as f:
         classes = f.read().rstrip('\n').split('\n')
 else:
-    print(Fore.RED + 'NETWORK: No label file specified. [DANGER]')
+    print(Fore.RED + '[DANGER] NETWORK: No label file specified.')
     fatalError()
 
 # Configure the network
@@ -403,7 +403,7 @@ cap.release()
 
 # Close the write to file if Output mode is on.
 if mod_OutputFile == 1:
-    f.close()
+    file.close()
     print(Fore.GREEN + 'Output file closed.')
 
 # Destroy all windows.
