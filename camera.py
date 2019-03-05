@@ -49,7 +49,7 @@ outputToFileName = 'file.csv'
 # Modules
 mod_ClockOn = 1             # GUI Clock.
 mod_TargetCount = 1         # GUI Target count.
-mod_RemoteSend = 1          # Send count through sockets.
+mod_RemoteSend = 0          # Send count through sockets.
 mod_OutputWindow = 1        # GUI Window.
 mod_OutputFile = 1          # Output to a file.
 mod_terminalCount = 0       # Terminal count display.
@@ -85,6 +85,8 @@ def outputToFile():
         with open(outputToFileName, 'a') as file:
             writer = csv.writer(file)
             writer.writerow(row)
+
+    return file
 
 # ==============================================================================
 # Script Failure
@@ -151,11 +153,15 @@ def targetCounter(targetCount, objectCount):
         # Output People Count combined with total count.
     if targetCount > 0:
         if mod_terminalCount == 1:
-            print(Fore.GREEN + "Object Count: ",currentDT.strftime("%X"),targetCount,"/",objectCount,("#" * targetCount))
+            currentTime = currentDT.strftime("%X")
+            print(Fore.GREEN + "Object Count: ",currentTime,targetCount,"/",objectCount,("#" * targetCount))
 
         # Send count over TCP if remote send is active.
         if mod_RemoteSend == 1:
-            sendOutputTarget(targetCount)
+            try:
+                sendOutputTarget(targetCount)
+            except Exception as e:
+                print(Fore.RED + '[DANGER] Send to server.')
     else:
         if mod_terminalCount == 1:
             print(Fore.YELLOW + "No Targets Detected!")
@@ -207,13 +213,16 @@ def postprocess(frame, outs):
                     objectCount = objectCount + 1
 
     # Output Counter
-    targetCounter(targetCount, objectCount)
+    try:
+        targetCounter(targetCount, objectCount)
 
-    # Set output target count.
-    if outputTargetCount >= 0:
-        outputTargetCount = targetCount
-    else:
-        outputTargetCount = 0
+        # Set output target count.
+        if outputTargetCount >= 0:
+            outputTargetCount = targetCount
+        else:
+            outputTargetCount = 0
+    except Exception as e:
+        print(Fore.RED + '[DANGER] Cannot count target objects.')
 
     # Perform non maximum suppression to eliminate redundant overlapping boxes with
     # lower confidences.
@@ -295,7 +304,12 @@ if mod_RemoteSend == 1:
     server_address = (socketHost, socketPort)
     print(Fore.GREEN + 'connecting to {} port {}'.format(*server_address))
     # Connect to server.
-    sock.connect(server_address)
+    try:
+        sock.connect(server_address)
+    except Exception as e:
+        print(Fore.RED + '[DANGER] Cannot connect to the server.')
+        exit()
+
 else:
     print(Fore.YELLOW + '[INFO] Module: Remote send module disabled.')
 
@@ -344,55 +358,72 @@ net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
 # Main Loop
 # ==============================================================================
 while(True):
-    # Get current date and time.
-    currentDT = datetime.datetime.now()
+    try:
+        # Get current date and time.
+        currentDT = datetime.datetime.now()
 
-    # Read the camera feed.
-    ret, frame = cap.read()
+        # Read the camera feed.
+        ret, frame = cap.read()
 
-    # Create a 4D blob from a frame.
-    blob = cv2.dnn.blobFromImage(frame, 1/255, (inpSize[0], inpSize[1]), [0,0,0], 1, crop=False)
+        # Create a 4D blob from a frame.
+        blob = cv2.dnn.blobFromImage(frame, 1/255, (inpSize[0], inpSize[1]), [0,0,0], 1, crop=False)
 
-    # Sets the input to the network
-    net.setInput(blob)
+        # Sets the input to the network
+        net.setInput(blob)
 
-    # Runs the forward pass to get output of the output layers
-    outs = net.forward(getOutputsNames(net))
+        # Runs the forward pass to get output of the output layers
+        try:
+            outs = net.forward(getOutputsNames(net))
+        except Exception as e:
+            print(Fore.RED + '[DANGER] Cannot get output of output layers.')
+            exit()
 
-    # Remove the bounding boxes with low confidence
-    postprocess(frame, outs)
+        # Remove the bounding boxes with low confidence
+        try:
+            postprocess(frame, outs)
+        except Exception as e:
+            print(Fore.RED + '[DANGER] Unable to process footage.')
+            exit()
 
-    # Output to file
-    outputToFile()
+        # Output to file
+        try:
+            file = outputToFile()
+        except Exception as e:
+            print(Fore.RED + '[DANGER] Cannot Output to file.')
 
-    # If OutputWindow is Active.
-    if mod_OutputWindow == 1:
-        # Render Window
-        cv2.namedWindow(winName, cv2.WINDOW_NORMAL)
-        cv2.resizeWindow(winName, windowSize[0],windowSize[1])
 
-        # Display the clock.
-        if mod_ClockOn == 1:
-            cv2.putText(frame, currentDT.strftime("%X"), (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
+        # If OutputWindow is Active.
+        if mod_OutputWindow == 1:
+            # Render Window
+            cv2.namedWindow(winName, cv2.WINDOW_NORMAL)
+            cv2.resizeWindow(winName, windowSize[0],windowSize[1])
 
-        # Display the target object count.
-        if mod_TargetCount == 1:
-            cv2.putText(frame, str(outputTargetCount), (200, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0))
+            # Display the clock.
+            if mod_ClockOn == 1:
+                cv2.putText(frame, currentDT.strftime("%X"), (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
 
-        # Show the window
-        cv2.imshow(winName,frame)
+            # Display the target object count.
+            if mod_TargetCount == 1:
+                cv2.putText(frame, str(outputTargetCount), (200, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0))
 
-        # Pause the application if the processing time if more than 0
-        if processingTime > 0:
-            time.sleep(processingTime)
+            # Show the window
+            cv2.imshow(winName,frame)
 
-        if cv2.waitKey(1) & 0xFF == ord('p'):
-            outputScreenshot() # Output Screenshot.
+            # Pause the application if the processing time if more than 0
+            if processingTime > 0:
+                time.sleep(processingTime)
 
-        # q key to exit.
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            print('Exiting...')
-            break
+            if cv2.waitKey(1) & 0xFF == ord('p'):
+                outputScreenshot() # Output Screenshot.
+
+            # q key to exit.
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                print('Exiting...')
+                break
+
+    except (KeyboardInterrupt, SystemExit):
+        print(Fore.RED + '[DANGER] Program has finished.')
+        break
 
 # ==============================================================================
 # Closing Remarks
