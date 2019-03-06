@@ -8,20 +8,25 @@
 # ==============================================================================
 # Imports
 # ==============================================================================
-import socket
-import sys
-import csv
-import datetime                         # Include date and time
-from colorama import Fore, Back, Style  # Include terminal colours
+import socket                               # Include Socket.IO.
+import sys                                  # Include System Code.
+import csv                                  # Include CSV.
+import datetime                             # Include date and time.
+from colorama import Fore, Back, Style      # Include terminal colours.
 
 # Output to file
 outputToFileName = 'server.csv'
 
+# TCP Socket Connections
+serverName = 'Server1'                      # Server Name.
+socketHost = '192.168.1.123'                # Server Address.
+socketPort = 5500                           # Server Port.
+
 # Modules
-mod_OutputFile = 1          # Output to a file.
+mod_OutputFile = 1                          # Output to a file.
 
 # ==============================================================================
-# Get curren time
+# Get current time
 # ==============================================================================
 def getCurrentTime():
     # Get current date and time.
@@ -45,29 +50,6 @@ def outputToFile():
             writer = csv.writer(file)
             writer.writerow(row)
 
-        # Write to the file.
-        # try:
-        #     with open(outputToFileName, 'a') as file:
-        #         print(client_address,'received {!r}'.format(data))
-        #         outputString = str(currentDT) + ',' + str(client_address) + ',' + str(data) + '\n'
-        #         file.write(str(outputString))
-        # except:
-        #     print(Fore.RED + '[DANGER] Could not open output file.')
-
-# ==============================================================================
-# Socket Setup
-# ==============================================================================
-# Create a TCP/IP socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# Bind the socket to the port
-server_address = ('192.168.1.123', 5500)
-print('starting up on {} port {}'.format(*server_address))
-sock.bind(server_address)
-
-# Listen for incoming connections
-sock.listen(5)
-
 # ==============================================================================
 # Main Sequence
 # ==============================================================================
@@ -82,35 +64,62 @@ print(Fore.WHITE + '# ============================= #')
 input(Fore.WHITE + 'Press enter to continue... ')
 
 # ==============================================================================
+# Socket Setup
+# ==============================================================================
+# Create a TCP/IP socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Bind the socket to the port
+server_address = (socketHost, socketPort)
+print(Fore.WHITE + 'Starting up on {} port {}'.format(*server_address))
+
+try:
+    sock.bind(server_address)
+except Exception as e:
+    print(Fore.RED + '[DANGER] Could not bind to port.')
+    exit()
+
+# Listen for incoming connections
+sock.listen(5)
+
+# ==============================================================================
 # Main Loop
 # ==============================================================================
 while True:
-    # Wait for a connection
-    print(Fore.YELLOW + '[INFO] Waiting for a connection')
-    connection, client_address = sock.accept()
     try:
-        print(Fore.GREEN + '[OK] connection from', client_address)
+        # Wait for a connection
+        print(Fore.YELLOW + '[INFO] Waiting for a connection')
+        connection, client_address = sock.accept()
+        try:
+            print(Fore.GREEN + '[OK] connection from', client_address)
 
-        # Receive the data in small chunks and retransmit it
-        while True:
-            data = connection.recv(16)
-            print(client_address,'received {!r}'.format(data))
+            # Receive the data in small chunks and retransmit it
+            while True:
+                data = connection.recv(16)
+                print(client_address,'received {!r}'.format(data))
 
-            # Output to file
-            outputToFile()
+                # Output to file
+                try:
+                    file = outputToFile()
+                except Exception as e:
+                    print(Fore.RED + '[DANGER] Cannot Output to file.')
 
-            if data:
-                # print('sending data back to the client')
-                connection.sendall(data)
-            else:
-                print(Fore.YELLOW + '[INFO] No data from', client_address)
-                break
+                if data:
+                    # print('sending data back to the client')
+                    connection.sendall(data)
+                else:
+                    print(Fore.YELLOW + '[INFO] No data from', client_address)
+                    break
 
-    finally:
-        # Clean up the connection
-        connection.close()
+        finally:
+            # Clean up the connection
+            connection.close()
 
-        # Close the write to file if Output mode is on.
-        if mod_OutputFile == 1:
-            file.close()
-            print(Fore.GREEN + 'Output file closed.')
+            # Close the write to file if Output mode is on.
+            if mod_OutputFile == 1:
+                file.close()
+                print(Fore.GREEN + 'Output file closed.')
+
+    except (KeyboardInterrupt, SystemExit):
+        print(Fore.RED + '[DANGER] Program has finished.')
+        break

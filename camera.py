@@ -30,7 +30,7 @@ windowSize = [896,504]              # Window Size.
 processingTime = 0                  # Processing delay time.
 winName = 'ODAv02'                  # Application window name.
 targetClassId = 0                   # Target object class.
-videoCameraInputSource = 'run.mp4'  # Video camera input source.
+videoCameraInputSource = 0
 
 # Network Config
 modelName = 'YOLOv3'
@@ -40,8 +40,8 @@ classesFile = "network/coco.names";
 
 # TCP Socket Connections
 feedName = 'Camera1'
-socketHost = '192.168.1.123'
-socketPort = 5500
+socketHost = '127.0.0.1'
+socketPort = 8888
 
 # Output to file
 outputToFileName = 'file.csv'
@@ -49,7 +49,7 @@ outputToFileName = 'file.csv'
 # Modules
 mod_ClockOn = 1             # GUI Clock.
 mod_TargetCount = 1         # GUI Target count.
-mod_RemoteSend = 0          # Send count through sockets.
+mod_RemoteSend = 1          # Send count through sockets.
 mod_OutputWindow = 1        # GUI Window.
 mod_OutputFile = 1          # Output to a file.
 mod_terminalCount = 0       # Terminal count display.
@@ -240,119 +240,124 @@ def postprocess(frame, outs):
 # Main Sequence
 # ==============================================================================
 # Print Intro Messages
-print(Fore.WHITE + '# ============================= #')
-print(Fore.WHITE + '# Object Detection App          #')
-print(Fore.WHITE + '# v0.2                          #')
-print(Fore.WHITE + '# 2019                          #')
-print(Fore.WHITE + '# ============================= #')
+try:
+    print(Fore.WHITE + '# ============================= #')
+    print(Fore.WHITE + '# Object Detection App          #')
+    print(Fore.WHITE + '# v0.2                          #')
+    print(Fore.WHITE + '# 2019                          #')
+    print(Fore.WHITE + '# ============================= #')
 
-# Wait for key press
-input(Fore.WHITE + 'Press enter to continue... ')
+    # Wait for key press
+    input(Fore.WHITE + 'Press enter to continue... ')
 
-# Notification
-if feedName:
-    if feedName != '':
-        print(Fore.GREEN + 'Working on:',feedName)
-    else:
-        print(Fore.RED + '[DANGER] Working on unknown source.')
-        fatalError()
-
-if modelName:
-    if modelName != '':
-        print(Fore.GREEN + '[OK] Using on:',modelName)
-    else:
-        print(Fore.RED + '[DANGER] Working on unknown network.')
-        fatalError()
-
-    if modelConfiguration != '':
-        if os.path.isfile(modelConfiguration):
-            print(Fore.GREEN + '[OK] NETWORK: Configuration Loaded.')
+    # Notification
+    if feedName:
+        if feedName != '':
+            print(Fore.GREEN + 'Working on:',feedName)
         else:
-            print(Fore.RED + '[DANGER] NETWORK: Configuration file not found.')
-    else:
-        print(Fore.RED + '[DANGER] NETWORK: No configuration specified.')
-        fatalError()
+            print(Fore.RED + '[DANGER] Working on unknown source.')
+            fatalError()
 
-    if modelWeights != '':
-        if os.path.isfile(modelWeights):
-            print(Fore.GREEN + '[OK] NETWORK: Weights Loaded.')
+    if modelName:
+        if modelName != '':
+            print(Fore.GREEN + '[OK] Using on:',modelName)
         else:
-            print(Fore.RED + '[DANGER] NETWORK: Weights file not found.')
+            print(Fore.RED + '[DANGER] Working on unknown network.')
+            fatalError()
+
+        if modelConfiguration != '':
+            if os.path.isfile(modelConfiguration):
+                print(Fore.GREEN + '[OK] NETWORK: Configuration Loaded.')
+            else:
+                print(Fore.RED + '[DANGER] NETWORK: Configuration file not found.')
+        else:
+            print(Fore.RED + '[DANGER] NETWORK: No configuration specified.')
+            fatalError()
+
+        if modelWeights != '':
+            if os.path.isfile(modelWeights):
+                print(Fore.GREEN + '[OK] NETWORK: Weights Loaded.')
+            else:
+                print(Fore.RED + '[DANGER] NETWORK: Weights file not found.')
+        else:
+            print(Fore.RED + '[DANGER] NETWORK: No weights specified.')
+            fatalError()
+
+    if scenario.getScenarioName() != '':
+        if os.path.isfile(scenario.getScenarioName()):
+            print(Fore.GREEN + '[OK] Scenario loaded: ' + scenario.getScenarioName())
+        else:
+            print(Fore.RED + '[DANGER] Scenario file not found.')
     else:
-        print(Fore.RED + '[DANGER] NETWORK: No weights specified.')
-        fatalError()
+        print(Fore.RED + '[DANGER] No Scenario Found!')
 
-if scenario.getScenarioName() != '':
-    if os.path.isfile(scenario.getScenarioName()):
-        print(Fore.GREEN + '[OK] Scenario loaded: ' + scenario.getScenarioName())
+    if processingTime > 0:
+        print(Fore.GREEN + '[OK] Processing wait time is set to',processingTime,'seconds.')
     else:
-        print(Fore.RED + '[DANGER] Scenario file not found.')
-else:
-    print(Fore.RED + '[DANGER] No Scenario Found!')
+        print(Fore.YELLOW + '[INFO] Processing wait time is disabled.')
 
-if processingTime > 0:
-    print(Fore.GREEN + '[OK] Processing wait time is set to',processingTime,'seconds.')
-else:
-    print(Fore.YELLOW + '[INFO] Processing wait time is disabled.')
+    # MODULES
+    # Remote Send.
+    if mod_RemoteSend == 1:
+        # Create a TCP/IP socket.
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # Connect the socket to the port where the server is listening.
+        server_address = (socketHost, socketPort)
+        print(Fore.GREEN + 'connecting to {} port {}'.format(*server_address))
+        # Connect to server.
+        try:
+            sock.connect(server_address)
+        except Exception as e:
+            print(Fore.RED + '[DANGER] Cannot connect to the server.')
+            exit()
 
-# MODULES
-# Remote Send.
-if mod_RemoteSend == 1:
-    # Create a TCP/IP socket.
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # Connect the socket to the port where the server is listening.
-    server_address = (socketHost, socketPort)
-    print(Fore.GREEN + 'connecting to {} port {}'.format(*server_address))
-    # Connect to server.
-    try:
-        sock.connect(server_address)
-    except Exception as e:
-        print(Fore.RED + '[DANGER] Cannot connect to the server.')
+    else:
+        print(Fore.YELLOW + '[INFO] Module: Remote send module disabled.')
+
+    # GUI Window.
+    if mod_OutputWindow == 0:
+        print(Fore.YELLOW + '[INFO] Module: Output window module disabled.')
+
+    # Output to file.
+    if mod_OutputFile == 0:
+        print(Fore.YELLOW + '[INFO] Module: Output to file module disabled.')
+    else:
+        print(Fore.GREEN + '[OK] Module: Output to file module enabled.')
+
+    # Confirm start.
+    # Wait for key press
+    input(Fore.WHITE + 'Press enter to continue... ')
+
+    # ==============================================================================
+    # Get Input
+    # ==============================================================================
+    # Get Camera Footage
+    cap = cv2.VideoCapture(videoCameraInputSource)
+
+    if not cap.isOpened():
+        print(Fore.RED + '[DANGER] Cannot open camera feed.')
         exit()
 
-else:
-    print(Fore.YELLOW + '[INFO] Module: Remote send module disabled.')
+    # ==============================================================================
+    # Load Network and Label data
+    # ==============================================================================
+    # Load names of classes
+    classes = None
+    if os.path.exists(classesFile):
+        with open(classesFile, 'rt') as f:
+            classes = f.read().rstrip('\n').split('\n')
+    else:
+        print(Fore.RED + '[DANGER] NETWORK: No label file specified.')
+        fatalError()
 
-# GUI Window.
-if mod_OutputWindow == 0:
-    print(Fore.YELLOW + '[INFO] Module: Output window module disabled.')
+    # Configure the network
+    net = cv2.dnn.readNetFromDarknet(modelConfiguration, modelWeights)
+    net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
+    net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
 
-# Output to file.
-if mod_OutputFile == 0:
-    print(Fore.YELLOW + '[INFO] Module: Output to file module disabled.')
-else:
-    print(Fore.GREEN + '[OK] Module: Output to file module enabled.')
-
-# Confirm start.
-# Wait for key press
-input(Fore.WHITE + 'Press enter to continue... ')
-
-# ==============================================================================
-# Get Input
-# ==============================================================================
-# Get Camera Footage
-cap = cv2.VideoCapture(videoCameraInputSource)
-
-if not cap.isOpened():
-    print(Fore.RED + '[DANGER] Cannot open camera feed.')
+except (KeyboardInterrupt, SystemExit):
+    print(Fore.RED + '[DANGER] Program has finished.')
     exit()
-
-# ==============================================================================
-# Load Network and Label data
-# ==============================================================================
-# Load names of classes
-classes = None
-if os.path.exists(classesFile):
-    with open(classesFile, 'rt') as f:
-        classes = f.read().rstrip('\n').split('\n')
-else:
-    print(Fore.RED + '[DANGER] NETWORK: No label file specified.')
-    fatalError()
-
-# Configure the network
-net = cv2.dnn.readNetFromDarknet(modelConfiguration, modelWeights)
-net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
-net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
 
 # ==============================================================================
 # Main Loop
@@ -441,3 +446,8 @@ if mod_OutputFile == 1:
 if mod_OutputWindow == 1:
     cv2.destroyAllWindows()
     print(Fore.GREEN + 'GUI window closed.')
+
+if mod_RemoteSend == 1:
+    sock.send(b'--quit--')
+    print(Fore.GREEN + 'Remote server quit message.')
+    print(Fore.GREEN + 'Remote server closed.')
