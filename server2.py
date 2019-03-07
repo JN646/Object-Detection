@@ -15,6 +15,7 @@ import csv
 import datetime
 from threading import Thread
 from colorama import Fore, Back, Style
+import mysql.connector
 
 # Output to file
 outputToFileName = 'server.csv'
@@ -35,11 +36,11 @@ def getCurrentTime():
 # ==============================================================================
 # Output to file
 # ==============================================================================
-def outputToFile(client_input):
+def outputToFile(ipPort, client_input):
     if mod_OutputFile == 1:
         # Map data to columns.
         currentDT = getCurrentTime()
-        row = [str(currentDT.strftime("%x")), str(currentDT.strftime("%X")), str(serverName), str(client_input)]
+        row = [str(currentDT.strftime("%x")), str(currentDT.strftime("%X")), str(ipPort), str(client_input)]
 
         # Amend CSV.
         with open(outputToFileName, 'a') as file:
@@ -102,7 +103,7 @@ def start_server():
         if mod_OutputFile == 1:
             file.close()
             print(Fore.GREEN + 'Output file closed.')
-            
+
     except (KeyboardInterrupt, SystemExit):
         print(Fore.RED + '[DANGER] Program has finished.')
         exit()
@@ -115,6 +116,7 @@ def client_thread(connection, ip, port, max_buffer_size = 5120):
 
     while is_active:
         client_input = receive_input(connection, max_buffer_size)
+        ipPort = ip + ":" + port
 
         if "--QUIT--" in client_input:
             print(Fore.YELLOW + "[INFO] Client is requesting to quit")
@@ -122,11 +124,28 @@ def client_thread(connection, ip, port, max_buffer_size = 5120):
             print(Fore.WHITE + "[OK] Connection " + ip + ":" + port + " closed")
             is_active = False
         else:
-            print("Processed result: {}".format(client_input))
+            print(ipPort + ": " + client_input)
 
             # Output to file
+            currentDT = getCurrentTime()
+
+            mydb = mysql.connector.connect(
+              host="localhost",
+              user="root",
+              passwd="",
+              database="objectTracker"
+            )
+
+            mycursor = mydb.cursor()
+
+            sql = "INSERT INTO counter (counter_date, counter_time, counter_IP, counter_count) VALUES (%s, %s, %s, %s)"
+            val = str(currentDT.strftime("%Y-%m-%d")), str(currentDT.strftime("%X")), str(ipPort), str(client_input)
+
+            mycursor.execute(sql, val)
+
+            mydb.commit()
             try:
-                file = outputToFile(client_input)
+                file = outputToFile(ipPort, client_input)
             except Exception as e:
                 print(Fore.RED + '[DANGER] Cannot Output to file.')
 
@@ -153,7 +172,7 @@ def receive_input(connection, max_buffer_size):
 def process_input(input_str):
     # print("Processing the input received from client")
 
-    output = Fore.WHITE + "Recieved: " + str(input_str).upper()
+    output = str(input_str).upper()
     return output
 
 if __name__ == "__main__":

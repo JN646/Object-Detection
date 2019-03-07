@@ -59,7 +59,7 @@ mod_terminalCount = 0       # Terminal count display.
 # ==============================================================================
 def outputScreenshot():
     # Get the current frame.
-    print(Fore.GREEN + 'Outputting Screengrab. [OK]')
+    print(Fore.GREEN + '[OK] Outputting Screengrab.')
     success,image = cap.read()
 
     # Set filename and path.
@@ -69,9 +69,9 @@ def outputScreenshot():
     # If file created successfully.
     if success:
         cv2.imwrite(path + fileName + ".jpg", image)     # save frame as JPEG file
-        print(Fore.GREEN + 'File created. [OK]')
+        print(Fore.GREEN + '[OK] File created.')
     else:
-        print(Fore.RED + 'File not created. [DANGER]')
+        print(Fore.RED + '[DANGER] File not created.')
 
 # ==============================================================================
 # Output to file
@@ -92,9 +92,9 @@ def outputToFile():
 # Script Failure
 # ==============================================================================
 def fatalError():
-    print(Fore.RED + 'FATAL: Cannot recover, terminating script!')
+    print(Fore.RED + '[DANGER] Cannot recover, terminating script!')
     time.sleep(3)
-    sys.exit()
+    exit()
 
 # ==============================================================================
 # Get Output Names
