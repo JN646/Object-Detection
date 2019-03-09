@@ -22,15 +22,15 @@ from colorama import Fore, Back, Style  # Include terminal colours
 # ==============================================================================
 # Initialise the parameters
 # ==============================================================================
-confThreshold = 0.5                 # Confidence threshold.
-nmsThreshold = 0.4                  # Non-maximum suppression threshold.
-inpSize = [416,416]                 # Width and Height of network's input image.
-outputTargetCount = 0               # Initial Target Count.
-windowSize = [896,504]              # Window Size.
-processingTime = 0                  # Processing delay time.
-winName = 'ODAv02'                  # Application window name.
-targetClassId = 0                   # Target object class.
-videoCameraInputSource = 0
+confThreshold = 0.5                     # Confidence threshold.
+nmsThreshold = 0.4                      # Non-maximum suppression threshold.
+inpSize = [416,416]                     # Width and Height of network's input image.
+outputTargetCount = 0                   # Initial Target Count.
+windowSize = [896,504]                  # Window Size.
+processingTime = 0                      # Processing delay time.
+winName = 'ODAv02'                      # Application window name.
+targetClassId = 0                       # Target object class.
+videoCameraInputSource = 'run.mp4'
 
 # Network Config
 modelName = 'YOLOv3'

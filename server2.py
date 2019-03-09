@@ -16,6 +16,7 @@ import datetime
 from threading import Thread
 from colorama import Fore, Back, Style
 import mysql.connector
+from pythonping import ping
 
 # Output to file
 outputToFileName = 'server.csv'
@@ -23,6 +24,28 @@ serverName = 'Server1'
 
 # Modules
 mod_OutputFile = 1 # Output to a file.
+
+# ==============================================================================
+# Send to database
+# ==============================================================================
+def sendToDatabase(ipPort, client_input):
+    currentDT = getCurrentTime()
+
+    mydb = mysql.connector.connect(
+      host="localhost",
+      user="root",
+      passwd="",
+      database="objectTracker"
+    )
+
+    mycursor = mydb.cursor()
+
+    sql = "INSERT INTO counter (counter_date, counter_time, counter_IP, counter_count) VALUES (%s, %s, %s, %s)"
+    val = str(currentDT.strftime("%Y-%m-%d")), str(currentDT.strftime("%X")), str(ipPort), str(client_input)
+
+    mycursor.execute(sql, val)
+
+    mydb.commit()
 
 # ==============================================================================
 # Get current time
@@ -126,24 +149,12 @@ def client_thread(connection, ip, port, max_buffer_size = 5120):
         else:
             print(ipPort + ": " + client_input)
 
+            try:
+                sendToDatabase(ipPort, client_input)
+            except Exception as e:
+                print(Fore.RED + '[DANGER] Cannot write to database.')
+
             # Output to file
-            currentDT = getCurrentTime()
-
-            mydb = mysql.connector.connect(
-              host="localhost",
-              user="root",
-              passwd="",
-              database="objectTracker"
-            )
-
-            mycursor = mydb.cursor()
-
-            sql = "INSERT INTO counter (counter_date, counter_time, counter_IP, counter_count) VALUES (%s, %s, %s, %s)"
-            val = str(currentDT.strftime("%Y-%m-%d")), str(currentDT.strftime("%X")), str(ipPort), str(client_input)
-
-            mycursor.execute(sql, val)
-
-            mydb.commit()
             try:
                 file = outputToFile(ipPort, client_input)
             except Exception as e:
