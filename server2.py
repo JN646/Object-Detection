@@ -28,7 +28,7 @@ mod_OutputFile = 1 # Output to a file.
 # ==============================================================================
 # Send to database
 # ==============================================================================
-def sendToDatabase(ipPort, client_input):
+def sendToDatabase(ip, client_input):
     currentDT = getCurrentTime()
 
     mydb = mysql.connector.connect(
@@ -40,10 +40,13 @@ def sendToDatabase(ipPort, client_input):
 
     mycursor = mydb.cursor()
 
-    sql = "INSERT INTO counter (counter_date, counter_time, counter_IP, counter_count) VALUES (%s, %s, %s, %s)"
-    val = str(currentDT.strftime("%Y-%m-%d")), str(currentDT.strftime("%X")), str(ipPort), str(client_input)
+    sql = "INSERT INTO counter (counter_datetime, counter_IP, counter_count) VALUES (%s, %s, %s)"
+    val = str(currentDT.strftime("%Y-%m-%d %H:%M:%S")), str(ip), str(client_input)
 
-    mycursor.execute(sql, val)
+    try:
+        mycursor.execute(sql, val)
+    except mysql.connector.Error as err:
+        print(Fore.RED + "[DANGER] Something went wrong: {}".format(err))
 
     mydb.commit()
 
@@ -59,11 +62,11 @@ def getCurrentTime():
 # ==============================================================================
 # Output to file
 # ==============================================================================
-def outputToFile(ipPort, client_input):
+def outputToFile(ip, client_input):
     if mod_OutputFile == 1:
         # Map data to columns.
         currentDT = getCurrentTime()
-        row = [str(currentDT.strftime("%x")), str(currentDT.strftime("%X")), str(ipPort), str(client_input)]
+        row = [str(currentDT.strftime("%Y-%m-%d %H:%M:%S")), str(ip), str(client_input)]
 
         # Amend CSV.
         with open(outputToFileName, 'a') as file:
@@ -139,7 +142,6 @@ def client_thread(connection, ip, port, max_buffer_size = 5120):
 
     while is_active:
         client_input = receive_input(connection, max_buffer_size)
-        ipPort = ip + ":" + port
 
         if "--QUIT--" in client_input:
             print(Fore.YELLOW + "[INFO] Client is requesting to quit")
@@ -147,16 +149,16 @@ def client_thread(connection, ip, port, max_buffer_size = 5120):
             print(Fore.WHITE + "[OK] Connection " + ip + ":" + port + " closed")
             is_active = False
         else:
-            print(ipPort + ": " + client_input)
+            print(ip + ": " + client_input)
 
             try:
-                sendToDatabase(ipPort, client_input)
+                sendToDatabase(ip, client_input)
             except Exception as e:
                 print(Fore.RED + '[DANGER] Cannot write to database.')
 
             # Output to file
             try:
-                file = outputToFile(ipPort, client_input)
+                file = outputToFile(ip, client_input)
             except Exception as e:
                 print(Fore.RED + '[DANGER] Cannot Output to file.')
 
