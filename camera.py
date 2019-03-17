@@ -17,6 +17,7 @@ import time                             # Include Time package
 import os.path                          # Path file tools
 import scn_PeopleCount as scenario      # Load Scenario File
 import csv                              # Include CSV
+import os                               # Operating System
 from colorama import Fore, Back, Style  # Include terminal colours
 
 # ==============================================================================
@@ -49,7 +50,7 @@ outputToFileName = 'file.csv'
 # Modules
 mod_ClockOn = 1             # GUI Clock.
 mod_TargetCount = 1         # GUI Target count.
-mod_RemoteSend = 1          # Send count through sockets.
+mod_RemoteSend = 0          # Send count through sockets.
 mod_OutputWindow = 1        # GUI Window.
 mod_OutputFile = 1          # Output to a file.
 mod_terminalCount = 0       # Terminal count display.
@@ -79,7 +80,7 @@ def outputScreenshot():
 def outputToFile():
     if mod_OutputFile == 1:
         # Map data to columns.
-        row = [str(currentDT.strftime("%x")), str(currentDT.strftime("%X")), str(feedName), str(outputTargetCount)]
+        row = [str(currentDT.strftime("%Y-%m-%d %H:%M:%S")), str("N/A"), str(feedName), str(outputTargetCount)]
 
         # Amend CSV.
         with open(outputToFileName, 'a') as file:
@@ -87,14 +88,6 @@ def outputToFile():
             writer.writerow(row)
 
     return file
-
-# ==============================================================================
-# Script Failure
-# ==============================================================================
-def fatalError():
-    print(Fore.RED + '[DANGER] Cannot recover, terminating script!')
-    time.sleep(3)
-    exit()
 
 # ==============================================================================
 # Get Output Names
@@ -239,8 +232,11 @@ def postprocess(frame, outs):
 # ==============================================================================
 # Main Sequence
 # ==============================================================================
-# Print Intro Messages
 try:
+    # Clear the Screen
+    os.system('clear')
+
+    # Print Intro Messages
     print(Fore.WHITE + '# ============================= #')
     print(Fore.WHITE + '# Object Detection App          #')
     print(Fore.WHITE + '# v0.2                          #')
@@ -251,19 +247,28 @@ try:
     input(Fore.WHITE + 'Press enter to continue... ')
 
     # Notification
+    # Feed Name
     if feedName:
         if feedName != '':
-            print(Fore.GREEN + 'Working on:',feedName)
+            print(Fore.GREEN + '[OK] Working on:',feedName)
         else:
             print(Fore.RED + '[DANGER] Working on unknown source.')
-            fatalError()
+            sys.exit()
 
+    if videoCameraInputSource:
+        if videoCameraInputSource !='':
+            print(Fore.GREEN + '[OK] Working on source:',videoCameraInputSource)
+        else:
+            print(Fore.RED + '[DANGER] Working on unknown video source.')
+            sys.exit()
+
+    # Model Name
     if modelName:
         if modelName != '':
             print(Fore.GREEN + '[OK] Using on:',modelName)
         else:
             print(Fore.RED + '[DANGER] Working on unknown network.')
-            fatalError()
+            sys.exit()
 
         if modelConfiguration != '':
             if os.path.isfile(modelConfiguration):
@@ -272,7 +277,7 @@ try:
                 print(Fore.RED + '[DANGER] NETWORK: Configuration file not found.')
         else:
             print(Fore.RED + '[DANGER] NETWORK: No configuration specified.')
-            fatalError()
+            sys.exit()
 
         if modelWeights != '':
             if os.path.isfile(modelWeights):
@@ -281,8 +286,9 @@ try:
                 print(Fore.RED + '[DANGER] NETWORK: Weights file not found.')
         else:
             print(Fore.RED + '[DANGER] NETWORK: No weights specified.')
-            fatalError()
+            sys.exit()
 
+    # Scenario Name
     if scenario.getScenarioName() != '':
         if os.path.isfile(scenario.getScenarioName()):
             print(Fore.GREEN + '[OK] Scenario loaded: ' + scenario.getScenarioName())
@@ -291,10 +297,18 @@ try:
     else:
         print(Fore.RED + '[DANGER] No Scenario Found!')
 
+    # Processing Time
     if processingTime > 0:
         print(Fore.GREEN + '[OK] Processing wait time is set to',processingTime,'seconds.')
     else:
         print(Fore.YELLOW + '[INFO] Processing wait time is disabled.')
+
+    # Target Class ID
+    if targetClassId != '':
+        print(Fore.GREEN + 'Counting:',targetClassId)
+    else:
+        print(Fore.RED + '[DANGER] Not counting for anything.')
+        sys.exit()
 
     # MODULES
     # Remote Send.
@@ -309,7 +323,7 @@ try:
             sock.connect(server_address)
         except Exception as e:
             print(Fore.RED + '[DANGER] Cannot connect to the server.')
-            exit()
+            sys.exit()
 
     else:
         print(Fore.YELLOW + '[INFO] Module: Remote send module disabled.')
@@ -332,11 +346,17 @@ try:
     # Get Input
     # ==============================================================================
     # Get Camera Footage
+    if videoCameraInputSource:
+        if ".mp4" not in videoCameraInputSource:
+            print(Fore.GREEN + '[OK] Camera Source: Camera Feed.')
+        else:
+            print(Fore.GREEN + '[OK] Camera Source: MP4 File.')
+
     cap = cv2.VideoCapture(videoCameraInputSource)
 
     if not cap.isOpened():
         print(Fore.RED + '[DANGER] Cannot open camera feed.')
-        exit()
+        sys.exit()
 
     # ==============================================================================
     # Load Network and Label data
@@ -348,7 +368,7 @@ try:
             classes = f.read().rstrip('\n').split('\n')
     else:
         print(Fore.RED + '[DANGER] NETWORK: No label file specified.')
-        fatalError()
+        sys.exit()
 
     # Configure the network
     net = cv2.dnn.readNetFromDarknet(modelConfiguration, modelWeights)
@@ -357,7 +377,7 @@ try:
 
 except (KeyboardInterrupt, SystemExit):
     print(Fore.RED + '[DANGER] Program has finished.')
-    exit()
+    sys.exit()
 
 # ==============================================================================
 # Main Loop
@@ -381,14 +401,14 @@ while(True):
             outs = net.forward(getOutputsNames(net))
         except Exception as e:
             print(Fore.RED + '[DANGER] Cannot get output of output layers.')
-            exit()
+            sys.exit()
 
         # Remove the bounding boxes with low confidence
         try:
             postprocess(frame, outs)
         except Exception as e:
             print(Fore.RED + '[DANGER] Unable to process footage.')
-            exit()
+            sys.exit()
 
         # Output to file
         try:
@@ -405,7 +425,7 @@ while(True):
 
             # Display the clock.
             if mod_ClockOn == 1:
-                cv2.putText(frame, currentDT.strftime("%X"), (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
+                cv2.putText(frame, currentDT.strftime("%Y-%m-%d %H:%M:%S"), (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
 
             # Display the target object count.
             if mod_TargetCount == 1:

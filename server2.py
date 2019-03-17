@@ -13,17 +13,22 @@ import sys
 import traceback
 import csv
 import datetime
+import mysql.connector
+import platform
+import os
+import sched, time
 from threading import Thread
 from colorama import Fore, Back, Style
-import mysql.connector
 from pythonping import ping
 
 # Output to file
 outputToFileName = 'server.csv'
-serverName = 'Server1'
 
 # Modules
 mod_OutputFile = 1 # Output to a file.
+
+# Server Details
+serverName = 'Server1'
 
 # ==============================================================================
 # Send to database
@@ -75,16 +80,50 @@ def outputToFile(ip, client_input):
 
     return file
 
+def schedulerTest():
+    # Timing Example
+    s = sched.scheduler(time.time, time.sleep)
+    def do_something(sc):
+        print("Doing stuff...")
+        # do your stuff
+        s.enter(5, 1, do_something, (sc,))
+
+    s.enter(5, 1, do_something, (s,))
+    s.run()
+
 # ==============================================================================
 # Main
 # ==============================================================================
 def main():
-    # Print Intro Messages
+    # Clear the screen.
+    os.system('clear')
+
+    # Print Intro Messages.
     print(Fore.WHITE + '# ============================= #')
     print(Fore.WHITE + '# Object Detection App          #')
-    print(Fore.WHITE + '# server2.py v0.1               #')
+    print(Fore.WHITE + '# server2.py v0.2               #')
     print(Fore.WHITE + '# 2019                          #')
     print(Fore.WHITE + '# ============================= #')
+
+    # Get current time.
+    currentDT = getCurrentTime()
+    # Convert time to long format.
+    currentServerDT = str(currentDT.strftime("%Y-%m-%d %H:%M:%S"))
+
+    print(Fore.WHITE + 'Server Name is: ' + serverName)
+    print(Fore.WHITE + 'Current Server Time is: ' + currentServerDT)
+    print(Fore.WHITE + '# ============================= #')
+    try:
+        print(Fore.WHITE + 'SYSTEM')
+        print(Fore.WHITE + 'Machine: ' + platform.machine())
+        print(Fore.WHITE + 'Version: ' + platform.version())
+        print(Fore.WHITE + 'Platform: ' + platform.platform())
+        print(Fore.WHITE + 'System: ' + platform.system())
+        print(Fore.WHITE + 'Processor: ' + platform.processor())
+    except:
+        print(Fore.YELLOW + '[DANGER] Cannot get system information')
+    print(Fore.WHITE + '# ============================= #')
+    print(Fore.WHITE + 'Server starting...')
 
     # Start the server
     start_server()
@@ -94,14 +133,16 @@ def main():
 # ==============================================================================
 def start_server():
     try:
+        # Server config
         host = "127.0.0.1"
-        port = 8888         # arbitrary non-privileged port
+        port = 8888
 
         soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # SO_REUSEADDR flag tells the kernel to reuse a local socket in TIME_WAIT state, without waiting for its natural timeout to expire
         soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         print(Fore.GREEN + "[OK] Socket created")
 
+        # Bind host.
         try:
             soc.bind((host, port))
         except:
