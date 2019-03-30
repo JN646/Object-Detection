@@ -31,7 +31,7 @@ windowSize = [896,504]                  # Window Size.
 processingTime = 0                      # Processing delay time.
 winName = 'ODAv02'                      # Application window name.
 targetClassId = 0                       # Target object class.
-videoCameraInputSource = 'run.mp4'
+videoCameraInputSource = 0
 
 # Network Config
 modelName = 'YOLOv3'
@@ -178,6 +178,7 @@ def postprocess(frame, outs):
     classIds = []
     confidences = []
     boxes = []
+    uID = []
     targetCount = 0
     objectCount = 0
 
@@ -185,6 +186,8 @@ def postprocess(frame, outs):
         for detection in out:
             scores = detection[5:]
             classId = np.argmax(scores)
+            if(classId):
+                print(classId)
             confidence = scores[classId]
             if confidence > confThreshold:
                 center_x = int(detection[0] * frameWidth)
@@ -201,9 +204,9 @@ def postprocess(frame, outs):
 
                 # What to look for
                 if classId == targetClassId:
-                    targetCount = targetCount + 1
+                    targetCount += 1
                 elif classId != targetClassId:
-                    objectCount = objectCount + 1
+                    objectCount += 1
 
     # Output Counter
     try:
