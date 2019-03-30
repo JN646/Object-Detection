@@ -186,8 +186,6 @@ def postprocess(frame, outs):
         for detection in out:
             scores = detection[5:]
             classId = np.argmax(scores)
-            if(classId):
-                print(classId)
             confidence = scores[classId]
             if confidence > confThreshold:
                 center_x = int(detection[0] * frameWidth)
@@ -418,7 +416,6 @@ while(True):
             file = outputToFile()
         except Exception as e:
             print(Fore.RED + '[DANGER] Cannot Output to file.')
-
 
         # If OutputWindow is Active.
         if mod_OutputWindow == 1:
