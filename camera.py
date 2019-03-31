@@ -15,7 +15,6 @@ import socket                           # Include Socket.IO
 import sys                              # Include System
 import time                             # Include Time package
 import os.path                          # Path file tools
-import scn_PeopleCount as scenario      # Load Scenario File
 import csv                              # Include CSV
 import os                               # Operating System
 from colorama import Fore, Back, Style  # Include terminal colours
@@ -32,6 +31,7 @@ processingTime = 0                      # Processing delay time.
 winName = 'ODAv02'                      # Application window name.
 targetClassId = 0                       # Target object class.
 videoCameraInputSource = 0
+count = 0
 
 # Network Config
 modelName = 'YOLOv3'
@@ -54,6 +54,17 @@ mod_RemoteSend = 0          # Send count through sockets.
 mod_OutputWindow = 1        # GUI Window.
 mod_OutputFile = 1          # Output to a file.
 mod_terminalCount = 0       # Terminal count display.
+
+# ==============================================================================
+# Class
+# ==============================================================================
+
+# ==============================================================================
+# Get the time
+# ==============================================================================
+def currentTime():
+    currentDT = datetime.datetime.now()
+    return currentDT
 
 # ==============================================================================
 # Output Screenshot
@@ -198,7 +209,7 @@ def postprocess(frame, outs):
                 confidences.append(float(confidence))
                 boxes.append([left, top, width, height])
 
-                currentDT = datetime.datetime.now()
+                currentDT = currentTime()
 
                 # What to look for
                 if classId == targetClassId:
@@ -218,8 +229,7 @@ def postprocess(frame, outs):
     except Exception as e:
         print(Fore.RED + '[DANGER] Cannot count target objects.')
 
-    # Perform non maximum suppression to eliminate redundant overlapping boxes with
-    # lower confidences.
+    # Perform non maximum suppression to eliminate redundant overlapping boxes with lower confidences.
     indices = cv2.dnn.NMSBoxes(boxes, confidences, confThreshold, nmsThreshold)
     for i in indices:
         i = i[0]
@@ -288,15 +298,6 @@ try:
         else:
             print(Fore.RED + '[DANGER] NETWORK: No weights specified.')
             sys.exit()
-
-    # Scenario Name
-    if scenario.getScenarioName() != '':
-        if os.path.isfile(scenario.getScenarioName()):
-            print(Fore.GREEN + '[OK] Scenario loaded: ' + scenario.getScenarioName())
-        else:
-            print(Fore.RED + '[DANGER] Scenario file not found.')
-    else:
-        print(Fore.RED + '[DANGER] No Scenario Found!')
 
     # Processing Time
     if processingTime > 0:
@@ -386,13 +387,13 @@ except (KeyboardInterrupt, SystemExit):
 while(True):
     try:
         # Get current date and time.
-        currentDT = datetime.datetime.now()
+        currentDT = currentTime()
 
         # Read the camera feed.
         ret, frame = cap.read()
 
         # Create a 4D blob from a frame.
-        blob = cv2.dnn.blobFromImage(frame, 1/255, (inpSize[0], inpSize[1]), [0,0,0], 1, crop=False)
+        blob = cv2.dnn.blobFromImage(frame, 1/255, (inpSize[0], inpSize[1]), [0,0,0], 1, crop=True)
 
         # Sets the input to the network
         net.setInput(blob)
@@ -438,6 +439,7 @@ while(True):
             if processingTime > 0:
                 time.sleep(processingTime)
 
+            # Not responsive enough.
             if cv2.waitKey(1) & 0xFF == ord('p'):
                 outputScreenshot() # Output Screenshot.
 
