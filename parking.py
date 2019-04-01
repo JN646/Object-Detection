@@ -27,11 +27,11 @@ nmsThreshold = 0.4                      # Non-maximum suppression threshold.
 inpSize = [416,416]                     # Width and Height of network's input image.
 outputTargetCount = 0                   # Initial Target Count.
 windowSize = [896,504]                  # Window Size.
-processingTime = 0                      # Processing delay time.
 winName = 'ODAv02'                      # Application window name.
 targetClassId = 0                       # Target object class.
 videoCameraInputSource = 0
 count = 0
+feedName = "Feed1"
 
 # Network Config
 modelName = 'YOLOv3'
@@ -39,18 +39,12 @@ modelConfiguration = 'network/yolov3.cfg'
 modelWeights = 'network/yolov3.weights'
 classesFile = "network/coco.names";
 
-# TCP Socket Connections
-feedName = 'Parking1'
-socketHost = '127.0.0.1'
-socketPort = 8888
-
 # Output to file
 outputToFileName = 'parking.csv'
 
 # Modules
 mod_ClockOn = 1             # GUI Clock.
 mod_TargetCount = 1         # GUI Target count.
-mod_RemoteSend = 0          # Send count through sockets.
 mod_OutputWindow = 1        # GUI Window.
 mod_OutputFile = 1          # Output to a file.
 mod_terminalCount = 0       # Terminal count display.
@@ -104,16 +98,6 @@ def getOutputsNames(net):
     return [layersNames[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
 # ==============================================================================
-# Send Count to TCP Server
-# ==============================================================================
-def sendOutputTarget(outputTargetCount):
-    if outputTargetCount == '':
-        outputTargetCount = 0
-
-    message = str(outputTargetCount)
-    sock.sendall(bytes(message, encoding='utf-8'))
-
-# ==============================================================================
 # Draw Predicted Bounding Box
 # ==============================================================================
 def drawPred(classId, targetClassId, conf, left, top, right, bottom):
@@ -155,20 +139,9 @@ def targetCounter(targetCount, objectCount):
         if mod_terminalCount == 1:
             currentTime = currentDT.strftime("%X")
             print(Fore.GREEN + "Object Count: ",currentTime,targetCount,"/",objectCount,("#" * targetCount))
-
-        # Send count over TCP if remote send is active.
-        if mod_RemoteSend == 1:
-            try:
-                sendOutputTarget(targetCount)
-            except Exception as e:
-                print(Fore.RED + '[DANGER] Send to server.')
     else:
         if mod_terminalCount == 1:
             print(Fore.YELLOW + "No Targets Detected!")
-
-        # Send count over TCP if remote send is active.
-        if mod_RemoteSend == 1:
-            sendOutputTarget(targetCount)
 
 # ==============================================================================
 # Post Process
@@ -244,20 +217,6 @@ try:
     os.system('clear')
 
     # MODULES
-    # Remote Send.
-    if mod_RemoteSend == 1:
-        # Create a TCP/IP socket.
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # Connect the socket to the port where the server is listening.
-        server_address = (socketHost, socketPort)
-        print(Fore.GREEN + 'connecting to {} port {}'.format(*server_address))
-        # Connect to server.
-        try:
-            sock.connect(server_address)
-        except Exception as e:
-            print(Fore.RED + '[DANGER] Cannot connect to the server.')
-            sys.exit()
-
     # ==============================================================================
     # Get Input
     # ==============================================================================
@@ -299,6 +258,7 @@ while(True):
 
         # Read the camera feed.
         ret, frame = cap.read()
+        fgbg = cv2.createBackgroundSubtractorMOG2()
 
         # Create a 4D blob from a frame.
         blob = cv2.dnn.blobFromImage(frame, 1/255, (inpSize[0], inpSize[1]), [0,0,0], 1, crop=True)
@@ -324,7 +284,7 @@ while(True):
         try:
             file = outputToFile()
         except Exception as e:
-            print(Fore.RED + '[DANGER] Cannot Output to file.')
+            print(Fore.RED + '[DANGER] Cannot Output to file. ' + e.message)
 
         # If OutputWindow is Active.
         if mod_OutputWindow == 1:
@@ -340,12 +300,10 @@ while(True):
             if mod_TargetCount == 1:
                 cv2.putText(frame, str(outputTargetCount), (200, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0))
 
+            fgmask = fgbg.apply(frame)
+
             # Show the window
             cv2.imshow(winName,frame)
-
-            # Pause the application if the processing time if more than 0
-            if processingTime > 0:
-                time.sleep(processingTime)
 
             # Not responsive enough.
             if cv2.waitKey(1) & 0xFF == ord('p'):
