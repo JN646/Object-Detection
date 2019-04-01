@@ -32,6 +32,7 @@ targetClassId = 0                       # Target object class.
 videoCameraInputSource = 0
 count = 0
 feedName = "Feed1"
+ProcessVideo = False
 
 # Network Config
 modelName = 'YOLOv3'
@@ -44,7 +45,6 @@ outputToFileName = 'parking.csv'
 
 # Modules
 mod_ClockOn = 1             # GUI Clock.
-mod_TargetCount = 1         # GUI Target count.
 mod_OutputWindow = 1        # GUI Window.
 mod_OutputFile = 1          # Output to a file.
 mod_terminalCount = 0       # Terminal count display.
@@ -215,6 +215,8 @@ def postprocess(frame, outs):
 try:
     # Clear the Screen
     os.system('clear')
+    print('Obejct Detection Application')
+    print('Running...')
 
     # MODULES
     # ==============================================================================
@@ -258,61 +260,41 @@ while(True):
 
         # Read the camera feed.
         ret, frame = cap.read()
-        fgbg = cv2.createBackgroundSubtractorMOG2()
 
-        # Create a 4D blob from a frame.
-        blob = cv2.dnn.blobFromImage(frame, 1/255, (inpSize[0], inpSize[1]), [0,0,0], 1, crop=True)
+        if ProcessVideo == True:
+            # Create a 4D blob from a frame.
+            blob = cv2.dnn.blobFromImage(frame, 1/255, (inpSize[0], inpSize[1]), [0,0,0], 1, crop=True)
 
-        # Sets the input to the network
-        net.setInput(blob)
+            # Sets the input to the network
+            net.setInput(blob)
 
-        # Runs the forward pass to get output of the output layers
-        try:
+            # Runs the forward pass to get output of the output layers
             outs = net.forward(getOutputsNames(net))
-        except Exception as e:
-            print(Fore.RED + '[DANGER] Cannot get output of output layers.')
-            sys.exit()
 
-        # Remove the bounding boxes with low confidence
-        try:
+            # Remove the bounding boxes with low confidence
             postprocess(frame, outs)
-        except Exception as e:
-            print(Fore.RED + '[DANGER] Unable to process footage.')
-            sys.exit()
 
-        # Output to file
-        try:
+            # Output to file
             file = outputToFile()
-        except Exception as e:
-            print(Fore.RED + '[DANGER] Cannot Output to file. ' + e.message)
 
-        # If OutputWindow is Active.
-        if mod_OutputWindow == 1:
-            # Render Window
-            cv2.namedWindow(winName, cv2.WINDOW_NORMAL)
-            cv2.resizeWindow(winName, windowSize[0],windowSize[1])
+        # Render Window
+        cv2.namedWindow(winName, cv2.WINDOW_NORMAL)
+        cv2.resizeWindow(winName, windowSize[0],windowSize[1])
 
-            # Display the clock.
-            if mod_ClockOn == 1:
-                cv2.putText(frame, currentDT.strftime("%Y-%m-%d %H:%M:%S"), (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
+        # Display the clock.
+        cv2.putText(frame, currentDT.strftime("%Y-%m-%d %H:%M:%S"), (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
 
-            # Display the target object count.
-            if mod_TargetCount == 1:
-                cv2.putText(frame, str(outputTargetCount), (200, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0))
+        # Show the window
+        cv2.imshow(winName,frame)
 
-            fgmask = fgbg.apply(frame)
+        # Not responsive enough.
+        if cv2.waitKey(1) & 0xFF == ord('p'):
+            outputScreenshot() # Output Screenshot.
 
-            # Show the window
-            cv2.imshow(winName,frame)
-
-            # Not responsive enough.
-            if cv2.waitKey(1) & 0xFF == ord('p'):
-                outputScreenshot() # Output Screenshot.
-
-            # q key to exit.
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                print('Exiting...')
-                break
+        # q key to exit.
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            print('Exiting...')
+            break
 
     except (KeyboardInterrupt, SystemExit):
         print(Fore.RED + '[DANGER] Program has finished.')
