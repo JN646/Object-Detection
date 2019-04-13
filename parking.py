@@ -27,12 +27,11 @@ nmsThreshold = 0.4                      # Non-maximum suppression threshold.
 inpSize = [416,416]                     # Width and Height of network's input image.
 outputTargetCount = 0                   # Initial Target Count.
 windowSize = [896,504]                  # Window Size.
+processingTime = 0                      # Processing delay time.
 winName = 'ODAv02'                      # Application window name.
 targetClassId = 0                       # Target object class.
 videoCameraInputSource = 0
 count = 0
-feedName = "Feed1"
-ProcessVideo = False
 
 # Network Config
 modelName = 'YOLOv3'
@@ -40,13 +39,20 @@ modelConfiguration = 'network/yolov3.cfg'
 modelWeights = 'network/yolov3.weights'
 classesFile = "network/coco.names";
 
+# TCP Socket Connections
+feedName = 'Camera1'
+socketHost = '127.0.0.1'
+socketPort = 8888
+
 # Output to file
-outputToFileName = 'parking.csv'
+outputToFileName = 'file.csv'
 
 # Modules
 mod_ClockOn = 1             # GUI Clock.
+mod_TargetCount = 1         # GUI Target count.
+mod_RemoteSend = 0          # Send count through sockets.
 mod_OutputWindow = 1        # GUI Window.
-mod_OutputFile = 1          # Output to a file.
+mod_OutputFile = 0          # Output to a file.
 mod_terminalCount = 0       # Terminal count display.
 
 # ==============================================================================
@@ -98,6 +104,16 @@ def getOutputsNames(net):
     return [layersNames[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
 # ==============================================================================
+# Send Count to TCP Server
+# ==============================================================================
+def sendOutputTarget(outputTargetCount):
+    if outputTargetCount == '':
+        outputTargetCount = 0
+
+    message = str(outputTargetCount)
+    sock.sendall(bytes(message, encoding='utf-8'))
+
+# ==============================================================================
 # Draw Predicted Bounding Box
 # ==============================================================================
 def drawPred(classId, targetClassId, conf, left, top, right, bottom):
@@ -139,9 +155,20 @@ def targetCounter(targetCount, objectCount):
         if mod_terminalCount == 1:
             currentTime = currentDT.strftime("%X")
             print(Fore.GREEN + "Object Count: ",currentTime,targetCount,"/",objectCount,("#" * targetCount))
+
+        # Send count over TCP if remote send is active.
+        if mod_RemoteSend == 1:
+            try:
+                sendOutputTarget(targetCount)
+            except Exception as e:
+                print(Fore.RED + '[DANGER] Send to server.')
     else:
         if mod_terminalCount == 1:
             print(Fore.YELLOW + "No Targets Detected!")
+
+        # Send count over TCP if remote send is active.
+        if mod_RemoteSend == 1:
+            sendOutputTarget(targetCount)
 
 # ==============================================================================
 # Post Process
@@ -215,14 +242,114 @@ def postprocess(frame, outs):
 try:
     # Clear the Screen
     os.system('clear')
-    print('Obejct Detection Application')
-    print('Running...')
+
+    # Print Intro Messages
+    print(Fore.WHITE + '# ============================= #')
+    print(Fore.WHITE + '# Object Detection App          #')
+    print(Fore.WHITE + '# v0.2                          #')
+    print(Fore.WHITE + '# 2019                          #')
+    print(Fore.WHITE + '# ============================= #')
+
+    # Wait for key press
+    input(Fore.WHITE + 'Press enter to continue... ')
+
+    # Notification
+    # Feed Name
+    if feedName:
+        if feedName != '':
+            print(Fore.GREEN + '[OK] Working on:',feedName)
+        else:
+            print(Fore.RED + '[DANGER] Working on unknown source.')
+            sys.exit()
+
+    if videoCameraInputSource:
+        if videoCameraInputSource !='':
+            print(Fore.GREEN + '[OK] Working on source:',videoCameraInputSource)
+        else:
+            print(Fore.RED + '[DANGER] Working on unknown video source.')
+            sys.exit()
+
+    # Model Name
+    if modelName:
+        if modelName != '':
+            print(Fore.GREEN + '[OK] Using on:',modelName)
+        else:
+            print(Fore.RED + '[DANGER] Working on unknown network.')
+            sys.exit()
+
+        if modelConfiguration != '':
+            if os.path.isfile(modelConfiguration):
+                print(Fore.GREEN + '[OK] NETWORK: Configuration Loaded.')
+            else:
+                print(Fore.RED + '[DANGER] NETWORK: Configuration file not found.')
+        else:
+            print(Fore.RED + '[DANGER] NETWORK: No configuration specified.')
+            sys.exit()
+
+        if modelWeights != '':
+            if os.path.isfile(modelWeights):
+                print(Fore.GREEN + '[OK] NETWORK: Weights Loaded.')
+            else:
+                print(Fore.RED + '[DANGER] NETWORK: Weights file not found.')
+        else:
+            print(Fore.RED + '[DANGER] NETWORK: No weights specified.')
+            sys.exit()
+
+    # Processing Time
+    if processingTime > 0:
+        print(Fore.GREEN + '[OK] Processing wait time is set to',processingTime,'seconds.')
+    else:
+        print(Fore.YELLOW + '[INFO] Processing wait time is disabled.')
+
+    # Target Class ID
+    if targetClassId != '':
+        print(Fore.GREEN + 'Counting:',targetClassId)
+    else:
+        print(Fore.RED + '[DANGER] Not counting for anything.')
+        sys.exit()
 
     # MODULES
+    # Remote Send.
+    if mod_RemoteSend == 1:
+        # Create a TCP/IP socket.
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # Connect the socket to the port where the server is listening.
+        server_address = (socketHost, socketPort)
+        print(Fore.GREEN + 'connecting to {} port {}'.format(*server_address))
+        # Connect to server.
+        try:
+            sock.connect(server_address)
+        except Exception as e:
+            print(Fore.RED + '[DANGER] Cannot connect to the server.')
+            sys.exit()
+
+    else:
+        print(Fore.YELLOW + '[INFO] Module: Remote send module disabled.')
+
+    # GUI Window.
+    if mod_OutputWindow == 0:
+        print(Fore.YELLOW + '[INFO] Module: Output window module disabled.')
+
+    # Output to file.
+    if mod_OutputFile == 0:
+        print(Fore.YELLOW + '[INFO] Module: Output to file module disabled.')
+    else:
+        print(Fore.GREEN + '[OK] Module: Output to file module enabled.')
+
+    # Confirm start.
+    # Wait for key press
+    input(Fore.WHITE + 'Press enter to continue... ')
+
     # ==============================================================================
     # Get Input
     # ==============================================================================
     # Get Camera Footage
+    if videoCameraInputSource:
+        if ".mp4" not in videoCameraInputSource:
+            print(Fore.GREEN + '[OK] Camera Source: Camera Feed.')
+        else:
+            print(Fore.GREEN + '[OK] Camera Source: MP4 File.')
+
     cap = cv2.VideoCapture(videoCameraInputSource)
 
     if not cap.isOpened():
@@ -261,40 +388,62 @@ while(True):
         # Read the camera feed.
         ret, frame = cap.read()
 
-        if ProcessVideo == True:
-            # Create a 4D blob from a frame.
-            blob = cv2.dnn.blobFromImage(frame, 1/255, (inpSize[0], inpSize[1]), [0,0,0], 1, crop=True)
+        # Create a 4D blob from a frame.
+        blob = cv2.dnn.blobFromImage(frame, 1/255, (inpSize[0], inpSize[1]), [0,0,0], 1, crop=True)
 
-            # Sets the input to the network
-            net.setInput(blob)
+        # Sets the input to the network
+        net.setInput(blob)
 
-            # Runs the forward pass to get output of the output layers
+        # Runs the forward pass to get output of the output layers
+        try:
             outs = net.forward(getOutputsNames(net))
+        except Exception as e:
+            print(Fore.RED + '[DANGER] Cannot get output of output layers.')
+            sys.exit()
 
-            # Remove the bounding boxes with low confidence
+        # Remove the bounding boxes with low confidence
+        try:
             postprocess(frame, outs)
+        except Exception as e:
+            print(Fore.RED + '[DANGER] Unable to process footage.')
+            sys.exit()
 
-            # Output to file
-            file = outputToFile()
+        # Output to file
+        if mod_OutputFile == 1:
+            try:
+                file = outputToFile()
+            except Exception as e:
+                print(Fore.RED + '[DANGER] Cannot Output to file.')
 
-        # Render Window
-        cv2.namedWindow(winName, cv2.WINDOW_NORMAL)
-        cv2.resizeWindow(winName, windowSize[0],windowSize[1])
+        # If OutputWindow is Active.
+        if mod_OutputWindow == 1:
+            # Render Window
+            cv2.namedWindow(winName, cv2.WINDOW_NORMAL)
+            cv2.resizeWindow(winName, windowSize[0],windowSize[1])
 
-        # Display the clock.
-        cv2.putText(frame, currentDT.strftime("%Y-%m-%d %H:%M:%S"), (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
+            # Display the clock.
+            if mod_ClockOn == 1:
+                cv2.putText(frame, currentDT.strftime("%Y-%m-%d %H:%M:%S"), (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
 
-        # Show the window
-        cv2.imshow(winName,frame)
+            # Display the target object count.
+            if mod_TargetCount == 1:
+                cv2.putText(frame, str(outputTargetCount), (200, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0))
 
-        # Not responsive enough.
-        if cv2.waitKey(1) & 0xFF == ord('p'):
-            outputScreenshot() # Output Screenshot.
+            # Show the window
+            cv2.imshow(winName,frame)
 
-        # q key to exit.
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            print('Exiting...')
-            break
+            # Pause the application if the processing time if more than 0
+            if processingTime > 0:
+                time.sleep(processingTime)
+
+            # Not responsive enough.
+            if cv2.waitKey(1) & 0xFF == ord('p'):
+                outputScreenshot() # Output Screenshot.
+
+            # q key to exit.
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                print('Exiting...')
+                break
 
     except (KeyboardInterrupt, SystemExit):
         print(Fore.RED + '[DANGER] Program has finished.')
@@ -307,6 +456,17 @@ while(True):
 print(Fore.GREEN + 'Exiting camera feed.')
 cap.release()
 
+# Close the write to file if Output mode is on.
+if mod_OutputFile == 1:
+    file.close()
+    print(Fore.GREEN + 'Output file closed.')
+
+# Destroy all windows.
 if mod_OutputWindow == 1:
     cv2.destroyAllWindows()
     print(Fore.GREEN + 'GUI window closed.')
+
+if mod_RemoteSend == 1:
+    sock.send(b'--quit--')
+    print(Fore.GREEN + 'Remote server quit message.')
+    print(Fore.GREEN + 'Remote server closed.')
