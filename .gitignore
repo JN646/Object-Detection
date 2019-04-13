@@ -3,6 +3,8 @@ network/coco.names
 network/yolov3.cfg
 network/yolov3.weights
 grabs/.DS_Store
+data/*.*
+
 *.jpg
 *.mp4
 *.avi
