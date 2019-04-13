@@ -27,11 +27,11 @@ nmsThreshold = 0.4                      # Non-maximum suppression threshold.
 inpSize = [416,416]                     # Width and Height of network's input image.
 outputTargetCount = 0                   # Initial Target Count.
 windowSize = [896,504]                  # Window Size.
-processingTime = 0                      # Processing delay time.
 winName = 'ODAv02'                      # Application window name.
 targetClassId = 0                       # Target object class.
 videoCameraInputSource = 0
 count = 0
+frameExtractRate = 50
 
 # Network Config
 modelName = 'YOLOv3'
@@ -296,8 +296,8 @@ try:
             sys.exit()
 
     # Processing Time
-    if processingTime > 0:
-        print(Fore.GREEN + '[OK] Processing wait time is set to',processingTime,'seconds.')
+    if frameExtractRate > 0:
+        print(Fore.GREEN + '[OK] Processing wait time is set to',frameExtractRate,'frames.')
     else:
         print(Fore.YELLOW + '[INFO] Processing wait time is disabled.')
 
@@ -385,65 +385,71 @@ while(True):
         # Get current date and time.
         currentDT = currentTime()
 
-        # Read the camera feed.
-        ret, frame = cap.read()
+        # While camera is open.
+        while (cap.isOpened()):
+            # Read the camera feed.
+            ret, frame = cap.read()
 
-        # Create a 4D blob from a frame.
-        blob = cv2.dnn.blobFromImage(frame, 1/255, (inpSize[0], inpSize[1]), [0,0,0], 1, crop=True)
+            # While there are frames.
+            if ret == True:
+                if count % frameExtractRate == 0:
 
-        # Sets the input to the network
-        net.setInput(blob)
+                    print('Count/Frame Extract:',count)
 
-        # Runs the forward pass to get output of the output layers
-        try:
-            outs = net.forward(getOutputsNames(net))
-        except Exception as e:
-            print(Fore.RED + '[DANGER] Cannot get output of output layers.')
-            sys.exit()
+                    # Create a 4D blob from a frame.
+                    blob = cv2.dnn.blobFromImage(frame, 1/255, (inpSize[0], inpSize[1]), [0,0,0], 1, crop=True)
 
-        # Remove the bounding boxes with low confidence
-        try:
-            postprocess(frame, outs)
-        except Exception as e:
-            print(Fore.RED + '[DANGER] Unable to process footage.')
-            sys.exit()
+                    # Sets the input to the network
+                    net.setInput(blob)
 
-        # Output to file
-        if mod_OutputFile == 1:
-            try:
-                file = outputToFile()
-            except Exception as e:
-                print(Fore.RED + '[DANGER] Cannot Output to file.')
+                    # Runs the forward pass to get output of the output layers
+                    try:
+                        outs = net.forward(getOutputsNames(net))
+                    except Exception as e:
+                        print(Fore.RED + '[DANGER] Cannot get output of output layers.')
+                        sys.exit()
 
-        # If OutputWindow is Active.
-        if mod_OutputWindow == 1:
-            # Render Window
-            cv2.namedWindow(winName, cv2.WINDOW_NORMAL)
-            cv2.resizeWindow(winName, windowSize[0],windowSize[1])
+                    # Remove the bounding boxes with low confidence
+                    try:
+                        postprocess(frame, outs)
+                    except Exception as e:
+                        print(Fore.RED + '[DANGER] Unable to process footage.')
+                        sys.exit()
 
-            # Display the clock.
-            if mod_ClockOn == 1:
-                cv2.putText(frame, currentDT.strftime("%Y-%m-%d %H:%M:%S"), (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
+                    # Output to file
+                    if mod_OutputFile == 1:
+                        try:
+                            file = outputToFile()
+                        except Exception as e:
+                            print(Fore.RED + '[DANGER] Cannot Output to file.')
 
-            # Display the target object count.
-            if mod_TargetCount == 1:
-                cv2.putText(frame, str(outputTargetCount), (200, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0))
+                    # If OutputWindow is Active.
+                    if mod_OutputWindow == 1:
+                        # Render Window
+                        cv2.namedWindow(winName, cv2.WINDOW_NORMAL)
+                        cv2.resizeWindow(winName, windowSize[0],windowSize[1])
 
-            # Show the window
-            cv2.imshow(winName,frame)
+                        # Display the clock.
+                        if mod_ClockOn == 1:
+                            cv2.putText(frame, currentDT.strftime("%Y-%m-%d %H:%M:%S"), (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
 
-            # Pause the application if the processing time if more than 0
-            if processingTime > 0:
-                time.sleep(processingTime)
+                        # Display the target object count.
+                        if mod_TargetCount == 1:
+                            cv2.putText(frame, str(outputTargetCount), (200, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0))
 
-            # Not responsive enough.
-            if cv2.waitKey(1) & 0xFF == ord('p'):
-                outputScreenshot() # Output Screenshot.
+                        # Show the window
+                        cv2.imshow(winName,frame)
 
-            # q key to exit.
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                print('Exiting...')
-                break
+                        # Not responsive enough.
+                        if cv2.waitKey(1) & 0xFF == ord('p'):
+                            outputScreenshot() # Output Screenshot.
+
+                        # q key to exit.
+                        if cv2.waitKey(1) & 0xFF == ord('q'):
+                            print('Exiting...')
+                            break
+                # Increment Frame Count
+                count += 1
 
     except (KeyboardInterrupt, SystemExit):
         print(Fore.RED + '[DANGER] Program has finished.')
