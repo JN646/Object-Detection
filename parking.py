@@ -29,9 +29,9 @@ outputTargetCount = 0                   # Initial Target Count.
 windowSize = [896,504]                  # Window Size.
 winName = 'ODAv02'                      # Application window name.
 targetClassId = 0                       # Target object class.
-videoCameraInputSource = 0
+videoCameraInputSource = 'footage/walk.mp4'
 count = 0
-frameExtractRate = 50
+frameExtractRate = 48
 
 # Network Config
 modelName = 'YOLOv3'
@@ -46,6 +46,9 @@ socketPort = 8888
 
 # Output to file
 outputToFileName = 'file.csv'
+
+# Output Frame
+quality = 30
 
 # Modules
 mod_ClockOn = 1             # GUI Clock.
@@ -249,6 +252,7 @@ try:
     print(Fore.WHITE + '# Object Detection App          #')
     print(Fore.WHITE + '# v0.2                          #')
     print(Fore.WHITE + '# 2019                          #')
+    print(Fore.WHITE + '# OpenCV Version: {}         #'.format(cv2.__version__))
     print(Fore.WHITE + '# ============================= #')
 
     # Wait for key press
@@ -336,6 +340,13 @@ try:
         print(Fore.YELLOW + '[INFO] Module: Output to file module disabled.')
     else:
         print(Fore.GREEN + '[OK] Module: Output to file module enabled.')
+
+    # Output Frame
+    # Ensure folder exists before putting things in it. If it does not exist create it.
+    if mod_OutputFrames == 1:
+        if os.path.exists('data') == False:
+            os.makedirs('data')
+            print(Fore.YELLOW + '[INFO] Module: data folder not found and created.')
 
     # Confirm start.
     # Wait for key press
@@ -427,7 +438,9 @@ while(True):
                     # Output Frames
                     if mod_OutputFrames == 1:
                         print('Read %d frame: ' % count, ret)
-                        cv2.imwrite(os.path.join("data", "frame{:d}.jpg".format(count)), frame)  # save frame as JPEG file
+                        fileName = '{0:%y%m%d-%H%M%S}'.format(datetime.datetime.now()) + "_" + str(count)
+                        # cv2.imwrite(os.path.join("data", "frame{:d}.jpg".format(count)), frame, [cv2.IMWRITE_JPEG_QUALITY, quality])  # save frame as JPEG file
+                        cv2.imwrite(os.path.join("data", fileName + ".jpg"), frame, [cv2.IMWRITE_JPEG_QUALITY, quality])  # save frame as JPEG file
 
                     # If OutputWindow is Active.
                     if mod_OutputWindow == 1:
