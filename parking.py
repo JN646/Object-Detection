@@ -52,8 +52,9 @@ mod_ClockOn = 1             # GUI Clock.
 mod_TargetCount = 1         # GUI Target count.
 mod_RemoteSend = 0          # Send count through sockets.
 mod_OutputWindow = 1        # GUI Window.
-mod_OutputFile = 0          # Output to a file.
-mod_terminalCount = 0       # Terminal count display.
+mod_OutputFile = 1          # Output to a file.
+mod_terminalCount = 1       # Terminal count display.
+mod_OutputFrames = 1        # Output frames to data folder.
 
 # ==============================================================================
 # Get the time
@@ -382,9 +383,6 @@ except (KeyboardInterrupt, SystemExit):
 # ==============================================================================
 while(True):
     try:
-        # Get current date and time.
-        currentDT = currentTime()
-
         # While camera is open.
         while (cap.isOpened()):
             # Read the camera feed.
@@ -393,6 +391,9 @@ while(True):
             # While there are frames.
             if ret == True:
                 if count % frameExtractRate == 0:
+
+                    # Get current date and time.
+                    currentDT = currentTime()
 
                     print('Count/Frame Extract:',count)
 
@@ -422,6 +423,11 @@ while(True):
                             file = outputToFile()
                         except Exception as e:
                             print(Fore.RED + '[DANGER] Cannot Output to file.')
+
+                    # Output Frames
+                    if mod_OutputFrames == 1:
+                        print('Read %d frame: ' % count, ret)
+                        cv2.imwrite(os.path.join("data", "frame{:d}.jpg".format(count)), frame)  # save frame as JPEG file
 
                     # If OutputWindow is Active.
                     if mod_OutputWindow == 1:
