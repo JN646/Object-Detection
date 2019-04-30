@@ -27,11 +27,11 @@ nmsThreshold = 0.4                      # Non-maximum suppression threshold.
 inpSize = [416,416]                     # Width and Height of network's input image.
 outputTargetCount = 0                   # Initial Target Count.
 windowSize = [896,504]                  # Window Size.
-processingTime = 0                      # Processing delay time.
 winName = 'ODAv02'                      # Application window name.
 targetClassId = 0                       # Target object class.
 videoCameraInputSource = 0
 count = 0
+frameExtractRate = 48
 
 # Network Config
 modelName = 'YOLOv3'
@@ -47,17 +47,17 @@ socketPort = 8888
 # Output to file
 outputToFileName = 'file.csv'
 
+# Output Frame
+quality = 30
+
 # Modules
 mod_ClockOn = 1             # GUI Clock.
 mod_TargetCount = 1         # GUI Target count.
 mod_RemoteSend = 0          # Send count through sockets.
 mod_OutputWindow = 1        # GUI Window.
 mod_OutputFile = 1          # Output to a file.
-mod_terminalCount = 0       # Terminal count display.
-
-# ==============================================================================
-# Class
-# ==============================================================================
+mod_terminalCount = 1       # Terminal count display.
+mod_OutputFrames = 1        # Output frames to data folder.
 
 # ==============================================================================
 # Get the time
@@ -91,7 +91,7 @@ def outputScreenshot():
 def outputToFile():
     if mod_OutputFile == 1:
         # Map data to columns.
-        row = [str(currentDT.strftime("%Y-%m-%d %H:%M:%S")), str("N/A"), str(feedName), str(outputTargetCount)]
+        row = [str(currentDT.strftime("%Y-%m-%d %H:%M:%S")), count, str(feedName), str(targetClassId), str(outputTargetCount)]
 
         # Amend CSV.
         with open(outputToFileName, 'a') as file:
@@ -157,8 +157,8 @@ def targetCounter(targetCount, objectCount):
         # Output People Count combined with total count.
     if targetCount > 0:
         if mod_terminalCount == 1:
-            currentTime = currentDT.strftime("%X")
-            print(Fore.GREEN + "Object Count: ",currentTime,targetCount,"/",objectCount,("#" * targetCount))
+            # currentTime = currentDT.strftime("%X")
+            print(Fore.GREEN + "Object Count: ",currentDT.strftime("%X"),targetCount,"/",objectCount,("#" * targetCount))
 
         # Send count over TCP if remote send is active.
         if mod_RemoteSend == 1:
@@ -252,6 +252,7 @@ try:
     print(Fore.WHITE + '# Object Detection App          #')
     print(Fore.WHITE + '# v0.2                          #')
     print(Fore.WHITE + '# 2019                          #')
+    print(Fore.WHITE + '# OpenCV Version: {}         #'.format(cv2.__version__))
     print(Fore.WHITE + '# ============================= #')
 
     # Wait for key press
@@ -300,8 +301,8 @@ try:
             sys.exit()
 
     # Processing Time
-    if processingTime > 0:
-        print(Fore.GREEN + '[OK] Processing wait time is set to',processingTime,'seconds.')
+    if frameExtractRate > 0:
+        print(Fore.GREEN + '[OK] Processing wait time is set to',frameExtractRate,'frames.')
     else:
         print(Fore.YELLOW + '[INFO] Processing wait time is disabled.')
 
@@ -339,6 +340,13 @@ try:
         print(Fore.YELLOW + '[INFO] Module: Output to file module disabled.')
     else:
         print(Fore.GREEN + '[OK] Module: Output to file module enabled.')
+
+    # Output Frame
+    # Ensure folder exists before putting things in it. If it does not exist create it.
+    if mod_OutputFrames == 1:
+        if os.path.exists('data') == False:
+            os.makedirs('data')
+            print(Fore.YELLOW + '[INFO] Module: data folder not found and created.')
 
     # Confirm start.
     # Wait for key press
@@ -386,67 +394,87 @@ except (KeyboardInterrupt, SystemExit):
 # ==============================================================================
 while(True):
     try:
-        # Get current date and time.
-        currentDT = currentTime()
+        # While camera is open.
+        while (cap.isOpened()):
+            # Read the camera feed.
+            ret, frame = cap.read()
 
-        # Read the camera feed.
-        ret, frame = cap.read()
+            # While there are frames.
+            if ret == True:
+                if count % frameExtractRate == 0:
 
-        # Create a 4D blob from a frame.
-        blob = cv2.dnn.blobFromImage(frame, 1/255, (inpSize[0], inpSize[1]), [0,0,0], 1, crop=True)
+                    # Get current date and time.
+                    currentDT = currentTime()
 
-        # Sets the input to the network
-        net.setInput(blob)
+                    print('Count/Frame Extract:',count)
 
-        # Runs the forward pass to get output of the output layers
-        try:
-            outs = net.forward(getOutputsNames(net))
-        except Exception as e:
-            print(Fore.RED + '[DANGER] Cannot get output of output layers.')
-            sys.exit()
+                    # Create a 4D blob from a frame.
+                    blob = cv2.dnn.blobFromImage(frame, 1/255, (inpSize[0], inpSize[1]), [0,0,0], 1, crop=True)
 
-        # Remove the bounding boxes with low confidence
-        try:
-            postprocess(frame, outs)
-        except Exception as e:
-            print(Fore.RED + '[DANGER] Unable to process footage.')
-            sys.exit()
+                    # Sets the input to the network
+                    net.setInput(blob)
 
-        # Output to file
-        try:
-            file = outputToFile()
-        except Exception as e:
-            print(Fore.RED + '[DANGER] Cannot Output to file.')
+                    # Runs the forward pass to get output of the output layers
+                    try:
+                        outs = net.forward(getOutputsNames(net))
+                    except Exception as e:
+                        print(Fore.RED + '[DANGER] Cannot get output of output layers.')
+                        sys.exit()
 
-        # If OutputWindow is Active.
-        if mod_OutputWindow == 1:
-            # Render Window
-            cv2.namedWindow(winName, cv2.WINDOW_NORMAL)
-            cv2.resizeWindow(winName, windowSize[0],windowSize[1])
+                    # Remove the bounding boxes with low confidence
+                    try:
+                        postprocess(frame, outs)
+                    except Exception as e:
+                        print(Fore.RED + '[DANGER] Unable to process footage.')
+                        sys.exit()
 
-            # Display the clock.
-            if mod_ClockOn == 1:
-                cv2.putText(frame, currentDT.strftime("%Y-%m-%d %H:%M:%S"), (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
+                    # Output to file
+                    if mod_OutputFile == 1:
+                        try:
+                            file = outputToFile()
+                        except Exception as e:
+                            print(Fore.RED + '[DANGER] Cannot Output to file.')
 
-            # Display the target object count.
-            if mod_TargetCount == 1:
-                cv2.putText(frame, str(outputTargetCount), (200, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0))
+                    # Output Frames
+                    if mod_OutputFrames == 1:
+                        print('Read %d frame: ' % count, ret)
 
-            # Show the window
-            cv2.imshow(winName,frame)
+                        # Create the file name from the date and frame count.
+                        fileName = '{0:%y%m%d-%H%M%S}'.format(datetime.datetime.now()) + "_" + str(count)
 
-            # Pause the application if the processing time if more than 0
-            if processingTime > 0:
-                time.sleep(processingTime)
+                        # Resize the output frame.
+                        outImg = cv2.resize(frame,(windowSize[0],windowSize[1]))
 
-            # Not responsive enough.
-            if cv2.waitKey(1) & 0xFF == ord('p'):
-                outputScreenshot() # Output Screenshot.
+                        # Save the frame as JPEG file.
+                        cv2.imwrite(os.path.join("data", fileName + ".jpg"), outImg, [cv2.IMWRITE_JPEG_QUALITY, quality])
 
-            # q key to exit.
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                print('Exiting...')
-                break
+                    # If OutputWindow is Active.
+                    if mod_OutputWindow == 1:
+                        # Render Window
+                        cv2.namedWindow(winName, cv2.WINDOW_NORMAL)
+                        cv2.resizeWindow(winName, windowSize[0],windowSize[1])
+
+                        # Display the clock.
+                        if mod_ClockOn == 1:
+                            cv2.putText(frame, currentDT.strftime("%Y-%m-%d %H:%M:%S"), (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
+
+                        # Display the target object count.
+                        if mod_TargetCount == 1:
+                            cv2.putText(frame, str(outputTargetCount), (200, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0))
+
+                        # Show the window
+                        cv2.imshow(winName,frame)
+
+                        # Not responsive enough.
+                        if cv2.waitKey(1) & 0xFF == ord('p'):
+                            outputScreenshot() # Output Screenshot.
+
+                        # q key to exit.
+                        if cv2.waitKey(1) & 0xFF == ord('q'):
+                            print('Exiting...')
+                            break
+                # Increment Frame Count
+                count += 1
 
     except (KeyboardInterrupt, SystemExit):
         print(Fore.RED + '[DANGER] Program has finished.')
