@@ -437,16 +437,19 @@ while(True):
 
                     # Output Frames
                     if mod_OutputFrames == 1:
-                        print('Read %d frame: ' % count, ret)
+                        if outputTargetCount > 0:
+                            print('Read %d frame: ' % count, ret)
 
-                        # Create the file name from the date and frame count.
-                        fileName = '{0:%y%m%d-%H%M%S}'.format(datetime.datetime.now()) + "_" + str(count)
+                            # Create the file name from the date and frame count.
+                            fileName = '{0:%y%m%d-%H%M%S}'.format(datetime.datetime.now()) + "_" + str(count)
 
-                        # Resize the output frame.
-                        outImg = cv2.resize(frame,(windowSize[0],windowSize[1]))
+                            # Resize the output frame.
+                            outImg = cv2.resize(frame,(windowSize[0],windowSize[1]))
 
-                        # Save the frame as JPEG file.
-                        cv2.imwrite(os.path.join("data", fileName + ".jpg"), outImg, [cv2.IMWRITE_JPEG_QUALITY, quality])
+                            # Save the frame as JPEG file.
+                            cv2.imwrite(os.path.join("data", fileName + ".jpg"), outImg, [cv2.IMWRITE_JPEG_QUALITY, quality])
+                        else:
+                            print('Nothing in frame. Skipping.')
 
                     # If OutputWindow is Active.
                     if mod_OutputWindow == 1:
