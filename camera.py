@@ -58,6 +58,7 @@ mod_OutputWindow = 1        # GUI Window.
 mod_OutputFile = 1          # Output to a file.
 mod_terminalCount = 1       # Terminal count display.
 mod_OutputFrames = 1        # Output frames to data folder.
+mod_OutputWhenFound = 1     # Output frames to data folder when target found.
 
 # ==============================================================================
 # Get the time
@@ -65,25 +66,6 @@ mod_OutputFrames = 1        # Output frames to data folder.
 def currentTime():
     currentDT = datetime.datetime.now()
     return currentDT
-
-# ==============================================================================
-# Output Screenshot
-# ==============================================================================
-def outputScreenshot():
-    # Get the current frame.
-    print(Fore.GREEN + '[OK] Outputting Screengrab.')
-    success,image = cap.read()
-
-    # Set filename and path.
-    fileName = '{0:%y%m%d-%H%M%S}'.format(datetime.datetime.now()) + "_grab"
-    path = "grabs/"
-
-    # If file created successfully.
-    if success:
-        cv2.imwrite(path + fileName + ".jpg", image)     # save frame as JPEG file
-        print(Fore.GREEN + '[OK] File created.')
-    else:
-        print(Fore.RED + '[DANGER] File not created.')
 
 # ==============================================================================
 # Output to file
@@ -437,19 +419,20 @@ while(True):
 
                     # Output Frames
                     if mod_OutputFrames == 1:
-                        if outputTargetCount > 0:
-                            print('Read %d frame: ' % count, ret)
+                        if OutputWhenFound == 1:
+                            if outputTargetCount > 0:
+                                print('Read %d frame: ' % count, ret)
 
-                            # Create the file name from the date and frame count.
-                            fileName = '{0:%y%m%d-%H%M%S}'.format(datetime.datetime.now()) + "_" + str(count)
+                                # Create the file name from the date and frame count.
+                                fileName = '{0:%y%m%d-%H%M%S}'.format(datetime.datetime.now()) + "_" + str(count)
 
-                            # Resize the output frame.
-                            outImg = cv2.resize(frame,(windowSize[0],windowSize[1]))
+                                # Resize the output frame.
+                                outImg = cv2.resize(frame,(windowSize[0],windowSize[1]))
 
-                            # Save the frame as JPEG file.
-                            cv2.imwrite(os.path.join("data", fileName + ".jpg"), outImg, [cv2.IMWRITE_JPEG_QUALITY, quality])
-                        else:
-                            print('Nothing in frame. Skipping.')
+                                # Save the frame as JPEG file.
+                                cv2.imwrite(os.path.join("data", fileName + ".jpg"), outImg, [cv2.IMWRITE_JPEG_QUALITY, quality])
+                            else:
+                                print('Nothing in frame. Skipping.')
 
                     # If OutputWindow is Active.
                     if mod_OutputWindow == 1:
@@ -467,10 +450,6 @@ while(True):
 
                         # Show the window
                         cv2.imshow(winName,frame)
-
-                        # Not responsive enough.
-                        if cv2.waitKey(1) & 0xFF == ord('p'):
-                            outputScreenshot() # Output Screenshot.
 
                         # q key to exit.
                         if cv2.waitKey(1) & 0xFF == ord('q'):
