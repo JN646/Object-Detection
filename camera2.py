@@ -12,8 +12,52 @@ import sys
 import datetime
 import csv
 import random
+import socket
 import mysql.connector
 from mysql.connector import errorcode
+from psutil import virtual_memory
+
+# ==============================================================================
+# System Management
+# ==============================================================================
+class SystemManagement:
+    """docstring for SystemManagement."""
+
+    def __init__(self, systemName):
+        self.systemName = systemName
+
+    def getIP(self):
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            # doesn't even have to be reachable
+            s.connect(('10.255.255.255', 1))
+            IP = s.getsockname()[0]
+        except:
+            IP = '127.0.0.1'
+        finally:
+            s.close()
+        return IP
+
+    def is_connected(self):
+        try:
+            # connect to the host
+            socket.create_connection(("www.google.com", 80))
+            return True
+        except OSError:
+            pass
+        return False
+
+    def getTotalRAM(self):
+        mem = virtual_memory()
+        GB = (1024*1024*1024)
+        memRAM = mem.total/GB
+        return memRAM  # total physical memory available
+
+    def getAvailableRAM(self):
+        mem = virtual_memory()
+        GB = (1024*1024*1024)
+        memRAM = round(mem.available/GB, 2)
+        return memRAM  # total physical memory available
 
 # ==============================================================================
 # Server Connection
@@ -105,8 +149,15 @@ class ObjectDetection:
 # ==============================================================================
 # Main Script
 # ==============================================================================
-newImage = ObjectDetection(1,2,20);
+newImage = ObjectDetection(1,2,20)
 
-print(newImage.objectClass," - ",newImage.objectTime);
-newImage.writeToFile();
-newImage.writeToDatabase();
+newSystem = SystemManagement("Client1")
+print("System Name:",newSystem.systemName)
+print("System IP:",newSystem.getIP())
+print("System Connection:",newSystem.is_connected())
+print("Total RAM:",newSystem.getTotalRAM(),"GB")
+print("Available RAM:",newSystem.getAvailableRAM(),"GB")
+
+# print(newImage.objectClass," - ",newImage.objectTime);
+# newImage.writeToFile();
+# newImage.writeToDatabase();
