@@ -13,8 +13,48 @@ import datetime
 import csv
 import random
 import mysql.connector
+from mysql.connector import errorcode
 
-# Storing Objects.
+# ==============================================================================
+# Server Connection
+# ==============================================================================
+class ServerConnection:
+    """docstring for ServerConnection."""
+
+    # Init
+    def __init__(self, host, user, passwd, database):
+        self.host = host
+        self.user = user
+        self.passwd = passwd
+        self.database = database
+
+    # Connect to database
+    def databaseConnect(self):
+        try:
+            self.mydb = mysql.connector.connect(
+              host=self.host,
+              user=self.user,
+              passwd=self.passwd,
+              database=self.database
+            )
+
+            self.mycursor = self.mydb.cursor()
+
+        except mysql.connector.Error as err:
+            print("[DANGER] Something went wrong: {}".format(err))
+            sys.exit(1)
+
+    # Get database information
+    def databaseInfo(self):
+        print("Database Information")
+        print("Host: ",self.host)
+        print("User: ",self.user)
+        print("Password: ",self.passwd)
+        print("Database: ",self.database)
+
+# ==============================================================================
+# Object Model
+# ==============================================================================
 class ObjectDetection:
     """Basic Object Detection Class.
 
@@ -25,7 +65,8 @@ class ObjectDetection:
         objectConfidence: The confidence lebel of the detected object.
     """
     # Object Init.
-    def __init__(self, objectClass, objectConfidence):
+    def __init__(self, objectDeviceID, objectClass, objectConfidence):
+        self.deviceID = objectDeviceID
         self.objectClass = objectClass
         self.objectTime = datetime.datetime.now()
         self.objectClassLabel = "Blank"
@@ -38,35 +79,33 @@ class ObjectDetection:
 
     def writeToFile(self):
         # Map data to columns.
-        row = [self.objectTime, self.objectClassLabel, str(self.objectConfidence)+"%"]
+        row = [self.deviceID, self.objectTime, self.objectClassLabel, str(self.objectConfidence)+"%"]
 
         # Amend CSV.
         with open("file.csv", 'a') as file:
             writer = csv.writer(file)
             writer.writerow(row)
 
+    # Write detected object to database.
     def writeToDatabase(self):
-        mydb = mysql.connector.connect(
-          host="localhost",
-          user="root",
-          passwd="",
-          database="objectTracker2"
-        )
+        newConnection = ServerConnection("localhost","root","","objectTracker2")
+        newConnection.databaseConnect()
+        newConnection.databaseInfo()
 
-        mycursor = mydb.cursor()
-
-        sql = "INSERT INTO counter (count_class, count_time, count_confidence) VALUES (%s, %s, %s)"
-        val = str(self.objectClassLabel), str(self.objectTime), str(self.objectConfidence)
+        sql = "INSERT INTO counter (count_deviceID, count_class, count_time, count_confidence) VALUES (%s, %s, %s, %s)"
+        val = str(self.deviceID), str(self.objectClassLabel), str(self.objectTime), str(self.objectConfidence)
 
         try:
-            mycursor.execute(sql, val)
+            newConnection.mycursor.execute(sql, val)
+            newConnection.mydb.commit()
         except mysql.connector.Error as err:
             print("[DANGER] Something went wrong: {}".format(err))
+            sys.exit()
 
-        mydb.commit()
-
-# Giving it data.
-newImage = ObjectDetection(2,20);
+# ==============================================================================
+# Main Script
+# ==============================================================================
+newImage = ObjectDetection(1,2,20);
 
 print(newImage.objectClass," - ",newImage.objectTime);
 newImage.writeToFile();
