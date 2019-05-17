@@ -1,6 +1,6 @@
 # ==============================================================================
 # Project:      Object Detection Application
-# File name:    camera.py
+# File name:    object_class.py
 # Author:       JGinn DAlexander
 # Year:         2019
 # ==============================================================================
@@ -8,27 +8,215 @@
 # ==============================================================================
 # Imports
 # ==============================================================================
-import numpy as np                      # Include numpy
-import cv2                              # Include OpenCV 4
-import datetime                         # Include date and time
-import socket                           # Include Socket.IO
-import sys                              # Include System
-import time                             # Include Time package
-import csv                              # Include CSV
+import sys
+import datetime
+import csv
+import random
+import socket
+import mysql.connector
+import numpy as np
+import cv2
+import datetime
+import time
 import os
-from colorama import Fore, Back, Style  # Include terminal colours
+from colorama import Fore, Back, Style
 from matplotlib import pyplot as plt
+from mysql.connector import errorcode
+from psutil import virtual_memory
 
 # ==============================================================================
-# MISSION
+# System Management
 # ==============================================================================
-# 1. Looks for objects in a specific area of a camera feed.
-# 2. Identifies the objects as a vehicle.
-# 3. Gives each object an ID.
-# 4. Starts a count on how long an object has been there for.
-# 5. Takes a picture after a period of time.
-# 6. Crops the picture to a specific object.
-# 7. Send the picture somewhere.
+class SystemManagement:
+    """
+    Provides system and hardware related function.
+    """
+
+    # Init
+    def __init__(self, systemName):
+        self.systemName = systemName
+
+    # Get IP
+    def getIP(self):
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            # doesn't even have to be reachable
+            s.connect(('10.255.255.255', 1))
+            IP = s.getsockname()[0]
+        except:
+            IP = '127.0.0.1'
+        finally:
+            s.close()
+        return IP
+
+    # Is device connected to the internet?
+    def is_connected(self):
+        try:
+            # connect to the host
+            s = socket.create_connection(("www.google.com", 80))
+            return True
+        except OSError:
+            pass
+        finally:
+            s.close()
+        return False
+
+    # Get total RAM
+    def getTotalRAM(self):
+        mem = virtual_memory()
+        GB = (1024**3)
+        memRAM = mem.total/GB
+        return memRAM  # total physical memory available
+
+    # Get available RAM
+    def getAvailableRAM(self):
+        mem = virtual_memory()
+        GB = (1024**3)
+        memRAM = round(mem.available/GB, 2)
+        return memRAM  # total physical memory available
+
+    # Get Software Information
+    def softwareInformation(self):
+        print("OBJECT TRACKING SYSTEM - v0.1")
+        print("System Name:",self.systemName)
+        print("System IP:",self.getIP())
+        print("System Connection:",self.is_connected())
+        print("RAM:",self.getAvailableRAM(),"/",self.getTotalRAM())
+
+# ==============================================================================
+# Server Connection
+# ==============================================================================
+class ServerConnection:
+    """
+    Provides SQL server related functions.
+    """
+
+    # Init
+    def __init__(self, host, user, passwd, database):
+        self.host = host
+        self.user = user
+        self.passwd = passwd
+        self.database = database
+
+    # Connect to database
+    def databaseConnect(self):
+        try:
+            self.mydb = mysql.connector.connect(
+              host=self.host,
+              user=self.user,
+              passwd=self.passwd,
+              database=self.database
+            )
+
+            self.mycursor = self.mydb.cursor()
+
+        except mysql.connector.Error as err:
+            print("[DANGER] Something went wrong: {}".format(err))
+            sys.exit(1)
+
+    # Count total number of rows in database
+    def countRows(self):
+        newConnection = ServerConnection("localhost","root","","objectTracker2")
+        newConnection.databaseConnect()
+
+        sql = "select * from counter"
+
+        try:
+            newConnection.mycursor.execute(sql)
+            records = newConnection.mycursor.fetchall()
+            rowCount = newConnection.mycursor.rowcount;
+        except mysql.connector.Error as err:
+            print("[DANGER] Something went wrong: {}".format(err))
+            sys.exit(1)
+        finally:
+            newConnection.mycursor.close()
+
+        return rowCount
+
+    # Get database information
+    def databaseInfo(self):
+        print("DATABASE INFORMATION")
+        print("Host: ",self.host)
+        print("User: ",self.user)
+        print("Password: ",self.passwd)
+        print("Database: ",self.database)
+
+# ==============================================================================
+# Object Model
+# ==============================================================================
+class ObjectDetection:
+    """
+    Basic Object Detection Class.
+
+    Attributes:
+        objectClass: The type of object detected.
+        objectTime: The time object detected.
+        objectClassLabel: The text label for the object detected.
+        objectConfidence: The confidence lebel of the detected object.
+    """
+    # Object Init.
+    def __init__(self, objectDeviceID, objectClass, objectConfidence):
+        self.deviceID = objectDeviceID
+        self.objectClass = objectClass
+        self.objectTime = datetime.datetime.now()
+        self.objectClassLabel = "Blank"
+        self.objectConfidence = objectConfidence
+
+        # Load names of classes
+        classesFile = "network/coco.names";
+        classes = None
+        with open(classesFile, 'rt') as f:
+            classes = f.read().rstrip('\n').split('\n')
+
+        self.objectClassLabel = classes[self.objectClass]
+
+    # Get the class label from the class list.
+    def getClassLabel(self):
+        # Get the label from class id.
+        self.objectClassLabel = classes[self.objectClass]
+
+    # Write to file
+    def writeToFile(self):
+        # Map data to columns.
+        row = [self.deviceID, self.objectTime, self.objectClassLabel, str(self.objectConfidence)+"%"]
+
+        # Amend CSV.
+        with open("file.csv", 'a') as file:
+            writer = csv.writer(file)
+            writer.writerow(row)
+
+    # Write detected object to database.
+    def writeToDatabase(self):
+        newConnection = ServerConnection("localhost","root","","objectTracker2")
+        newConnection.databaseConnect()
+        newConnection.databaseInfo()
+
+        sql = "INSERT INTO counter (count_deviceID, count_class, count_time, count_confidence) VALUES (%s, %s, %s, %s)"
+        val = str(self.deviceID), str(self.objectClassLabel), str(self.objectTime), str(self.objectConfidence)
+
+        try:
+            newConnection.mycursor.execute(sql, val)
+            newConnection.mydb.commit()
+            newConnection.mydb.close()
+        except mysql.connector.Error as err:
+            print("[DANGER] Something went wrong: {}".format(err))
+            sys.exit()
+
+# ==============================================================================
+# Main Script
+# ==============================================================================
+
+# SYSTEM MANAGEMENT CLASS
+newSystem = SystemManagement("Client1")
+newSystem.softwareInformation()
+
+# OBJECT CLASS
+# newImage = ObjectDetection(1,9,60)
+# print(newImage.objectClassLabel," - ",newImage.objectTime);
+# newImage.writeToFile();
+# newImage.writeToDatabase();
+# newConnection = ServerConnection("localhost","root","","objectTracker2")
+# print("Total Rows:",newConnection.countRows())
 
 # ==============================================================================
 # Initialise the parameters
@@ -39,24 +227,19 @@ inpSize = [416,416]                     # Width and Height of network's input im
 outputTargetCount = 0                   # Initial Target Count.
 windowSize = [896,504]                  # Window Size.
 winName = 'ODAv02'                      # Application window name.
-targetClassId = 0                       # Target object class.
+targetClassId = 9                       # Target object class.
 videoCameraInputSource = 0
 count = 0
 feedName = "Feed1"
 ProcessVideo = True
 frameCount = 0
-frameExtractRate = 100
+frameExtractRate = 24
 
 # Network Config
 modelName = 'YOLOv3'
 modelConfiguration = 'network/yolov3.cfg'
 modelWeights = 'network/yolov3.weights'
 classesFile = "network/coco.names";
-
-# Output to file
-outputToFileName = 'parking.csv'
-
-fgbg = cv2.createBackgroundSubtractorMOG2()
 
 # Modules
 mod_ClockOn = 1             # GUI Clock.
@@ -70,25 +253,6 @@ mod_terminalCount = 0       # Terminal count display.
 def currentTime():
     currentDT = datetime.datetime.now()
     return currentDT
-
-# ==============================================================================
-# Output Screenshot
-# ==============================================================================
-def outputScreenshot():
-    # Get the current frame.
-    print('[OK] Outputting Screengrab.')
-    success,image = cap.read()
-
-    # Set filename and path.
-    fileName = '{0:%y%m%d-%H%M%S}'.format(datetime.datetime.now()) + "_grab"
-    path = "grabs/"
-
-    # If file created successfully.
-    if success:
-        cv2.imwrite(path + fileName + ".jpg", image)     # save frame as JPEG file
-        print('[OK] File created.')
-    else:
-        print('[DANGER] File not created.')
 
 # ==============================================================================
 # Output to file
@@ -118,7 +282,7 @@ def getOutputsNames(net):
 try:
     # Clear the Screen
     os.system('clear')
-    print('Obejct Detection Application')
+    print('Object Detection Application')
     print('Running...')
 
     # Get Camera Footage
@@ -195,12 +359,6 @@ while(True):
                             confidences.append(float(confidence))
                             boxes.append([left, top, width, height])
 
-                            # What to look for
-                            if classId == targetClassId:
-                                targetCount += 1
-                            elif classId != targetClassId:
-                                objectCount += 1
-
                     # Perform non maximum suppression to eliminate redundant overlapping boxes with lower confidences.
                     indices = cv2.dnn.NMSBoxes(boxes, confidences, confThreshold, nmsThreshold)
                     for i in indices:
@@ -231,26 +389,20 @@ while(True):
                         # Get the label for the class name and its confidence
                         if classes:
                             assert(classId < len(classes))
-                            label = '%s %s%%' % (classes[classId], label)
+                            # label = '%s %s%%' % (classes[classId], label)
+                            label = str(classId)
 
-                        #Display the label at the top of the bounding box
+                        # Display the label at the top of the bounding box
                         labelSize, baseLine = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.3, 1)
                         top = max(top, labelSize[1])
                         cv2.rectangle(frame, (left, top - round(1.5*labelSize[1])), (left + round(1*labelSize[0]), top + baseLine), (color[0],color[1],color[2]), cv2.FILLED)
                         cv2.putText(frame, label, (left, top), cv2.FONT_HERSHEY_SIMPLEX, 0.3, (color[3],color[3],color[3]), 1)
 
-                        # Output to file
-                        if mod_OutputFile == 1:
-                            # Map data to columns.
-                            row = [str(currentDT),str(classes[classId]), str(conf)]
+                print(currentDT,label, frameCount)
+            # else:
+                # print("No Frame")
 
-                            # Amend CSV.
-                            with open(outputToFileName, 'a') as file:
-                                writer = csv.writer(file)
-                                writer.writerow(row)
-                frameCount += 1
-
-        # print(currentDT,label)
+        frameCount += 1
 
         # Render Window
         cv2.namedWindow(winName, cv2.WINDOW_NORMAL)
@@ -260,17 +412,7 @@ while(True):
         cv2.putText(frame, currentDT.strftime("%Y-%m-%d %H:%M:%S"), (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
 
         # Show the window
-        # cv2.imshow('frame',fgmask)
         cv2.imshow(winName,frame)
-
-        # Not responsive enough.
-        if cv2.waitKey(1) & 0xFF == ord('p'):
-            outputScreenshot() # Output Screenshot.
-
-        # q key to exit.
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            print('Exiting...')
-            break
 
     except (KeyboardInterrupt, SystemExit):
         print('[DANGER] Program has finished.')
