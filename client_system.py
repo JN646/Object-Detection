@@ -133,6 +133,22 @@ class ServerConnection:
 
         return rowCount
 
+    # Count total number of rows in database
+    def tableTruncate(self):
+        newConnection = ServerConnection("localhost","root","","objectTracker2")
+        newConnection.databaseConnect()
+
+        sql = "TRUNCATE counter"
+
+        try:
+            newConnection.mycursor.execute(sql)
+            print("[OK] Truncated table")
+        except mysql.connector.Error as err:
+            print("[DANGER] Something went wrong: {}".format(err))
+            sys.exit(1)
+        finally:
+            newConnection.mycursor.close()
+
     # Get database information
     def databaseInfo(self):
         print("DATABASE INFORMATION")
@@ -189,7 +205,7 @@ class ObjectDetection:
     def writeToDatabase(self):
         newConnection = ServerConnection("localhost","root","","objectTracker2")
         newConnection.databaseConnect()
-        newConnection.databaseInfo()
+        # newConnection.databaseInfo()
 
         sql = "INSERT INTO counter (count_deviceID, count_class, count_time, count_confidence) VALUES (%s, %s, %s, %s)"
         val = str(self.deviceID), str(self.objectClassLabel), str(self.objectTime), str(self.objectConfidence)
@@ -208,14 +224,15 @@ class ObjectDetection:
 
 # SYSTEM MANAGEMENT CLASS
 newSystem = SystemManagement("Client1")
-newSystem.softwareInformation()
+# newSystem.softwareInformation()
 
 # OBJECT CLASS
 # newImage = ObjectDetection(1,9,60)
 # print(newImage.objectClassLabel," - ",newImage.objectTime);
 # newImage.writeToFile();
 # newImage.writeToDatabase();
-# newConnection = ServerConnection("localhost","root","","objectTracker2")
+newConnection = ServerConnection("localhost","root","","objectTracker2")
+newConnection.tableTruncate()
 # print("Total Rows:",newConnection.countRows())
 
 # ==============================================================================
@@ -228,12 +245,11 @@ outputTargetCount = 0                   # Initial Target Count.
 windowSize = [896,504]                  # Window Size.
 winName = 'ODAv02'                      # Application window name.
 targetClassId = 9                       # Target object class.
-videoCameraInputSource = 0
 count = 0
 feedName = "Feed1"
 ProcessVideo = True
 frameCount = 0
-frameExtractRate = 24
+frameExtractRate = 240
 
 # Network Config
 modelName = 'YOLOv3'
@@ -255,21 +271,6 @@ def currentTime():
     return currentDT
 
 # ==============================================================================
-# Output to file
-# ==============================================================================
-def outputToFile():
-    if mod_OutputFile == 1:
-        # Map data to columns.
-        row = [str(currentDT.strftime("%Y-%m-%d %H:%M:%S")), str("N/A"), str(feedName), str(outputTargetCount)]
-
-        # Amend CSV.
-        with open(outputToFileName, 'a') as file:
-            writer = csv.writer(file)
-            writer.writerow(row)
-
-    return file
-
-# ==============================================================================
 # Get Output Names
 # ==============================================================================
 def getOutputsNames(net):
@@ -286,7 +287,7 @@ try:
     print('Running...')
 
     # Get Camera Footage
-    cap = cv2.VideoCapture(videoCameraInputSource)
+    cap = cv2.VideoCapture(0)
 
     if not cap.isOpened():
         print('[DANGER] Cannot open camera feed.')
@@ -372,47 +373,23 @@ while(True):
                         height = box[3]
                         conf = confidences[i]
 
-                        # Draw a bounding box.
-                        color = [255,178,50,0]
-                        cv2.rectangle(frame, (left, top), (right, bottom), (color[0],color[1],color[2]), 2)
-
-                        # Lower Confidence
-                        if conf < 0.7:
-                            color = [51,255,255,0] # Orange
-                            cv2.rectangle(frame, (left, top), (right, bottom), (color[0],color[1],color[2]), 2)
-                        else:
-                            color = [0,255,0,0] # Green
-                            cv2.rectangle(frame, (left, top), (right, bottom), (color[0],color[1],color[2]), 2)
-
-                        label = '%.2f' % conf
+                        roundConf = '%.8f' % conf
 
                         # Get the label for the class name and its confidence
                         if classes:
                             assert(classId < len(classes))
                             # label = '%s %s%%' % (classes[classId], label)
-                            label = str(classId)
+                            label = str(classes[classId])
+                            label1 = classId
 
-                        # Display the label at the top of the bounding box
-                        labelSize, baseLine = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.3, 1)
-                        top = max(top, labelSize[1])
-                        cv2.rectangle(frame, (left, top - round(1.5*labelSize[1])), (left + round(1*labelSize[0]), top + baseLine), (color[0],color[1],color[2]), cv2.FILLED)
-                        cv2.putText(frame, label, (left, top), cv2.FONT_HERSHEY_SIMPLEX, 0.3, (color[3],color[3],color[3]), 1)
-
-                print(currentDT,label, frameCount)
-            # else:
-                # print("No Frame")
+                # Collect the data for each item in the array.
+                for i in range(len(classIds)):
+                    if conf > 0.5:
+                        newImage = ObjectDetection(1,classIds[i],roundConf)
+                        print(frameCount, " - ", newImage.objectTime," - ",newImage.objectClassLabel," - ",newImage.objectConfidence)
+                        newImage.writeToDatabase()
 
         frameCount += 1
-
-        # Render Window
-        cv2.namedWindow(winName, cv2.WINDOW_NORMAL)
-        cv2.resizeWindow(winName, windowSize[0],windowSize[1])
-
-        # Display the clock.
-        cv2.putText(frame, currentDT.strftime("%Y-%m-%d %H:%M:%S"), (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
-
-        # Show the window
-        cv2.imshow(winName,frame)
 
     except (KeyboardInterrupt, SystemExit):
         print('[DANGER] Program has finished.')
@@ -424,7 +401,3 @@ while(True):
 # Release the camera feed.
 print('Exiting camera feed.')
 cap.release()
-
-if mod_OutputWindow == 1:
-    cv2.destroyAllWindows()
-    print('GUI window closed.')
