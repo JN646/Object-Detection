@@ -1,14 +1,22 @@
 <?php
-class objectDetection
-{
+# ==============================================================================
+# Object Detection Class
+# ==============================================================================
+class objectDetection {
   private $id;
   private $deviceID;
   private $class;
   private $time;
   private $confidence;
 
+  # ============================================================================
+  # Constructor
+  # ============================================================================
   public function __construct(){}
 
+  # ============================================================================
+  # Database Connection
+  # ============================================================================
   public function dbconnect() {
     $conn = mysqli_connect("localhost", "root", "", "objectTracker2");
 
@@ -22,22 +30,28 @@ class objectDetection
     return $conn;
   }
 
-  // Format Confidence
-  public function formatConfidence()
-  {
+  # ============================================================================
+  # Format Confidence Value
+  # ============================================================================
+  public function formatConfidence() {
     return number_format($this->confidence,2) . "%";
   }
 
-  public function formatConfidenceColours()
-  {
+  # ============================================================================
+  # Format Confidence Colours
+  # ============================================================================
+  public function formatConfidenceColours() {
+    // Low
     if (number_format($this->confidence,2) > 0.5) {
       $color = "text-danger";
     }
 
+    // Medium
     if (number_format($this->confidence,2) > 0.75) {
       $color = "text-warning";
     }
 
+    // Good
     if (number_format($this->confidence,2) > 0.9) {
       $color = "text-success";
     }
@@ -45,10 +59,10 @@ class objectDetection
     return $color;
   }
 
-
-  // Select all records and make table.
-  public function selectAllTable()
-  {
+  # ============================================================================
+  # Detected Objects Table
+  # ============================================================================
+  public function selectAllTable() {
     // Attempt select query execution
     $conn = $this->dbconnect();
     $sql = "SELECT * FROM counter LIMIT 25";
@@ -92,9 +106,10 @@ class objectDetection
     mysqli_close($conn);
   }
 
-  // Count first time.
-  public function countFirstTime()
-  {
+  # ============================================================================
+  # Count First Event Time
+  # ============================================================================
+  public function countFirstTime() {
     // Attempt select query execution
     $conn = $this->dbconnect();
     $sql = $conn->query("SELECT MIN(count_time) FROM counter LIMIT 1");
@@ -104,7 +119,9 @@ class objectDetection
     return $count;
   }
 
-  // Device last time.
+  # ============================================================================
+  # Count Last Time Device Seen
+  # ============================================================================
   public function countDeviceLastTime($deviceID) {
     // Attempt select query execution
     $conn = $this->dbconnect();
@@ -115,9 +132,10 @@ class objectDetection
     return $count;
   }
 
-  // Count last time.
-  public function countLastTime()
-  {
+  # ============================================================================
+  # Count Last Event Time
+  # ============================================================================
+  public function countLastTime() {
     // Attempt select query execution
     $conn = $this->dbconnect();
     $sql = $conn->query("SELECT MAX(count_time) FROM counter LIMIT 1");
@@ -127,7 +145,9 @@ class objectDetection
     return $count;
   }
 
-  // Select all devices
+  # ============================================================================
+  # Select All Devices
+  # ============================================================================
   public function selectAllDevices() {
     // Connect to the database.
     $conn = $this->dbconnect();
@@ -140,7 +160,7 @@ class objectDetection
     LIMIT 5";
 
     // If results is true.
-    if($result = mysqli_query($conn, $sql)){
+    if($result = mysqli_query($conn, $sql)) {
         if(mysqli_num_rows($result) > 0){
           // Generate the table.
             echo "<table class='table table-sm'>";
@@ -151,7 +171,7 @@ class objectDetection
                 echo "</tr>";
 
             // For Each.
-            while($row = mysqli_fetch_array($result)){
+            while($row = mysqli_fetch_array($result)) {
 
                 // Map variables.
                 $deviceID = $row['count_deviceID'];
@@ -171,10 +191,10 @@ class objectDetection
             echo "</table>";
             // Free result set
             mysqli_free_result($result);
-        } else{
+        } else {
             echo "No records matching your query were found.";
         }
-    } else{
+    } else {
         echo "ERROR: Could not able to execute $sql. " . mysqli_error($conn);
     }
 
@@ -182,7 +202,9 @@ class objectDetection
     mysqli_close($conn);
   }
 
-  // Select all class types
+  # ============================================================================
+  # Select All Class Types
+  # ============================================================================
   public function selectAllClassTypes() {
     // Connect to the database.
     $conn = $this->dbconnect();
@@ -196,7 +218,7 @@ class objectDetection
     LIMIT 5";
 
     // If results is true.
-    if($result = mysqli_query($conn, $sql)){
+    if($result = mysqli_query($conn, $sql)) {
         if(mysqli_num_rows($result) > 0){
           // Generate the table.
             echo "<table class='table table-sm'>";
@@ -232,96 +254,13 @@ class objectDetection
     mysqli_close($conn);
   }
 
-  // Stats
-  // STAT Count Data Rows
-  public function countData()
-  {
-    // Attempt select query execution
-    $conn = $this->dbconnect();
-    $sql = $conn->query("SELECT COUNT(*) FROM counter");
-    $row = $sql->fetch_row();
-    $count = $row[0];
-
-    return $count;
-  }
-
-  // STAT Count Classes
-  public function countClasses()
-  {
-    // Attempt select query execution
-    $conn = $this->dbconnect();
-    $sql = $conn->query("SELECT COUNT(DISTINCT count_class) FROM counter");
-    $row = $sql->fetch_row();
-    $count = $row[0];
-
-    return $count;
-  }
-
-  // STAT Count Device IDs
-  public function countDeviceID()
-  {
-    // Attempt select query execution
-    $conn = $this->dbconnect();
-    $sql = $conn->query("SELECT COUNT(DISTINCT count_deviceID) FROM counter");
-    $row = $sql->fetch_row();
-    $count = $row[0];
-
-    return $count;
-  }
-
-  // Chart Class
-  public function chartClass() {
-    $mysqli = $this->dbconnect();
-    //query to get data from the table
-    $query = sprintf("SELECT count_class, COUNT(count_class) AS count FROM counter GROUP BY count_class");
-
-    //execute query
-    $result = $mysqli->query($query);
-
-    //loop through the returned data
-    $data = array();
-    foreach ($result as $row) {
-    	$data[] = $row;
-    }
-
-    //free memory associated with result
-    $result->close();
-
-    //close connection
-    $mysqli->close();
-
-    //now print the data
-    print json_encode($data);
-  }
-
-  // Chart Total
-  public function chartTotal() {
-    $mysqli = $this->dbconnect();
-    //query to get data from the table
-    $query = sprintf("SELECT count_time, count_id FROM counter GROUP BY count_id");
-
-    //execute query
-    $result = $mysqli->query($query);
-
-    //loop through the returned data
-    $total = array();
-    foreach ($result as $row) {
-      $total[] = $row;
-    }
-
-    //free memory associated with result
-    $result->close();
-
-    //close connection
-    $mysqli->close();
-
-    //now print the data
-    print json_encode($total);
-  }
-
-  // STAT Generate Class
-  public function tableStats()
-  {
+  # ============================================================================
+  # STATS
+  # ============================================================================
+  # ============================================================================
+  # Stats: Table
+  # ============================================================================
+  public function tableStats() {
     // Attempt select query execution
     echo "<table class='table table-sm'>";
         echo "<tr>";
@@ -349,6 +288,102 @@ class objectDetection
             echo "<td class='text-center'><i class='far fa-clock' title='".date('h:i:s d/m/y', strtotime($this->countLastTime()))."'></i></td>";
         echo "</tr>";
     echo "</table>";
+  }
+
+  # ============================================================================
+  # Stats: Count Data Rows
+  # ============================================================================
+  public function countData() {
+    // Attempt select query execution
+    $conn = $this->dbconnect();
+    $sql = $conn->query("SELECT COUNT(*) FROM counter");
+    $row = $sql->fetch_row();
+    $count = $row[0];
+
+    return $count;
+  }
+
+  # ============================================================================
+  # Stats: Count Classes
+  # ============================================================================
+  public function countClasses() {
+    // Attempt select query execution
+    $conn = $this->dbconnect();
+    $sql = $conn->query("SELECT COUNT(DISTINCT count_class) FROM counter");
+    $row = $sql->fetch_row();
+    $count = $row[0];
+
+    return $count;
+  }
+
+  # ============================================================================
+  # Stats: Count Device ID
+  # ============================================================================
+  public function countDeviceID() {
+    // Attempt select query execution
+    $conn = $this->dbconnect();
+    $sql = $conn->query("SELECT COUNT(DISTINCT count_deviceID) FROM counter");
+    $row = $sql->fetch_row();
+    $count = $row[0];
+
+    return $count;
+  }
+
+  # ============================================================================
+  # CHARTS
+  # ============================================================================
+  # ============================================================================
+  # Class Chart
+  # ============================================================================
+  public function chartClass() {
+    $mysqli = $this->dbconnect();
+    //query to get data from the table
+    $query = sprintf("SELECT count_class, COUNT(count_class) AS count FROM counter GROUP BY count_class");
+
+    //execute query
+    $result = $mysqli->query($query);
+
+    //loop through the returned data
+    $data = array();
+    foreach ($result as $row) {
+    	$data[] = $row;
+    }
+
+    //free memory associated with result
+    $result->close();
+
+    //close connection
+    $mysqli->close();
+
+    //now print the data
+    print json_encode($data);
+  }
+
+  # ============================================================================
+  # Total Chart
+  # ============================================================================
+  public function chartTotal() {
+    $mysqli = $this->dbconnect();
+    //query to get data from the table
+    $query = sprintf("SELECT count_time, count_id FROM counter GROUP BY count_id");
+
+    //execute query
+    $result = $mysqli->query($query);
+
+    //loop through the returned data
+    $total = array();
+    foreach ($result as $row) {
+      $total[] = $row;
+    }
+
+    //free memory associated with result
+    $result->close();
+
+    //close connection
+    $mysqli->close();
+
+    //now print the data
+    print json_encode($total);
   }
 }
 ?>

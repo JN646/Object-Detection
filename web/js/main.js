@@ -149,3 +149,7 @@ function toggleClassesChart() {
 function toggleTotalChart() {
   $("#totalChartFieldset").toggle();
 }
+
+function toggleDataFunctions() {
+  $("#dataFunctionsFieldset").toggle();
+}

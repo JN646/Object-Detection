@@ -1,5 +1,7 @@
 <?php
-// Classes
+# ==============================================================================
+# Imports
+# ==============================================================================
 require_once 'classes/objectDetection.php';
 require_once 'partials/_header.php';
 $foo = new ObjectDetection();
@@ -10,7 +12,7 @@ $foo = new ObjectDetection();
   <span id='clock'>Clock</span>
 </nav>
 <div class='col-md-12 fluid-container'>
-  <h1>Dashboard</h1>
+  <h1 class='display-4'>Dashboard</h1>
   <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
     <div class="btn-group mr-2" role="group" aria-label="First group">
       <button onclick='toggleDetectedObj()' type="button" class="btn btn-outline-dark">Detected Obj</button>
@@ -18,9 +20,12 @@ $foo = new ObjectDetection();
       <button onclick='toggleDevices()' type="button" class="btn btn-outline-dark">Devices</button>
       <button onclick='toggleStats()' type="button" class="btn btn-outline-dark">Stats</button>
     </div>
-  <div class="btn-group mr-2" role="group" aria-label="Second group">
-      <button onclick='toggleClassesChart()' type="button" class="btn btn-outline-dark">Classes Chart</button>
-      <button onclick='toggleTotalChart()' type="button" class="btn btn-outline-dark">Total Chart</button>
+    <div class="btn-group mr-2" role="group" aria-label="Second group">
+        <button onclick='toggleClassesChart()' type="button" class="btn btn-outline-dark">Classes Chart</button>
+        <button onclick='toggleTotalChart()' type="button" class="btn btn-outline-dark">Total Chart</button>
+    </div>
+    <div class="btn-group mr-2" role="group" aria-label="Third group">
+        <button onclick='toggleDataFunctions()' type="button" class="btn btn-outline-dark">Data Func.</button>
     </div>
   </div>
   <!-- Detected Object Table -->
@@ -80,6 +85,16 @@ $foo = new ObjectDetection();
       <div id="chart-container-total">
         <canvas width="400px" height="400px" id="mycanvas-total"></canvas>
       </div>
+    </div>
+  </fieldset>
+
+  <!-- Data Functions -->
+  <fieldset id='dataFunctionsFieldset'>
+    <legend>Data Functions</legend>
+    <div class="">
+      <form class="" action="index.php" method="post">
+        <button class='btn btn-outline-danger' type="button" name="btnTruncate">Truncate</button>
+      </form>
     </div>
   </fieldset>
 
