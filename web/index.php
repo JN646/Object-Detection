@@ -11,6 +11,16 @@ $foo = new ObjectDetection();
 </nav>
 <div class='col-md-12 fluid-container'>
   <h1>Dashboard</h1>
+  <div class='row col-md-12'>
+    <div class="btn-group" role="group" aria-label="Basic example">
+      <button onclick='toggleDetectedObj()' type="button" class="btn btn-secondary">Detected Obj</button>
+      <button onclick='toggleClasses()' type="button" class="btn btn-secondary">Classes</button>
+      <button onclick='toggleDevices()' type="button" class="btn btn-secondary">Devices</button>
+      <button onclick='toggleStats()' type="button" class="btn btn-secondary">Stats</button>
+      <button onclick='toggleClassesChart()' type="button" class="btn btn-secondary">Classes Chart</button>
+      <button onclick='toggleTotalChart()' type="button" class="btn btn-secondary">Total Chart</button>
+    </div>
+  </div>
   <!-- Detected Object Table -->
   <fieldset id='detectedObjectAllTable'>
     <legend>Detected Objects <span>(<?php echo $foo->countData() ?>)</span></legend>
@@ -32,7 +42,7 @@ $foo = new ObjectDetection();
   </fieldset>
 
   <!-- Devices Found -->
-  <fieldset id='classesDevicesTable'>
+  <fieldset id='devicesFoundTable'>
     <legend>Devices Found <span>(<?php echo $foo->countDeviceID() ?>)</span></legend>
     <div class="">
       <?php

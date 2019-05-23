@@ -2,6 +2,12 @@
 // JS Hello
 console.log("JS File Loaded.")
 
+// Hide by default
+$(document).ready(function(){
+  $("#classChartFieldset").hide();
+  $("#totalChartFieldset").hide();
+});
+
 // Clock
 function startTime() {
   var today = new Date();
@@ -118,3 +124,28 @@ $(document).ready(function(){
     }
   });
 });
+
+//  Dashboard toggle buttons
+function toggleDetectedObj() {
+  $("#detectedObjectAllTable").toggle();
+}
+
+function toggleClasses() {
+  $("#classesFoundTable").toggle();
+}
+
+function toggleDevices() {
+  $("#devicesFoundTable").toggle();
+}
+
+function toggleStats() {
+  $("#statsTable").toggle();
+}
+
+function toggleClassesChart() {
+  $("#classChartFieldset").toggle();
+}
+
+function toggleTotalChart() {
+  $("#totalChartFieldset").toggle();
+}
