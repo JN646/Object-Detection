@@ -219,56 +219,20 @@ class ObjectDetection:
             sys.exit()
 
 # ==============================================================================
-# Main Script
-# ==============================================================================
-
-# SYSTEM MANAGEMENT CLASS
-newSystem = SystemManagement("Client1")
-# newSystem.softwareInformation()
-
-# OBJECT CLASS
-# newImage = ObjectDetection(1,9,60)
-# print(newImage.objectClassLabel," - ",newImage.objectTime);
-# newImage.writeToFile();
-# newImage.writeToDatabase();
-newConnection = ServerConnection("localhost","root","","objectTracker2")
-newConnection.tableTruncate()
-# print("Total Rows:",newConnection.countRows())
-
-# ==============================================================================
 # Initialise the parameters
 # ==============================================================================
 confThreshold = 0.5                     # Confidence threshold.
 nmsThreshold = 0.4                      # Non-maximum suppression threshold.
 inpSize = [416,416]                     # Width and Height of network's input image.
-outputTargetCount = 0                   # Initial Target Count.
-windowSize = [896,504]                  # Window Size.
-winName = 'ODAv02'                      # Application window name.
-targetClassId = 9                       # Target object class.
-count = 0
-feedName = "Feed1"
 ProcessVideo = True
 frameCount = 0
-frameExtractRate = 240
+frameExtractRate = 24
 
 # Network Config
 modelName = 'YOLOv3'
 modelConfiguration = 'network/yolov3.cfg'
 modelWeights = 'network/yolov3.weights'
 classesFile = "network/coco.names";
-
-# Modules
-mod_ClockOn = 1             # GUI Clock.
-mod_OutputWindow = 1        # GUI Window.
-mod_OutputFile = 0          # Output to a file.
-mod_terminalCount = 0       # Terminal count display.
-
-# ==============================================================================
-# Get the time
-# ==============================================================================
-def currentTime():
-    currentDT = datetime.datetime.now()
-    return currentDT
 
 # ==============================================================================
 # Get Output Names
@@ -285,6 +249,19 @@ try:
     os.system('clear')
     print('Object Detection Application')
     print('Running...')
+
+    # ==============================================================================
+    # Main Script
+    # ==============================================================================
+
+    # SYSTEM MANAGEMENT CLASS
+    newSystem = SystemManagement("Client1")
+    # newSystem.softwareInformation()
+
+    # OBJECT CLASS
+    newConnection = ServerConnection("localhost","root","","objectTracker2")
+    # newConnection.tableTruncate()
+    print("Total Rows:",newConnection.countRows())
 
     # Get Camera Footage
     cap = cv2.VideoCapture(0)
@@ -373,18 +350,16 @@ while(True):
                         height = box[3]
                         conf = confidences[i]
 
-                        roundConf = '%.8f' % conf
-
                         # Get the label for the class name and its confidence
                         if classes:
                             assert(classId < len(classes))
                             # label = '%s %s%%' % (classes[classId], label)
                             label = str(classes[classId])
-                            label1 = classId
 
                 # Collect the data for each item in the array.
                 for i in range(len(classIds)):
-                    if conf > 0.5:
+                    roundConf = '%.8f' % confidences[i]
+                    if conf > confThreshold:
                         newImage = ObjectDetection(1,classIds[i],roundConf)
                         print(frameCount, " - ", newImage.objectTime," - ",newImage.objectClassLabel," - ",newImage.objectConfidence)
                         newImage.writeToDatabase()
