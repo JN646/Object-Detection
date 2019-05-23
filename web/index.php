@@ -11,14 +11,16 @@ $foo = new ObjectDetection();
 </nav>
 <div class='col-md-12 fluid-container'>
   <h1>Dashboard</h1>
-  <div class='row col-md-12'>
-    <div class="btn-group" role="group" aria-label="Basic example">
-      <button onclick='toggleDetectedObj()' type="button" class="btn btn-secondary">Detected Obj</button>
-      <button onclick='toggleClasses()' type="button" class="btn btn-secondary">Classes</button>
-      <button onclick='toggleDevices()' type="button" class="btn btn-secondary">Devices</button>
-      <button onclick='toggleStats()' type="button" class="btn btn-secondary">Stats</button>
-      <button onclick='toggleClassesChart()' type="button" class="btn btn-secondary">Classes Chart</button>
-      <button onclick='toggleTotalChart()' type="button" class="btn btn-secondary">Total Chart</button>
+  <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+    <div class="btn-group mr-2" role="group" aria-label="First group">
+      <button onclick='toggleDetectedObj()' type="button" class="btn btn-outline-dark">Detected Obj</button>
+      <button onclick='toggleClasses()' type="button" class="btn btn-outline-dark">Classes</button>
+      <button onclick='toggleDevices()' type="button" class="btn btn-outline-dark">Devices</button>
+      <button onclick='toggleStats()' type="button" class="btn btn-outline-dark">Stats</button>
+    </div>
+  <div class="btn-group mr-2" role="group" aria-label="Second group">
+      <button onclick='toggleClassesChart()' type="button" class="btn btn-outline-dark">Classes Chart</button>
+      <button onclick='toggleTotalChart()' type="button" class="btn btn-outline-dark">Total Chart</button>
     </div>
   </div>
   <!-- Detected Object Table -->
