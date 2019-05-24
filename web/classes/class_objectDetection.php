@@ -65,7 +65,7 @@ class objectDetection {
   public function selectAllTable() {
     // Attempt select query execution
     $conn = $this->dbconnect();
-    $sql = "SELECT * FROM counter LIMIT 25";
+    $sql = "SELECT * FROM counter ORDER BY count_id DESC LIMIT 25";
     if($result = mysqli_query($conn, $sql)){
         if(mysqli_num_rows($result) > 0){
             echo "<table class='table table-sm'>";
@@ -125,7 +125,7 @@ class objectDetection {
   public function countDeviceLastTime($deviceID) {
     // Attempt select query execution
     $conn = $this->dbconnect();
-    $sql = $conn->query("SELECT MAX(count_time) FROM counter WHERE count_deviceID = 1 LIMIT 1");
+    $sql = $conn->query("SELECT MAX(count_time) FROM counter WHERE count_deviceID = $deviceID LIMIT 1");
     $row = $sql->fetch_row();
     $count = $row[0];
 
@@ -153,7 +153,7 @@ class objectDetection {
     $conn = $this->dbconnect();
 
     // SQL
-    $sql = "SELECT DISTINCT count_deviceID
+    $sql = "SELECT DISTINCT (count_deviceID), count_time
     FROM counter
     ORDER BY count_deviceID
     DESC
@@ -185,7 +185,7 @@ class objectDetection {
                 echo "<tr>";
                     echo "<td>{$name}</td>";
                     echo "<td class='text-center'>{$deviceID}</td>";
-                    echo "<td class='text-center'>". date("h:i:s d/m/y", strtotime($this->countDeviceLastTime($deviceID))) ."</td>";
+                    echo "<td class='text-center'>". date("h:i:s.u d/m/y", strtotime($this->countDeviceLastTime($deviceID))) ."</td>";
                 echo "</tr>";
             }
             echo "</table>";

@@ -174,7 +174,7 @@ class ObjectDetection:
     def __init__(self, objectDeviceID, objectClass, objectConfidence):
         self.deviceID = objectDeviceID
         self.objectClass = objectClass
-        self.objectTime = datetime.datetime.now()
+        self.objectTime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
         self.objectClassLabel = "Blank"
         self.objectConfidence = objectConfidence
 
@@ -227,6 +227,7 @@ inpSize = [416,416]                     # Width and Height of network's input im
 ProcessVideo = True
 frameCount = 0
 frameExtractRate = 24
+deviceID = 2
 
 # Network Config
 modelName = 'YOLOv3'
@@ -264,7 +265,7 @@ try:
     print("Total Rows:",newConnection.countRows())
 
     # Get Camera Footage
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture("footage/run.mp4")
 
     if not cap.isOpened():
         print('[DANGER] Cannot open camera feed.')
@@ -360,7 +361,7 @@ while(True):
                 for i in range(len(classIds)):
                     roundConf = '%.8f' % confidences[i]
                     if conf > confThreshold:
-                        newImage = ObjectDetection(1,classIds[i],roundConf)
+                        newImage = ObjectDetection(deviceID,classIds[i],roundConf)
                         print(frameCount, " - ", newImage.objectTime," - ",newImage.objectClassLabel," - ",newImage.objectConfidence)
                         newImage.writeToDatabase()
 

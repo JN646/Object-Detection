@@ -2,17 +2,26 @@
 # ==============================================================================
 # Imports
 # ==============================================================================
-require_once 'classes/objectDetection.php';
+require_once 'classes/class_objectDetection.php';
 require_once 'partials/_header.php';
+
+// Create new object.
 $foo = new ObjectDetection();
 ?>
+<!-- Start Clock -->
 <body onload="startTime()">
+
+<!-- Nav Bar -->
 <nav class="navbar navbar-light bg-light">
   <a class="navbar-brand" href="index.php">Object Detection</a>
   <span id='clock'>Clock</span>
 </nav>
+
+<!-- Main container -->
 <div class='col-md-12 fluid-container'>
   <h1 class='display-4'>Dashboard</h1>
+
+  <!-- Button Toolbar -->
   <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
     <div class="btn-group mr-2" role="group" aria-label="First group">
       <button onclick='toggleDetectedObj()' type="button" class="btn btn-outline-dark">Detected Obj</button>
@@ -28,13 +37,12 @@ $foo = new ObjectDetection();
         <button onclick='toggleDataFunctions()' type="button" class="btn btn-outline-dark">Data Func.</button>
     </div>
   </div>
+
   <!-- Detected Object Table -->
   <fieldset id='detectedObjectAllTable'>
     <legend>Detected Objects <span>(<?php echo $foo->countData() ?>)</span></legend>
     <div class="">
-      <?php
-      $foo->selectAllTable();
-      ?>
+      <?php $foo->selectAllTable(); ?>
     </div>
   </fieldset>
 
@@ -42,9 +50,7 @@ $foo = new ObjectDetection();
   <fieldset id='classesFoundTable'>
     <legend>Classes Found <span>(<?php echo $foo->countClasses() ?>)</span></legend>
     <div class="">
-      <?php
-        $foo->selectAllClassTypes();
-      ?>
+      <?php $foo->selectAllClassTypes(); ?>
     </div>
   </fieldset>
 
@@ -52,9 +58,7 @@ $foo = new ObjectDetection();
   <fieldset id='devicesFoundTable'>
     <legend>Devices Found <span>(<?php echo $foo->countDeviceID() ?>)</span></legend>
     <div class="">
-      <?php
-        $foo->selectAllDevices();
-      ?>
+      <?php $foo->selectAllDevices(); ?>
     </div>
   </fieldset>
 
@@ -62,9 +66,7 @@ $foo = new ObjectDetection();
   <fieldset id='statsTable'>
     <legend>Stats</legend>
     <div class="">
-      <?php
-        $foo->tableStats();
-      ?>
+      <?php $foo->tableStats(); ?>
     </div>
   </fieldset>
 
@@ -99,5 +101,9 @@ $foo = new ObjectDetection();
   </fieldset>
 
 </div>
+
+<!-- Chart JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.js"></script>
+
+<!-- Footer -->
 <?php require_once 'partials/_footer.php'; ?>
