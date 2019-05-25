@@ -3,6 +3,7 @@
 # Imports
 # ==============================================================================
 require_once 'classes/class_objectDetection.php';
+require_once 'classes/class_application.php';
 require_once 'partials/_header.php';
 
 // Create new object.
@@ -40,7 +41,7 @@ $foo = new ObjectDetection();
 
   <!-- Detected Object Table -->
   <fieldset id='detectedObjectAllTable'>
-    <legend>Detected Objects <span>(<?php echo $foo->countData() ?>)</span></legend>
+    <legend>Detected Objects <span>(<?php echo $foo->countThings("All") ?>)</span></legend>
     <div class="">
       <?php $foo->selectAllTable(); ?>
     </div>
@@ -48,7 +49,7 @@ $foo = new ObjectDetection();
 
   <!-- Classes Found -->
   <fieldset id='classesFoundTable'>
-    <legend>Classes Found <span>(<?php echo $foo->countClasses() ?>)</span></legend>
+    <legend>Classes Found <span>(<?php echo $foo->countThings('count_class') ?>)</span></legend>
     <div class="">
       <?php $foo->selectAllClassTypes(); ?>
     </div>
@@ -56,7 +57,7 @@ $foo = new ObjectDetection();
 
   <!-- Devices Found -->
   <fieldset id='devicesFoundTable'>
-    <legend>Devices Found <span>(<?php echo $foo->countDeviceID() ?>)</span></legend>
+    <legend>Devices Found <span>(<?php echo $foo->countThings('count_deviceID') ?>)</span></legend>
     <div class="">
       <?php $foo->selectAllDevices(); ?>
     </div>
@@ -94,8 +95,13 @@ $foo = new ObjectDetection();
   <fieldset id='dataFunctionsFieldset'>
     <legend>Data Functions</legend>
     <div class="">
+      <?php
+      $app = new Application();
+
+      $app->getAppDetails();
+      ?>
       <form class="" action="index.php" method="post">
-        <button class='btn btn-outline-danger' type="button" name="btnTruncate">Truncate</button>
+        <button class='btn btn-outline-danger' type="button" name="btnTruncate" disabled>Truncate</button>
       </form>
     </div>
   </fieldset>
