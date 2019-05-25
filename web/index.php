@@ -41,7 +41,9 @@ $foo = new ObjectDetection();
 
   <!-- Detected Object Table -->
   <fieldset id='detectedObjectAllTable'>
-    <legend>Detected Objects <span>(<?php echo $foo->countThings("All") ?>)</span></legend>
+    <legend>Detected Objects
+      <span>(<?php echo $foo->numberFormatShort($foo->countThings("All")) ?>)</span>
+    </legend>
     <div class="">
       <?php $foo->selectAllTable(); ?>
     </div>
@@ -49,7 +51,9 @@ $foo = new ObjectDetection();
 
   <!-- Classes Found -->
   <fieldset id='classesFoundTable'>
-    <legend>Classes Found <span>(<?php echo $foo->countThings('count_class') ?>)</span></legend>
+    <legend>Classes Found
+      <span>(<?php echo $foo->numberFormatShort($foo->countThings('count_class')) ?>)</span>
+    </legend>
     <div class="">
       <?php $foo->selectAllClassTypes(); ?>
     </div>
@@ -57,7 +61,9 @@ $foo = new ObjectDetection();
 
   <!-- Devices Found -->
   <fieldset id='devicesFoundTable'>
-    <legend>Devices Found <span>(<?php echo $foo->countThings('count_deviceID') ?>)</span></legend>
+    <legend>Devices Found
+      <span>(<?php echo $foo->numberFormatShort($foo->countThings('count_deviceID')) ?>)</span>
+    </legend>
     <div class="">
       <?php $foo->selectAllDevices(); ?>
     </div>
