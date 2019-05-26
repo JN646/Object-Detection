@@ -415,7 +415,7 @@ class objectDetection {
     print json_encode($total);
   }
 
-  public function liveObjectCounter() {
+  public function liveObjectCounter($class, $deviceID) {
     $conn = $this->dbconnect();
 
     // Get the latest count.

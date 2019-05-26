@@ -2,5 +2,5 @@
 include '../classes/class_objectDetection.php';
 
 $foo = new ObjectDetection();
-$foo->liveObjectCounter();
+$foo->liveObjectCounter("person",2);
 ?>
