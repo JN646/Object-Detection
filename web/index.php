@@ -78,24 +78,24 @@ $foo = new ObjectDetection();
   </fieldset>
 
   <!-- Class Chart -->
-  <fieldset id='classChartFieldset'>
+  <!-- <fieldset id='classChartFieldset'>
     <legend>Class Chart</legend>
     <div class="">
       <div id="chart-container">
         <canvas width="400px" height="400px" id="mycanvas-class"></canvas>
       </div>
     </div>
-  </fieldset>
+  </fieldset> -->
 
   <!-- Total Chart -->
-  <fieldset id='totalChartFieldset'>
+  <!-- <fieldset id='totalChartFieldset'>
     <legend>Total Chart</legend>
     <div class="">
       <div id="chart-container-total">
         <canvas width="400px" height="400px" id="mycanvas-total"></canvas>
       </div>
     </div>
-  </fieldset>
+  </fieldset> -->
 
   <!-- Data Functions -->
   <fieldset id='dataFunctionsFieldset'>

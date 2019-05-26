@@ -219,7 +219,7 @@ class objectDetection {
                 echo "<tr>";
                     echo "<td>{$name}</td>";
                     echo "<td class='text-center'>{$deviceID}</td>";
-                    echo "<td class='text-center'>". date("h:i:s.u d/m/y", strtotime($this->countDeviceLastTime($deviceID))) ."</td>";
+                    echo "<td class='text-center'>". date("h:i:s d/m/y", strtotime($this->countDeviceLastTime($deviceID))) ."</td>";
                 echo "</tr>";
             }
             echo "</table>";
