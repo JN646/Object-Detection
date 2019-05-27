@@ -79,12 +79,23 @@ $foo = new ObjectDetection();
     </div>
   </fieldset>
 
-  <!-- Stats -->
+  <!-- Live Count -->
   <fieldset id='liveCount'>
     <legend>Live Count</legend>
     <div class="">
-      <h1 class='text-center'><?php echo $foo->liveObjectCounter("person",2); ?></h1>
-      <!-- <h1 class='text-center'><?php echo $foo->liveObjectCounter("ALL","ALL"); ?></h1> -->
+      <!-- <h1 class='text-center'><?php echo $foo->liveObjectCounter("person",2); ?></h1> -->
+      <h1 class='text-center'><?php echo $foo->liveObjectCounter("ALL","ALL"); ?></h1>
+    </div>
+  </fieldset>
+
+  <!-- CSV Export -->
+  <fieldset id='csvExport'>
+    <legend>CSV Export</legend>
+    <div class="">
+      <form class="" action="functions/reports.php" method="POST">
+        <button class='btn btn-outline-primary' type="submit" name="csvOutput">All as CSV</button>
+        <button class='btn btn-outline-primary' type="submit" name="csvTodayOutput">Today as CSV</button>
+      </form>
     </div>
   </fieldset>
 
