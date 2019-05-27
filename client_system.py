@@ -227,13 +227,18 @@ inpSize = [416,416]                     # Width and Height of network's input im
 ProcessVideo = True
 frameCount = 0
 frameExtractRate = 24
-deviceID = 2
+deviceID = 1
+videoInput = 0
 
 # Network Config
 modelName = 'YOLOv3'
 modelConfiguration = 'network/yolov3.cfg'
 modelWeights = 'network/yolov3.weights'
 classesFile = "network/coco.names";
+
+# Modules
+mod_writeToFile = 0
+mod_writeToDatabase = 1
 
 # ==============================================================================
 # Get Output Names
@@ -265,7 +270,7 @@ try:
     print("Total Rows:",newConnection.countRows())
 
     # Get Camera Footage
-    cap = cv2.VideoCapture("footage/run.mp4")
+    cap = cv2.VideoCapture(videoInput)
 
     if not cap.isOpened():
         print('[DANGER] Cannot open camera feed.')
@@ -363,7 +368,12 @@ while(True):
                     if conf > confThreshold:
                         newImage = ObjectDetection(deviceID,classIds[i],roundConf)
                         print(frameCount, " - ", newImage.objectTime," - ",newImage.objectClassLabel," - ",newImage.objectConfidence)
-                        newImage.writeToDatabase()
+
+                        if mod_writeToFile == 1:
+                            newImage.writeToDatabase()
+
+                        if mod_writeToDatabase == 1:
+                            newImage.writeToDatabase()
 
         frameCount += 1
 
