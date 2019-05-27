@@ -4,6 +4,7 @@
 # ==============================================================================
 require_once 'classes/class_objectDetection.php';
 require_once 'classes/class_application.php';
+require_once 'classes/common.php';
 require_once 'partials/_header.php';
 
 // Create new object.
@@ -43,7 +44,7 @@ $foo = new ObjectDetection();
   <!-- Detected Object Table -->
   <fieldset id='detectedObjectAllTable'>
     <legend>Detected Objects
-      <span>(<?php echo $foo->numberFormatShort($foo->countThings("All")) ?>)</span>
+      <span>(<?php echo numberFormatShort($foo->countThings("All")) ?>)</span>
     </legend>
     <div class="">
       <?php $foo->selectAllTable(); ?>
@@ -53,7 +54,7 @@ $foo = new ObjectDetection();
   <!-- Classes Found -->
   <fieldset id='classesFoundTable'>
     <legend>Classes Found
-      <span>(<?php echo $foo->numberFormatShort($foo->countThings('count_class')) ?>)</span>
+      <span>(<?php echo numberFormatShort($foo->countThings('count_class')) ?>)</span>
     </legend>
     <div class="">
       <?php $foo->selectAllClassTypes(); ?>
@@ -63,7 +64,7 @@ $foo = new ObjectDetection();
   <!-- Devices Found -->
   <fieldset id='devicesFoundTable'>
     <legend>Devices Found
-      <span>(<?php echo $foo->numberFormatShort($foo->countThings('count_deviceID')) ?>)</span>
+      <span>(<?php echo numberFormatShort($foo->countThings('count_deviceID')) ?>)</span>
     </legend>
     <div class="">
       <?php $foo->selectAllDevices(); ?>
