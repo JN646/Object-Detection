@@ -29,11 +29,12 @@ $foo = new ObjectDetection();
       <button onclick='toggleClasses()' type="button" class="btn btn-outline-dark">Classes</button>
       <button onclick='toggleDevices()' type="button" class="btn btn-outline-dark">Devices</button>
       <button onclick='toggleStats()' type="button" class="btn btn-outline-dark">Stats</button>
+      <button onclick='toggleLiveCount()' type="button" class="btn btn-outline-dark">Live Count</button>
     </div>
-    <div class="btn-group mr-2" role="group" aria-label="Second group">
+    <!-- <div class="btn-group mr-2" role="group" aria-label="Second group">
         <button onclick='toggleClassesChart()' type="button" class="btn btn-outline-dark">Classes Chart</button>
         <button onclick='toggleTotalChart()' type="button" class="btn btn-outline-dark">Total Chart</button>
-    </div>
+    </div> -->
     <div class="btn-group mr-2" role="group" aria-label="Third group">
         <button onclick='toggleDataFunctions()' type="button" class="btn btn-outline-dark">Data Func.</button>
     </div>
@@ -77,6 +78,15 @@ $foo = new ObjectDetection();
     </div>
   </fieldset>
 
+  <!-- Stats -->
+  <fieldset id='liveCount'>
+    <legend>Live Count</legend>
+    <div class="">
+      <h1 class='text-center'><?php echo $foo->liveObjectCounter("person",2); ?></h1>
+      <!-- <h1 class='text-center'><?php echo $foo->liveObjectCounter("ALL","ALL"); ?></h1> -->
+    </div>
+  </fieldset>
+
   <!-- Class Chart -->
   <!-- <fieldset id='classChartFieldset'>
     <legend>Class Chart</legend>
@@ -102,9 +112,8 @@ $foo = new ObjectDetection();
     <legend>Data Functions</legend>
     <div class="">
       <?php
-      $app = new Application();
-
-      $app->getAppDetails();
+      echo Application::getAppDetails();
+      echo ApplicationVersion::get();
       ?>
       <form class="" action="index.php" method="post">
         <button class='btn btn-outline-danger' type="button" name="btnTruncate" disabled>Truncate</button>

@@ -142,6 +142,10 @@ function toggleStats() {
   $("#statsTable").toggle();
 }
 
+function toggleLiveCount() {
+  $("#liveCount").toggle();
+}
+
 function toggleClassesChart() {
   $("#classChartFieldset").toggle();
 }
