@@ -5,7 +5,9 @@
 
 legend {
   text-align: center;
+  background-color: #f8f9fa;
   border: 1px solid grey;
+  border-radius: 5px;
   padding: 5px;
 }
 
@@ -15,4 +17,10 @@ fieldset {
   margin: 10px;
   border: 1px solid gray;
   padding: 10px;
+  border-radius: 5px;
+}
+
+#detectedObjectAllTableInner {
+  height: 80%;
+  overflow-y: auto;
 }

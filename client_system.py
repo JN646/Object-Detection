@@ -19,6 +19,7 @@ import cv2
 import datetime
 import time
 import os
+import geocoder
 from colorama import Fore, Back, Style
 from matplotlib import pyplot as plt
 from mysql.connector import errorcode
@@ -171,12 +172,13 @@ class ObjectDetection:
         objectConfidence: The confidence lebel of the detected object.
     """
     # Object Init.
-    def __init__(self, objectDeviceID, objectClass, objectConfidence):
+    def __init__(self, objectDeviceID, objectClass, objectConfidence, objectLatLong):
         self.deviceID = objectDeviceID
         self.objectClass = objectClass
         self.objectTime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
         self.objectClassLabel = "Blank"
         self.objectConfidence = objectConfidence
+        self.objectLatLong = objectLatLong
 
         # Load names of classes
         classesFile = "network/coco.names";
@@ -194,7 +196,7 @@ class ObjectDetection:
     # Write to file
     def writeToFile(self):
         # Map data to columns.
-        row = [self.deviceID, self.objectTime, self.objectClassLabel, str(self.objectConfidence)+"%"]
+        row = [self.deviceID, self.objectTime, self.objectClass, str(self.objectConfidence)+"%", self.objectLatLong[0], self.objectLatLong[1]]
 
         # Amend CSV.
         with open("file.csv", 'a') as file:
@@ -207,8 +209,8 @@ class ObjectDetection:
         newConnection.databaseConnect()
         # newConnection.databaseInfo()
 
-        sql = "INSERT INTO counter (count_deviceID, count_class, count_time, count_confidence) VALUES (%s, %s, %s, %s)"
-        val = str(self.deviceID), str(self.objectClassLabel), str(self.objectTime), str(self.objectConfidence)
+        sql = "INSERT INTO counter (count_deviceID, count_class, count_time, count_confidence, count_lat, count_long) VALUES (%s, %s, %s, %s, %s, %s)"
+        val = str(self.deviceID), str(self.objectClass), str(self.objectTime), str(self.objectConfidence), self.objectLatLong[0], self.objectLatLong[1]
 
         try:
             newConnection.mycursor.execute(sql, val)
@@ -366,8 +368,9 @@ while(True):
                 for i in range(len(classIds)):
                     roundConf = '%.8f' % confidences[i]
                     if conf > confThreshold:
-                        newImage = ObjectDetection(deviceID,classIds[i],roundConf)
-                        print(frameCount, " - ", newImage.objectTime," - ",newImage.objectClassLabel," - ",newImage.objectConfidence)
+                        g = geocoder.ip('me')
+                        newImage = ObjectDetection(deviceID,classIds[i],roundConf,g.latlng)
+                        print(frameCount, " - ", newImage.objectTime," - ",newImage.objectClass," - ",newImage.objectConfidence, newImage.objectLatLong[0], newImage.objectLatLong[1])
 
                         if mod_writeToFile == 1:
                             newImage.writeToDatabase()

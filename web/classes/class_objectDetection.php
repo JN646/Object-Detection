@@ -5,11 +5,13 @@
 require_once 'classes/common.php';
 
 class objectDetection {
-  private $id;
-  private $deviceID;
-  private $class;
-  private $time;
-  private $confidence;
+  public $id;
+  public $deviceID;
+  public $class;
+  public $time;
+  public $confidence;
+  public $long;
+  public $lat;
 
   # ============================================================================
   # Constructor
@@ -54,34 +56,48 @@ class objectDetection {
   # ============================================================================
   public function selectAllTable() {
     // Attempt select query execution
+    // SELECT * FROM `counter` INNER JOIN class_types ON counter.count_class = class_types.class_number
     $conn = $this->dbconnect();
-    if($result = mysqli_query($conn, "SELECT * FROM `counter` ORDER BY `count_id` DESC LIMIT 25")) {
+    if($result = mysqli_query($conn, "SELECT * FROM `counter` INNER JOIN `class_types` ON counter.count_class = class_types.class_number INNER JOIN `devices` ON counter.count_deviceID = devices.device_id ORDER BY `count_id` DESC")) {
         if(mysqli_num_rows($result) > 0){
             echo "<table class='table table-sm'>";
                 echo "<tr>";
                     echo "<th class='text-center'><input id='doSelectAll' class='doCheckbox' type='checkbox'></th>";
                     echo "<th class='text-center'>ID</th>";
-                    echo "<th class='text-center'>Device ID</th>";
+                    echo "<th class='text-center'>Device Name</th>";
+                    echo "<th class='text-center'>Icon</th>";
                     echo "<th class='text-center'>Class</th>";
                     echo "<th class='text-center'>Time</th>";
                     echo "<th class='text-center'>Conf.</th>";
+                    echo "<th class='text-center'>GPS</th>";
                 echo "</tr>";
             while($row = mysqli_fetch_array($result)){
                 // Assign fetched variables to class
                 $this->id = $row['count_id'];
-                $this->deviceID = $row['count_deviceID'];
-                $this->class = ucfirst($row['count_class']);
+                $this->deviceID = $row['device_name'];
+                $this->classIcon = $row['class_icon'];
+                $this->class = ucfirst($row['class_name']);
                 $this->time = $row['count_time'];
                 $this->confidence = $row['count_confidence'];
+                $this->lat = $row['count_lat'];
+                $this->long = $row['count_long'];
+
+                $latLong = $this->lat . " " . $this->long;
 
                 // Draw table
                 echo "<tr>";
                     echo "<td class='text-center'><input class='doCheckbox' type='checkbox' value='{$this->id}'></td>";
                     echo "<td class='text-center'>{$this->id}</td>";
                     echo "<td class='text-center'>{$this->deviceID}</td>";
+                    echo "<td class='text-center'>{$this->classIcon}</td>";
                     echo "<td>{$this->class}</td>";
-                    echo "<td>" . date("h:i:s d/m/y", strtotime($this->time)) . "</td>";
+                    echo "<td>" . date("H:i:s d/m/y", strtotime($this->time)) . "</td>";
                     echo "<td class='text-center {$this->formatConfidenceColours()}'>".formatConfidence($this->confidence)."</td>";
+                    if (empty($this->lat) || empty($this->long)) {
+                      echo "<td class='text-center'></td>";
+                    } else {
+                      echo "<td class='text-center'><i class='fas fa-globe-europe' title='{$latLong}'></i></td>";
+                    }
                 echo "</tr>";
             }
             echo "</table>";
@@ -153,8 +169,9 @@ class objectDetection {
     $conn = $this->dbconnect();
 
     // SQL
-    $sql = "SELECT DISTINCT (`count_deviceID`), `count_time`
+    $sql = "SELECT DISTINCT (`count_deviceID`), `count_time`, `count_lat`, `count_long`, `device_name`, `device_location`
     FROM `counter`
+    INNER JOIN `devices` ON counter.count_deviceID = devices.device_id
     ORDER BY `count_deviceID`
     DESC
     LIMIT 5";
@@ -166,26 +183,38 @@ class objectDetection {
             echo "<table class='table table-sm'>";
                 echo "<tr>";
                     echo "<th class='text-center'>Name</th>";
-                    echo "<th class='text-center'>ID</th>";
+                    echo "<th class='text-center'>Location</th>";
                     echo "<th class='text-center'>Last Seen</th>";
+                    echo "<th class='text-center'>GPS</th>";
                 echo "</tr>";
 
             // For Each.
             while($row = mysqli_fetch_array($result)) {
 
                 // Map variables.
-                $deviceID = $row['count_deviceID'];
-                $name = "";
+                $this->deviceID = $row['count_deviceID'];
+                $this->deviceName = $row['device_name'];
+                $this->deviceLocation = $row['device_location'];
+                $this->lat = $row['count_lat'];
+                $this->long = $row['count_long'];
 
+                $latLong = $this->lat . " " . $this->long;
+
+                // If blank
                 if ($name == "") {
                   $name = "N/A";
                 }
 
                 // Generate Table Rows.
                 echo "<tr>";
-                    echo "<td>{$name}</td>";
-                    echo "<td class='text-center'>{$deviceID}</td>";
-                    echo "<td class='text-center'>". date("h:i:s d/m/y", strtotime($this->countDeviceLastTime($deviceID))) ."</td>";
+                    echo "<td>{$this->deviceName}</td>";
+                    echo "<td class='text-center'>{$this->deviceLocation}</td>";
+                    echo "<td class='text-center'>". date("H:i:s d/m/y", strtotime($this->countDeviceLastTime($this->deviceID))) ."</td>";
+                    if (empty($this->lat) || empty($this->long)) {
+                      echo "<td class='text-center'></td>";
+                    } else {
+                      echo "<td class='text-center'><i class='fas fa-globe-europe' title='{$latLong}'></i></td>";
+                    }
                 echo "</tr>";
             }
             echo "</table>";
@@ -213,12 +242,7 @@ class objectDetection {
     $conn = $this->dbconnect();
 
     // SQL
-    $sql = "SELECT `count_class`, COUNT(`count_class`) AS `count`
-    FROM `counter`
-    GROUP BY `count_class`
-    ORDER BY `count`
-    DESC
-    LIMIT 5";
+    $sql = "SELECT counter.count_class, COUNT(`count_class`) AS `count` FROM `counter` INNER JOIN class_types ON counter.count_class = class_types.class_number GROUP BY `count_class` ORDER BY `count` DESC LIMIT 5";
 
     // If results is true.
     if($result = mysqli_query($conn, $sql)) {
@@ -226,6 +250,7 @@ class objectDetection {
           // Generate the table.
             echo "<table class='table table-sm'>";
                 echo "<tr>";
+                    echo "<th class='text-center'>Icon</th>";
                     echo "<th class='text-center'>Class</th>";
                     echo "<th class='text-center'>Count</th>";
                 echo "</tr>";
@@ -236,9 +261,11 @@ class objectDetection {
                 // Map variables.
                 $this->class = $row['count_class'];
                 $count = $row['count'];
+                $classIcon = "";
 
                 // Generate Table Rows.
                 echo "<tr>";
+                    echo "<td>{$classIcon}</td>";
                     echo "<td>" . ucfirst($this->class) . "</td>";
                     echo "<td class='text-center'>" . numberFormatShort($count) . "</td>";
                 echo "</tr>";

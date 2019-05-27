@@ -46,7 +46,7 @@ $foo = new ObjectDetection();
     <legend>Detected Objects
       <span>(<?php echo numberFormatShort($foo->countThings("All")) ?>)</span>
     </legend>
-    <div class="">
+    <div id="detectedObjectAllTableInner">
       <?php $foo->selectAllTable(); ?>
     </div>
   </fieldset>
