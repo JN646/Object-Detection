@@ -60,9 +60,12 @@ if (isset($_POST['csvOutput'])) {
 if (isset($_POST['csvTodayOutput'])) {
   $db = dbconnect();
   $today = date("Y-m-d");
+  $today = date("2019-05-27");
+  $todayStart = $today . " 00:00:00";
+  $todayEnd = $today . " 23:59:59";
 
   //get records from database
-  $query = $db->query("SELECT * FROM `counter` INNER JOIN `class_types` ON counter.count_class = class_types.class_number INNER JOIN `devices` ON counter.count_deviceID = devices.device_id ORDER BY `count_id` DESC");
+  $query = $db->query("SELECT * FROM `counter` INNER JOIN `class_types` ON counter.count_class = class_types.class_number INNER JOIN `devices` ON counter.count_deviceID = devices.device_id WHERE counter.count_time > '$todayStart' AND counter.count_time < '$todayEnd' ORDER BY `count_id` DESC");
 
   // If there are returned rows.
   if($query->num_rows > 0){
@@ -91,6 +94,50 @@ if (isset($_POST['csvTodayOutput'])) {
 
       //output all remaining data on a file pointer
       fpassthru($f);
+  } else {
+    echo "No Data Today";
+  }
+  exit;
+}
+
+if (isset($_POST['csvDateSelectGo'])) {
+  $db = dbconnect();
+
+  $todayStart = $_POST["dateSelectStart"];
+  $todayEnd =  $_POST["dateSelectEnd"];
+
+  //get records from database
+  $query = $db->query("SELECT * FROM `counter` INNER JOIN `class_types` ON counter.count_class = class_types.class_number INNER JOIN `devices` ON counter.count_deviceID = devices.device_id WHERE counter.count_time > '$todayStart' AND counter.count_time < '$todayEnd' ORDER BY `count_id` DESC");
+
+  // If there are returned rows.
+  if($query->num_rows > 0){
+      $delimiter = ",";
+      $filename = "today_data_" . date('Y-m-d') . ".csv";
+
+      //create a file pointer
+      $f = fopen('php://memory', 'w');
+
+      //set column headers
+      $fields = array('ID', 'Device', 'Class', 'Confidence', 'Lat', 'Long');
+      fputcsv($f, $fields, $delimiter);
+
+      //output each row of the data, format line as csv and write to file pointer
+      while($row = $query->fetch_assoc()){
+          $lineData = array($row['count_id'], $row['device_name'], $row['class_name'], $row['count_confidence'], $row['count_lat'], $row['count_long']);
+          fputcsv($f, $lineData, $delimiter);
+      }
+
+      //move back to beginning of file
+      fseek($f, 0);
+
+      //set headers to download file rather than displayed
+      header('Content-Type: text/csv');
+      header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+      //output all remaining data on a file pointer
+      fpassthru($f);
+  } else {
+    echo "No Data Today";
   }
   exit;
 }

@@ -3,7 +3,7 @@
   font-size: small;
 }
 
-legend {
+legend.legendMain {
   text-align: center;
   background-color: #f8f9fa;
   border: 1px solid grey;
@@ -11,13 +11,25 @@ legend {
   padding: 5px;
 }
 
-fieldset {
-  display: block;
-  float: left;
-  margin: 10px;
+legend.legendInner{
+  text-align: center;
+  background-color: #f8f9fa;
+  border: 1px solid grey;
+  border-radius: 0px;
+}
+
+fieldset.fieldsetMain {
+  margin-top: 10px;
   border: 1px solid gray;
   padding: 10px;
   border-radius: 5px;
+}
+
+fieldset.fieldsetInner {
+  margin-top: 5px;
+  border: 1px solid grey;
+  padding: 5px;
+  border-radius: 0px;
 }
 
 #detectedObjectAllTableInner {

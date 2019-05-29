@@ -65,7 +65,6 @@ class objectDetection {
                     echo "<th class='text-center'><input id='doSelectAll' class='doCheckbox' type='checkbox'></th>";
                     echo "<th class='text-center'>ID</th>";
                     echo "<th class='text-center'>Device Name</th>";
-                    echo "<th class='text-center'>Icon</th>";
                     echo "<th class='text-center'>Class</th>";
                     echo "<th class='text-center'>Time</th>";
                     echo "<th class='text-center'>Conf.</th>";
@@ -89,8 +88,7 @@ class objectDetection {
                     echo "<td class='text-center'><input class='doCheckbox' type='checkbox' value='{$this->id}'></td>";
                     echo "<td class='text-center'>{$this->id}</td>";
                     echo "<td class='text-center'>{$this->deviceID}</td>";
-                    echo "<td class='text-center'>{$this->classIcon}</td>";
-                    echo "<td>{$this->class}</td>";
+                    echo "<td>{$this->classIcon} {$this->class}</td>";
                     echo "<td>" . date("H:i:s d/m/y", strtotime($this->time)) . "</td>";
                     echo "<td class='text-center {$this->formatConfidenceColours()}'>".formatConfidence($this->confidence)."</td>";
                     if (empty($this->lat) || empty($this->long)) {
