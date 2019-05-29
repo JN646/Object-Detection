@@ -45,7 +45,7 @@ $foo = new ObjectDetection();
     <br>
 
     <div class="">
-      <div class="row Row 1">
+      <div class="row Row1">
 
           <div class="col-sm-12 col-md-6">
             <!-- CSV Reporting -->
@@ -175,17 +175,6 @@ $foo = new ObjectDetection();
                 <?php $foo->selectAllDevices(); ?>
               </div>
             </fieldset>
-          </div>
-      </div>
-
-      <div class="row Row 2">
-
-          <div class="col-sm-6 col-md-3">
-
-          </div>
-
-          <div class="col-sm-6 col-md-3">
-
           </div>
       </div>
   </div>
