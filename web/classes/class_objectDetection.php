@@ -72,26 +72,25 @@ class objectDetection {
                 echo "</tr>";
             while($row = mysqli_fetch_array($result)){
                 // Assign fetched variables to class
-                $this->id = $row['count_id'];
-                $this->deviceID = $row['device_name'];
-                $this->classIcon = $row['class_icon'];
-                $this->class = ucfirst($row['class_name']);
-                $this->time = $row['count_time'];
+                $id = $row['count_id'];
+                $deviceID = $row['device_name'];
+                $classIcon = $row['class_icon'];
+                $class = ucfirst($row['class_name']);
+                $time = $row['count_time'];
                 $this->confidence = $row['count_confidence'];
-                $this->lat = $row['count_lat'];
-                $this->long = $row['count_long'];
-
-                $latLong = $this->lat . " " . $this->long;
+                $lat = $row['count_lat'];
+                $long = $row['count_long'];
+                $latLong = $lat . " " . $long;
 
                 // Draw table
                 echo "<tr>";
-                    echo "<td class='text-center'><input class='doCheckbox' type='checkbox' value='{$this->id}'></td>";
-                    echo "<td class='text-center'>{$this->id}</td>";
-                    echo "<td class='text-center'>{$this->deviceID}</td>";
-                    echo "<td>{$this->classIcon} {$this->class}</td>";
-                    echo "<td>" . date("H:i:s d/m/y", strtotime($this->time)) . "</td>";
+                    echo "<td class='text-center'><input class='doCheckbox' type='checkbox' value='{$id}'></td>";
+                    echo "<td class='text-center'>{$id}</td>";
+                    echo "<td class='text-center'>{$deviceID}</td>";
+                    echo "<td>{$classIcon} {$class}</td>";
+                    echo "<td>" . date("H:i:s d/m/y", strtotime($time)) . "</td>";
                     echo "<td class='text-center {$this->formatConfidenceColours()}'>".formatConfidence($this->confidence)."</td>";
-                    if (empty($this->lat) || empty($this->long)) {
+                    if (empty($lat) || empty($long)) {
                       echo "<td class='text-center'></td>";
                     } else {
                       echo "<td class='text-center'><i class='fas fa-globe-europe' title='{$latLong}'></i></td>";
@@ -160,22 +159,33 @@ class objectDetection {
   }
 
   # ============================================================================
+  # Count Last Device GPS
+  # ============================================================================
+  public function countDeviceLastGPS($deviceID) {
+    // Attempt select query execution
+    $conn = $this->dbconnect();
+    $sql = $conn->query("SELECT `count_id`, `count_lat`, `count_long` FROM `counter` WHERE `count_deviceID` = $deviceID ORDER BY `count_id` DESC LIMIT 1");
+    $row = $sql->fetch_row();
+    $count = array($row[1],$row[2]);
+
+    //free memory associated with result
+    $sql->close();
+
+    // Close connection
+    mysqli_close($conn);
+
+    return $count;
+  }
+
+  # ============================================================================
   # Select All Devices
   # ============================================================================
   public function selectAllDevices() {
     // Connect to the database.
     $conn = $this->dbconnect();
 
-    // SQL
-    $sql = "SELECT DISTINCT (`count_deviceID`), `count_time`, `count_lat`, `count_long`, `device_name`, `device_location`
-    FROM `counter`
-    INNER JOIN `devices` ON counter.count_deviceID = devices.device_id
-    ORDER BY `count_deviceID`
-    DESC
-    LIMIT 5";
-
     // If results is true.
-    if($result = mysqli_query($conn, $sql)) {
+    if($result = mysqli_query($conn, "SELECT * FROM devices")) {
         if(mysqli_num_rows($result) > 0){
           // Generate the table.
             echo "<table class='table table-sm'>";
@@ -183,6 +193,7 @@ class objectDetection {
                     echo "<th class='text-center'>Name</th>";
                     echo "<th class='text-center'>Location</th>";
                     echo "<th class='text-center'>Last Seen</th>";
+                    echo "<th class='text-center'>Ver.</th>";
                     echo "<th class='text-center'>GPS</th>";
                 echo "</tr>";
 
@@ -190,13 +201,29 @@ class objectDetection {
             while($row = mysqli_fetch_array($result)) {
 
                 // Map variables.
-                $this->deviceID = $row['count_deviceID'];
-                $this->deviceName = $row['device_name'];
-                $this->deviceLocation = $row['device_location'];
-                $this->lat = $row['count_lat'];
-                $this->long = $row['count_long'];
+                $deviceID = $row['device_id'];
+                $deviceName = $row['device_name'];
+                $deviceLocation = $row['device_location'];
 
-                $latLong = $this->lat . " " . $this->long;
+                // If Blank
+                if (empty($clientVesion)) {
+                  $clientVesion = $row['device_clientVersion'];
+                } else {
+                  // Client Version not seen.
+                  $clientVesion = "Unknown";
+                }
+
+                $deviceLastSeen = date("H:i:s d/m/y", strtotime($this->countDeviceLastTime($deviceID)));
+
+                // If no date.
+                if ($deviceLastSeen == "00:00:00 01/01/70" || empty($deviceLastSeen)) {
+                  // Never Seen
+                  $deviceLastSeen = "Never Seen";
+                }
+
+                $lat = $this->countDeviceLastGPS($deviceID)[0];
+                $long = $this->countDeviceLastGPS($deviceID)[1];
+                $latLong = $lat . " " . $long;
 
                 // If blank
                 if ($name == "") {
@@ -205,14 +232,18 @@ class objectDetection {
 
                 // Generate Table Rows.
                 echo "<tr>";
-                    echo "<td>{$this->deviceName}</td>";
-                    echo "<td class='text-center'>{$this->deviceLocation}</td>";
-                    echo "<td class='text-center'>". date("H:i:s d/m/y", strtotime($this->countDeviceLastTime($this->deviceID))) ."</td>";
-                    if (empty($this->lat) || empty($this->long)) {
+                    echo "<td>{$deviceName}</td>";
+                    echo "<td class='text-center'>{$deviceLocation}</td>";
+                    echo "<td class='text-center'>{$deviceLastSeen}</td>";
+                    echo "<td class='text-center' title='{$clientVesion}'><i class='fas fa-code-branch'></i></td>";
+
+                    // Check if there is a GPS coord.
+                    if (empty($lat) || empty($long)) {
                       echo "<td class='text-center'></td>";
                     } else {
                       echo "<td class='text-center'><i class='fas fa-globe-europe' title='{$latLong}'></i></td>";
                     }
+
                 echo "</tr>";
             }
             echo "</table>";
@@ -354,62 +385,8 @@ class objectDetection {
   }
 
   # ============================================================================
-  # CHARTS
+  # Live Counter
   # ============================================================================
-  # ============================================================================
-  # Class Chart
-  # ============================================================================
-  public function chartClass() {
-    $mysqli = $this->dbconnect();
-    //query to get data from the table
-    $query = sprintf("SELECT `count_class`, COUNT(`count_class`) AS `count` FROM `counter` GROUP BY `count_class`");
-
-    //execute query
-    $result = $mysqli->query($query);
-
-    //loop through the returned data
-    $data = array();
-    foreach ($result as $row) {
-    	$data[] = $row;
-    }
-
-    //free memory associated with result
-    $result->close();
-
-    //close connection
-    $mysqli->close();
-
-    //now print the data
-    print json_encode($data);
-  }
-
-  # ============================================================================
-  # Total Chart
-  # ============================================================================
-  public function chartTotal() {
-    $mysqli = $this->dbconnect();
-    //query to get data from the table
-    $query = sprintf("SELECT `count_time`, `count_id` FROM `counter` GROUP BY `count_id`");
-
-    //execute query
-    $result = $mysqli->query($query);
-
-    //loop through the returned data
-    $total = array();
-    foreach ($result as $row) {
-      $total[] = $row;
-    }
-
-    //free memory associated with result
-    $result->close();
-
-    //close connection
-    $mysqli->close();
-
-    //now print the data
-    print json_encode($total);
-  }
-
   public function liveObjectCounter($class, $deviceID) {
     $conn = $this->dbconnect();
 
