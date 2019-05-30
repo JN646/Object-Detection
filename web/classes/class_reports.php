@@ -7,8 +7,16 @@ require_once 'common.php';
  */
 class reports {
 
+  private $lastTrigger; //time of last Trigger
+
   # ============================================================================
   # Constructor
+  # Contrusts a report with details on how to pull information from the database
+  # Detials:
+  # - Trigger
+  # - Process
+  # - Conditional
+  # - Action
   # ============================================================================
   function __construct() {}
 
@@ -28,6 +36,29 @@ class reports {
     // Return connection
     return $conn;
   }
+
+  public function assessTrigger() {
+    // does what is says on the tin
+    if(true) return $this->process();
+  }
+
+  private function process() {
+    // requres deatils on how to parse an SQL search
+    // needs a table, column, count bool?, WHERE condition is
+
+    $sql = "SELECT";
+
+    if($countBool) {
+      $sql += " COUNT('$column')";
+    } else {
+      $sql += " '$column'";
+    }
+
+    $sql +=  " FROM '$table' WHERE '$column' '$comparitor' '$value'";
+
+    echo $sql;
+  }
+
 
   # ============================================================================
   # Get CSV

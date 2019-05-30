@@ -16,7 +16,7 @@ $foo = new ObjectDetection();
 <!-- Nav Bar -->
 <nav class="navbar navbar-dark bg-dark">
   <a class="navbar-brand" href="index.php">Object Detection</a>
-  <span id='clock'>Clock</span>
+  <span class='text-white' id='clock'>Clock</span>
 </nav>
 
 <!-- Main container -->
@@ -85,20 +85,7 @@ $foo = new ObjectDetection();
                 <!-- Block 2 -->
                 <div class='col'>
                   <fieldset class='fieldsetInner'>
-                    <legend class='legendInner'>Date 2</legend>
-                    <form class="" action="functions/reports.php" method="POST">
-                      <div class="row">
-                        <div class="col-md-5">
-                          <input type="datetime-local" class='form-control' name='dateSelectStart' value="<?php echo date("Y-m-d H:i:s",$timestamp); ?>"/>
-                        </div>
-                        <div class="col-md-5">
-                          <input type="datetime-local" class='form-control' name='dateSelectEnd' value="<?php echo date("Y-m-d H:i:s",$timestamp); ?>"/>
-                        </div>
-                        <div class="col-md-2">
-                          <button class='form-control btn btn-outline-success' type="submit" name="csvDateSelectGo">Go</button>
-                        </div>
-                      </div>
-                    </form>
+                    <legend class='legendInner'>Something Else</legend>
                   </fieldset>
                 </div>
               </div>

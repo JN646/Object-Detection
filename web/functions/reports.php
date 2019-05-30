@@ -81,7 +81,7 @@ if (isset($_POST['csvTodayOutput'])) {
 
       //output each row of the data, format line as csv and write to file pointer
       while($row = $query->fetch_assoc()){
-          $lineData = array($row['count_id'], $row['device_name'], $row['class_name'], $row['count_confidence'], $row['count_lat'], $row['count_long']);
+          $lineData = array($row['count_time'], $row['count_id'], $row['device_name'], $row['class_name'], $row['count_confidence'], $row['count_lat'], $row['count_long']);
           fputcsv($f, $lineData, $delimiter);
       }
 
@@ -123,7 +123,7 @@ if (isset($_POST['csvDateSelectGo'])) {
 
       //output each row of the data, format line as csv and write to file pointer
       while($row = $query->fetch_assoc()){
-          $lineData = array($row['count_id'], $row['device_name'], $row['class_name'], $row['count_confidence'], $row['count_lat'], $row['count_long']);
+          $lineData = array($row['count_time'], $row['count_id'], $row['device_name'], $row['class_name'], $row['count_confidence'], $row['count_lat'], $row['count_long']);
           fputcsv($f, $lineData, $delimiter);
       }
 

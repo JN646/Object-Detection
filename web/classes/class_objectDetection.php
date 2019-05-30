@@ -240,7 +240,11 @@ class objectDetection {
     $conn = $this->dbconnect();
 
     // SQL
-    $sql = "SELECT counter.count_class, COUNT(`count_class`) AS `count` FROM `counter` INNER JOIN class_types ON counter.count_class = class_types.class_number GROUP BY `count_class` ORDER BY `count` DESC LIMIT 5";
+    $sql = "SELECT class_types.class_name, class_types.class_icon, COUNT(class_types.class_name) AS `count` FROM `counter`
+      JOIN class_types ON counter.count_class = class_types.class_number
+      GROUP BY class_types.class_name, class_types.class_icon
+      ORDER BY `count` DESC
+      LIMIT 5";
 
     // If results is true.
     if($result = mysqli_query($conn, $sql)) {
@@ -257,13 +261,13 @@ class objectDetection {
             while($row = mysqli_fetch_array($result)){
 
                 // Map variables.
-                $this->class = $row['count_class'];
+                $this->class = $row['class_name'];
                 $count = $row['count'];
-                $classIcon = "";
+                $classIcon = $row['class_icon'];
 
                 // Generate Table Rows.
                 echo "<tr>";
-                    echo "<td>{$classIcon}</td>";
+                    echo "<td  class='text-center'>{$classIcon}</td>";
                     echo "<td>" . ucfirst($this->class) . "</td>";
                     echo "<td class='text-center'>" . numberFormatShort($count) . "</td>";
                 echo "</tr>";
