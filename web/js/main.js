@@ -2,12 +2,6 @@
 // JS Hello
 console.log("JS File Loaded.")
 
-// Hide by default
-$(document).ready(function(){
-  $("#classChartFieldset").hide();
-  $("#totalChartFieldset").hide();
-});
-
 // Clock
 function startTime() {
   var today = new Date();
@@ -42,89 +36,6 @@ if (document.getElementById('doSelectAll')) {
   });
 }
 
-// AJAX
-$(document).ready(function(){
-  // Total
-	$.ajax({
-		url: "http://localhost/object2/ajax/data.php",
-		method: "GET",
-		success: function(total) {
-			console.log(total);
-			var count_time = [];
-			var count_id = [];
-
-			for(var i in total) {
-				count_time.push(total[i].count_time);
-				count_id.push(total[i].count_id);
-			}
-
-			var chartdata = {
-				labels: count_time,
-				datasets : [
-					{
-						label: 'Count',
-						backgroundColor: 'rgba(0, 200, 0, 0.75)',
-						borderColor: 'rgba(200, 200, 200, 0.75)',
-						hoverBackgroundColor: 'rgba(200, 200, 200, 1)',
-						hoverBorderColor: 'rgba(200, 200, 200, 1)',
-						data: count_id
-					}
-				]
-			};
-
-			var ctx = $("#mycanvas-total");
-
-			var barGraph = new Chart(ctx, {
-				type: 'line',
-				data: chartdata
-			});
-		},
-		error: function(total) {
-			console.log(total);
-		}
-	});
-
-  // Class
-  $.ajax({
-    url: "http://localhost/object2/ajax/data.php",
-    method: "GET",
-    success: function(data) {
-      console.log(data);
-      var count_class = [];
-      var count = [];
-
-      for(var i in data) {
-        count_class.push(data[i].count_class);
-        count.push(data[i].count);
-      }
-
-      var chartdata = {
-        labels: count_class,
-        datasets : [
-          {
-            // label: 'Count',
-            backgroundColor: 'rgba(200, 0, 0, 0.75)',
-            borderColor: 'rgba(200, 200, 200, 0.75)',
-            hoverBackgroundColor: 'rgba(200, 200, 200, 1)',
-            hoverBorderColor: 'rgba(200, 200, 200, 1)',
-            data: count
-          }
-        ]
-      };
-
-      var ctx = $("#mycanvas-class");
-
-      var barGraph = new Chart(ctx, {
-        type: 'pie',
-        data: chartdata
-      });
-    },
-    error: function(data) {
-      console.log(data);
-    }
-  });
-});
-
 //  Dashboard toggle buttons
 function toggleDetectedObj() {
   $("#detectedObjectAllTable").toggle();
@@ -146,14 +57,63 @@ function toggleLiveCount() {
   $("#liveCount").toggle();
 }
 
-function toggleClassesChart() {
-  $("#classChartFieldset").toggle();
-}
-
-function toggleTotalChart() {
-  $("#totalChartFieldset").toggle();
-}
-
 function toggleDataFunctions() {
   $("#dataFunctionsFieldset").toggle();
+}
+
+// Table Sorting
+function sortTable(n) {
+  console.log("Sort Table Loaded.")
+  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+  table = document.getElementById("detectedObjectAllTable");
+  switching = true;
+  // Set the sorting direction to ascending:
+  dir = "asc";
+  /* Make a loop that will continue until
+  no switching has been done: */
+  while (switching) {
+    // Start by saying: no switching is done:
+    switching = false;
+    rows = table.rows;
+    /* Loop through all table rows (except the
+    first, which contains table headers): */
+    for (i = 1; i < (rows.length - 1); i++) {
+      // Start by saying there should be no switching:
+      shouldSwitch = false;
+      /* Get the two elements you want to compare,
+      one from current row and one from the next: */
+      x = rows[i].getElementsByTagName("TD")[n];
+      y = rows[i + 1].getElementsByTagName("TD")[n];
+      /* Check if the two rows should switch place,
+      based on the direction, asc or desc: */
+      if (dir == "asc") {
+        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+          // If so, mark as a switch and break the loop:
+          shouldSwitch = true;
+          break;
+        }
+      } else if (dir == "desc") {
+        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+          // If so, mark as a switch and break the loop:
+          shouldSwitch = true;
+          break;
+        }
+      }
+    }
+    if (shouldSwitch) {
+      /* If a switch has been marked, make the switch
+      and mark that a switch has been done: */
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+      // Each time a switch is done, increase this count by 1:
+      switchcount ++;
+    } else {
+      /* If no switching has been done AND the direction is "asc",
+      set the direction to "desc" and run the while loop again. */
+      if (switchcount == 0 && dir == "asc") {
+        dir = "desc";
+        switching = true;
+      }
+    }
+  }
 }

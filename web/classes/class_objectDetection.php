@@ -63,12 +63,12 @@ class objectDetection {
             echo "<table class='table table-sm'>";
                 echo "<tr>";
                     echo "<th class='text-center'><input id='doSelectAll' class='doCheckbox' type='checkbox'></th>";
-                    echo "<th class='text-center'>ID</th>";
-                    echo "<th class='text-center'>Device Name</th>";
-                    echo "<th class='text-center'>Class</th>";
-                    echo "<th class='text-center'>Time</th>";
-                    echo "<th class='text-center'>Conf.</th>";
-                    echo "<th class='text-center'>GPS</th>";
+                    echo "<th onclick='sortTable(0)' class='text-center'>ID</th>";
+                    echo "<th onclick='sortTable(1)' class='text-center'>Device Name</th>";
+                    echo "<th onclick='sortTable(2)' class='text-center'>Class</th>";
+                    echo "<th onclick='sortTable(3)' class='text-center'>Time</th>";
+                    echo "<th onclick='sortTable(4)' class='text-center'>Conf.</th>";
+                    echo "<th onclick='sortTable(5)' class='text-center'>GPS</th>";
                 echo "</tr>";
             while($row = mysqli_fetch_array($result)){
                 // Assign fetched variables to class
