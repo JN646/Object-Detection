@@ -4,6 +4,7 @@
 # ==============================================================================
 require_once 'classes/class_objectDetection.php';
 require_once 'classes/class_application.php';
+require_once 'classes/class_devices.php';
 require_once 'classes/common.php';
 require_once 'partials/_header.php';
 
@@ -159,7 +160,8 @@ $foo = new ObjectDetection();
                 <span>(<?php echo numberFormatShort($foo->countThings('count_deviceID')) ?>)</span>
               </legend>
               <div class="">
-                <?php $foo->selectAllDevices(); ?>
+                <?php $bar = new devices(); ?>
+                <?php $bar->selectAllDevices(); ?>
               </div>
             </fieldset>
           </div>
