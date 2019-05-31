@@ -115,6 +115,27 @@ class ServerConnection:
             print("[DANGER] Something went wrong: {}".format(err))
             sys.exit(1)
 
+    # Get parameters from device table
+    def getDeviceParameters(self):
+        newConnection = ServerConnection("localhost","root","","objectTracker2")
+        newConnection.databaseConnect()
+
+        sql = "SELECT * FROM devices WHERE device_id = 1"
+
+        try:
+            newConnection.mycursor.execute(sql)
+            myresult = newConnection.mycursor.fetchall()
+            print("[OK] Found Paramters")
+
+            for x in myresult:
+                return x
+
+        except mysql.connector.Error as err:
+            print("[DANGER] Something went wrong: {}".format(err))
+            sys.exit(1)
+        finally:
+            newConnection.mycursor.close()
+
     # Count total number of rows in database
     def countRows(self):
         newConnection = ServerConnection("localhost","root","","objectTracker2")
@@ -240,7 +261,7 @@ classesFile = "network/coco.names";
 
 # Modules
 mod_writeToFile = 0
-mod_writeToDatabase = 1
+mod_writeToDatabase = 0
 
 # ==============================================================================
 # Get Output Names
@@ -262,14 +283,19 @@ try:
     # Main Script
     # ==============================================================================
 
-    # SYSTEM MANAGEMENT CLASS
-    newSystem = SystemManagement("Client1")
-    # newSystem.softwareInformation()
-
     # OBJECT CLASS
     newConnection = ServerConnection("localhost","root","","objectTracker2")
     # newConnection.tableTruncate()
     print("Total Rows:",newConnection.countRows())
+    deviceParameters = newConnection.getDeviceParameters()
+    confThreshold = deviceParameters[4]
+    print("Device Name:",deviceParameters[1])
+    print("Threshold:",deviceParameters[4])
+
+
+    # SYSTEM MANAGEMENT CLASS
+    newSystem = SystemManagement(deviceParameters[1])
+    # newSystem.softwareInformation()
 
     # Get Camera Footage
     cap = cv2.VideoCapture(videoInput)
