@@ -1,5 +1,6 @@
 <?php
 require_once 'classes/class_reports.php';
+require_once 'functions/reports.php';
 ?>
 
 <!DOCTYPE html>
@@ -25,15 +26,27 @@ require_once 'classes/class_reports.php';
         </select>
         <br>
 
+        <?php
+          $db = dbconnect();
+          $sql = "SHOW COLUMNS FROM counter";
+          $result = $db->query($sql);
+          echo "n results: " . $result->num_rows . "<br>";
+          $tableColumns = $result->fetch_array();
+        ?>
+
         <!-- Columns -->
-        <label for="whatColumns">Columns</label>
-        <select class="" name="whatColumns">
-          <option value="">Test</option>
+        <label for="selectColumn">Column</label>
+        <select class="" name="selectColumn" id="col">
         </select>
+        <script>
+          var selectBox = document.getElementById('col');
+          var tableColumns = ["foo", "bar", "baz"]; // this needs to come from the SQL result above
+          tableColumns.forEach(option => selectBox.add( new Option(option) );
+        </script>
 
         <!-- Count -->
-        <label for="">Is Count</label>
         <input type="checkbox" name="isCount" value="">
+        <label for="">Count</label>
 
         <br>
 
