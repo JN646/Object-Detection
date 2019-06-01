@@ -16,21 +16,14 @@ $foo = new ObjectDetection();
   <div class='col-md-12'>
     <h1 class='display-4'>Dashboard</h1>
 
-    <!-- Button Toolbar -->
-    <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-      <div class="btn-group mr-2" role="group" aria-label="First group">
-        <button onclick='toggleDetectedObj()' type="button" class="btn btn-outline-dark">Detected Obj</button>
-        <button onclick='toggleClasses()' type="button" class="btn btn-outline-dark">Classes</button>
-        <button onclick='toggleDevices()' type="button" class="btn btn-outline-dark">Devices</button>
-        <button onclick='toggleStats()' type="button" class="btn btn-outline-dark">Stats</button>
-        <button onclick='toggleLiveCount()' type="button" class="btn btn-outline-dark">Live Count</button>
-      </div>
-      <div class="btn-group mr-2" role="group" aria-label="Third group">
-          <button onclick='toggleDataFunctions()' type="button" class="btn btn-outline-dark">Data Func.</button>
-      </div>
-    </div>
-
-    <br>
+    <ul class="nav">
+      <li class="nav-item">
+        <a class="nav-link" href="counter/index.php">Counter</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="reporttest.php">Report Test</a>
+      </li>
+    </ul>
 
     <div class="row Row1">
         <div class="col-sm-12 col-md-6">
