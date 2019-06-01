@@ -193,13 +193,17 @@ class ObjectDetection:
         objectConfidence: The confidence lebel of the detected object.
     """
     # Object Init.
-    def __init__(self, objectDeviceID, objectClass, objectConfidence, objectLatLong):
+    def __init__(self, objectDeviceID, objectClass, objectConfidence, objectLatLong, objectLocLeft, objectLocTop, objectLocRight, objectLocBottom):
         self.deviceID = objectDeviceID
         self.objectClass = objectClass
         self.objectTime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
         self.objectClassLabel = "Blank"
         self.objectConfidence = objectConfidence
         self.objectLatLong = objectLatLong
+        self.objectLocLeft = objectLocLeft
+        self.objectLocTop = objectLocTop
+        self.objectLocRight = objectLocRight
+        self.objectLocBottom = objectLocBottom
 
         # Load names of classes
         classesFile = "network/coco.names";
@@ -217,7 +221,7 @@ class ObjectDetection:
     # Write to file
     def writeToFile(self):
         # Map data to columns.
-        row = [self.deviceID, self.objectTime, self.objectClass, str(self.objectConfidence)+"%", self.objectLatLong[0], self.objectLatLong[1]]
+        row = [self.deviceID, self.objectTime, self.objectClass, str(self.objectConfidence)+"%", self.objectLatLong[0], self.objectLatLong[1], self.objectLocLeft, self.objectLocTop, self.objectLocRight, self.objectLocBottom]
 
         # Amend CSV.
         with open("file.csv", 'a') as file:
@@ -230,8 +234,8 @@ class ObjectDetection:
         newConnection.databaseConnect()
         # newConnection.databaseInfo()
 
-        sql = "INSERT INTO counter (count_deviceID, count_class, count_time, count_confidence, count_lat, count_long) VALUES (%s, %s, %s, %s, %s, %s)"
-        val = str(self.deviceID), str(self.objectClass), str(self.objectTime), str(self.objectConfidence), self.objectLatLong[0], self.objectLatLong[1]
+        sql = "INSERT INTO counter (count_deviceID, count_class, count_time, count_confidence, count_lat, count_long, count_left, count_top, count_right, count_bottom) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        val = str(self.deviceID), str(self.objectClass), str(self.objectTime), str(self.objectConfidence), self.objectLatLong[0], self.objectLatLong[1], self.objectLocLeft, self.objectLocTop, self.objectLocRight, self.objectLocBottom
 
         try:
             newConnection.mycursor.execute(sql, val)
@@ -261,7 +265,7 @@ classesFile = "network/coco.names";
 
 # Modules
 mod_writeToFile = 0
-mod_writeToDatabase = 0
+mod_writeToDatabase = 1
 
 # ==============================================================================
 # Get Output Names
@@ -352,6 +356,7 @@ while(True):
                 classIds = []
                 confidences = []
                 boxes = []
+                objectLocTop = 0
                 targetCount = 0
                 objectCount = 0
 
@@ -384,6 +389,11 @@ while(True):
                         height = box[3]
                         conf = confidences[i]
 
+                        objectLocLeft = left
+                        objectLocTop = top
+                        objectLocRight = right
+                        objectLocBottom = bottom
+
                         # Get the label for the class name and its confidence
                         if classes:
                             assert(classId < len(classes))
@@ -395,8 +405,8 @@ while(True):
                     roundConf = '%.8f' % confidences[i]
                     if conf > confThreshold:
                         g = geocoder.ip('me')
-                        newImage = ObjectDetection(deviceID,classIds[i],roundConf,g.latlng)
-                        print(frameCount, " - ", newImage.objectTime," - ",newImage.objectClass," - ",newImage.objectConfidence, newImage.objectLatLong[0], newImage.objectLatLong[1])
+                        newImage = ObjectDetection(deviceID,classIds[i],roundConf,g.latlng,objectLocLeft,objectLocTop,objectLocRight,objectLocBottom)
+                        print(frameCount, " - ", newImage.objectTime," - ",newImage.objectClass," - ",newImage.objectConfidence, newImage.objectLatLong[0], newImage.objectLatLong[1], newImage.objectLocLeft, newImage.objectLocTop, newImage.objectLocRight, newImage.objectLocBottom)
 
                         if mod_writeToFile == 1:
                             newImage.writeToDatabase()
