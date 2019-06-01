@@ -54,13 +54,13 @@ $foo = new ObjectDetection();
                   <legend class='legendInner'>Date</legend>
                   <form class="" action="functions/reports.php" method="POST">
                     <div class="row">
-                      <div class="col-sm-12 col-md-5">
+                      <div class="col-md-12 col-lg-5">
                         <input type="datetime-local" class='form-control' name='dateSelectStart' value="<?php echo date("Y-m-d H:i:s",$timestamp); ?>"/>
                       </div>
-                      <div class="col-sm-12 col-md-5">
+                      <div class="col-md-12 col-lg-5">
                         <input type="datetime-local" class='form-control' name='dateSelectEnd' value="<?php echo date("Y-m-d H:i:s",$timestamp); ?>"/>
                       </div>
-                      <div class="col-sm-12 col-md-2">
+                      <div class="col-md-12 col-lg-2">
                         <button class='form-control btn btn-outline-success' type="submit" name="csvDateSelectGo">Go</button>
                       </div>
                     </div>

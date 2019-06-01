@@ -68,7 +68,8 @@ class objectDetection {
                     echo "<th onclick='sortTable(2)' class='text-center'>Class</th>";
                     echo "<th onclick='sortTable(3)' class='text-center'>Time</th>";
                     echo "<th onclick='sortTable(4)' class='text-center'>Conf.</th>";
-                    echo "<th onclick='sortTable(5)' class='text-center'>GPS</th>";
+                    echo "<th onclick='sortTable(5)' class='text-center'>Loc.</th>";
+                    echo "<th onclick='sortTable(6)' class='text-center'>GPS</th>";
                 echo "</tr>";
             while($row = mysqli_fetch_array($result)){
                 // Assign fetched variables to class
@@ -80,6 +81,7 @@ class objectDetection {
                 $this->confidence = $row['count_confidence'];
                 $lat = $row['count_lat'];
                 $long = $row['count_long'];
+                $loc = [$row['count_left'],$row['count_top'],$row['count_right'],$row['count_bottom']];
                 $latLong = $lat . " " . $long;
 
                 // Draw table
@@ -90,6 +92,7 @@ class objectDetection {
                     echo "<td>{$classIcon} {$class}</td>";
                     echo "<td>" . date("H:i:s d/m/y", strtotime($time)) . "</td>";
                     echo "<td class='text-center {$this->formatConfidenceColours()}'>".formatConfidence($this->confidence)."</td>";
+                    echo "<td class='text-center'><i class='fas fa-vector-square' title='{$loc[0]} {$loc[1]} {$loc[2]} {$loc[3]}'></i></td>";
                     if (empty($lat) || empty($long)) {
                       echo "<td class='text-center'></td>";
                     } else {
