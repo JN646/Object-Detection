@@ -11,15 +11,6 @@ require_once 'partials/_header.php';
 // Create new object.
 $foo = new ObjectDetection();
 ?>
-<!-- Start Clock -->
-<body onload="startTime()">
-
-<!-- Nav Bar -->
-<nav class="navbar navbar-dark bg-dark">
-  <a class="navbar-brand" href="index.php">Object Detection</a>
-  <span class='text-white' id='clock'>Clock</span>
-</nav>
-
 <!-- Main container -->
 <div class='fluid-container'>
   <div class='col-md-12'>
@@ -34,10 +25,6 @@ $foo = new ObjectDetection();
         <button onclick='toggleStats()' type="button" class="btn btn-outline-dark">Stats</button>
         <button onclick='toggleLiveCount()' type="button" class="btn btn-outline-dark">Live Count</button>
       </div>
-      <!-- <div class="btn-group mr-2" role="group" aria-label="Second group">
-          <button onclick='toggleClassesChart()' type="button" class="btn btn-outline-dark">Classes Chart</button>
-          <button onclick='toggleTotalChart()' type="button" class="btn btn-outline-dark">Total Chart</button>
-      </div> -->
       <div class="btn-group mr-2" role="group" aria-label="Third group">
           <button onclick='toggleDataFunctions()' type="button" class="btn btn-outline-dark">Data Func.</button>
       </div>
@@ -156,9 +143,9 @@ $foo = new ObjectDetection();
 
             <!-- Devices Found -->
             <fieldset class='fieldsetMain' id='devicesFoundTable'>
-              <legend class='legendMain'>Devices Found
+              <a href='devices.php'><legend class='legendMain'>Devices Found
                 <span>(<?php echo numberFormatShort($foo->countThings('count_deviceID')) ?>)</span>
-              </legend>
+              </legend></a>
               <div class="">
                 <?php $bar = new devices(); ?>
                 <?php $bar->selectAllDevices(); ?>
@@ -167,13 +154,6 @@ $foo = new ObjectDetection();
           </div>
       </div>
   </div>
-
-  <nav class="navbar text-center fixed-bottom navbar-light bg-light">
-    <p class='footer text-center'>Copyright &copy; 2019 Copyright Holder All Rights Reserved. || <?php echo ApplicationVersion::get(); ?></p>
-  </nav>
-
-<!-- Chart JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.js"></script>
 
 <!-- Footer -->
 <?php require_once 'partials/_footer.php'; ?>

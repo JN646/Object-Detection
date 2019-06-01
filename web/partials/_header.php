@@ -12,3 +12,11 @@
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.14.2/dist/bootstrap-table.min.css">
   </head>
   <body>
+  <!-- Start Clock -->
+  <body onload="startTime()">
+
+  <!-- Nav Bar -->
+  <nav class="navbar navbar-dark bg-dark">
+    <a class="navbar-brand" href="index.php">Object Detection</a>
+    <span class='text-white' id='clock'>Clock</span>
+  </nav>
