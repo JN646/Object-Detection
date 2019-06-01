@@ -406,7 +406,16 @@ while(True):
                     if conf > confThreshold:
                         g = geocoder.ip('me')
                         newImage = ObjectDetection(deviceID,classIds[i],roundConf,g.latlng,objectLocLeft,objectLocTop,objectLocRight,objectLocBottom)
-                        print(frameCount, " - ", newImage.objectTime," - ",newImage.objectClass," - ",newImage.objectConfidence, newImage.objectLatLong[0], newImage.objectLatLong[1], newImage.objectLocLeft, newImage.objectLocTop, newImage.objectLocRight, newImage.objectLocBottom)
+                        print(frameCount," - ",
+                        newImage.objectTime," - ",
+                        newImage.objectClass," - ",
+                        newImage.objectConfidence,
+                        newImage.objectLatLong[0],
+                        newImage.objectLatLong[1],
+                        newImage.objectLocLeft,
+                        newImage.objectLocTop,
+                        newImage.objectLocRight,
+                        newImage.objectLocBottom)
 
                         if mod_writeToFile == 1:
                             newImage.writeToDatabase()
