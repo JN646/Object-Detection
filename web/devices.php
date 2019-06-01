@@ -20,7 +20,7 @@ require_once 'partials/_header.php';
       </div>
     </div>
   </div>
-</div>
+<!-- </div> -->
 
 <!-- Footer -->
-<?php require_once '../partials/_footer.php'; ?>
+<?php require_once 'partials/_footer.php'; ?>
