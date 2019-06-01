@@ -34,4 +34,15 @@ function numberFormatShort($n) {
 function formatConfidence($input) {
   return number_format($input,2) . "%";
 }
+
+# ============================================================================
+# List Missions
+# ============================================================================
+function listMissions() {
+  $mission = array('1 - People', '2 - Cars');
+
+  for ($i=0; $i < count($mission); $i++) {
+    return "<option>{$mission[$i]}</option>";
+  }
+}
 ?>

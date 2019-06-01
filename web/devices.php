@@ -11,7 +11,7 @@ require_once 'partials/_header.php';
   <div class='col-md-12'>
     <h1 class='display-4'>Devices</h1>
     <div class'row'>
-      <p>Device management screen.</p>
+      <div class='alert alert-info text-center'>Under construction coming soon.</div>
     </div>
     <div class="row">
       <div class='col-md-12'>

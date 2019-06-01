@@ -137,6 +137,8 @@ $foo = new ObjectDetection();
               <span>(<?php echo numberFormatShort($foo->countThings('count_deviceID')) ?>)</span>
             </legend></a>
             <div class="">
+              <?php $bar = new devices(); ?>
+              <?php $bar->selectAllDevices() ?>
             </div>
           </fieldset>
         </div> <!-- Col 6 -->

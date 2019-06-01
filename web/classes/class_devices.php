@@ -1,5 +1,6 @@
 <?php
 require_once 'class_objectDetection.php';
+require_once 'common.php';
 
 /**
  * Dashboard class
@@ -31,6 +32,18 @@ class devices {
 
     // Return connection
     return $conn;
+  }
+
+  # ============================================================================
+  # Empty Client Version
+  # ============================================================================
+  public function emptyClientVersion($clientVersion) {
+    if (empty($clientVersion)) {
+      $clientVersion = $row['device_clientVersion'];
+    } else {
+      // Client Version not seen.
+      $clientVersion = "Unknown";
+    }
   }
 
   # ============================================================================
@@ -72,18 +85,6 @@ class devices {
   }
 
   # ============================================================================
-  # Empty Client Version
-  # ============================================================================
-  function emptyClientVersion($clientVersion) {
-    if (empty($clientVersion)) {
-      $clientVersion = $row['device_clientVersion'];
-    } else {
-      // Client Version not seen.
-      $clientVersion = "Unknown";
-    }
-  }
-
-  # ============================================================================
   # Select All Devices
   # ============================================================================
   public function selectAllDevices() {
@@ -119,7 +120,7 @@ class devices {
                 $deviceLocation = $row['device_location'];
                 $deviceConfidence = $row['device_confidenceThreshold'];
 
-                emptyClientVersion($clientVersion);
+                $this->emptyClientVersion($clientVersion);
 
                 $deviceLastSeen = date("H:i:s d/m/y", strtotime($this->countDeviceLastTime($deviceID)));
 
@@ -196,9 +197,10 @@ class devices {
                     echo "<th class='text-center'>Last Seen</th>";
                     echo "<th class='text-center'># Records</th>";
                     echo "<th class='text-center'>Conf. Threshold</th>";
+                    echo "<th class='text-center'>Mission</th>";
                     echo "<th class='text-center'>Ver.</th>";
                     echo "<th class='text-center'>GPS</th>";
-                    echo "<th class='text-center'>Edit</th>";
+                    echo "<th class='text-center'>Save</th>";
                 echo "</tr>";
 
             // For Each.
@@ -209,13 +211,14 @@ class devices {
                 $deviceLocation = $row['device_location'];
                 $deviceNumRecords = '0';
                 $deviceConfidence = $row['device_confidenceThreshold'];
+                $deviceClientVersion = $row['device_clientVersion'];
 
                 // If there is no records
                 if (empty($deviceNumRecords) || $deviceNumRecords == 0) {
                   $deviceNumRecords = 'N/A';
                 }
 
-                // emptyClientVersion($clientVersion);
+                $this->emptyClientVersion($deviceClientVersion);
 
                 $deviceLastSeen = date("H:i:s d/m/y", strtotime($this->countDeviceLastTime($deviceID)));
 
@@ -241,7 +244,8 @@ class devices {
                     echo "<td class='text-center'>{$deviceLocation}</td>";
                     echo "<td class='text-center'>{$deviceLastSeen}</td>";
                     echo "<td class='text-center'>{$deviceNumRecords}</td>";
-                    echo "<td class='text-center'>{$deviceConfidence}</td>";
+                    echo "<td class='text-center'><input name='{$deviceID}' class='text-center' type='text' value='{$deviceConfidence}'></input></td>";
+                    echo "<td class='text-center'><select>". listMissions() ."</select></td>";
                     echo "<td class='text-center' title='{$clientVesion}'><i class='fas fa-code-branch'></i></td>";
 
                     // Check if there is a GPS coord.
@@ -251,7 +255,7 @@ class devices {
                       echo "<td class='text-center'><i class='fas fa-globe-europe' title='{$latLong}'></i></td>";
                     }
 
-                    echo "<td class='text-center'><a href='#'><i class='fas fa-edit'></i></a></td>";
+                    echo "<td class='text-center'><a href='#'><i class='fas fa-save'></i></a></td>";
 
                 echo "</tr>";
             }
