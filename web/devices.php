@@ -14,8 +14,10 @@ require_once 'partials/_header.php';
       <p>Device management screen.</p>
     </div>
     <div class="row">
-      <?php $bar = new devices(); ?>
-      <?php $bar->selectAllDevicesCRUD() ?>
+      <div class='col-md-12'>
+        <?php $bar = new devices(); ?>
+        <?php $bar->selectAllDevicesCRUD() ?>
+      </div>
     </div>
   </div>
 </div>

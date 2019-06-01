@@ -90,8 +90,14 @@ class devices {
     // Connect to the database.
     $conn = $this->dbconnect();
 
+    $result = mysqli_query($conn, "SELECT * FROM devices");
+
+    if (!$result) {
+      echo("Error description: " . mysqli_error($con));
+    }
+
     // If results is true.
-    if($result = mysqli_query($conn, "SELECT * FROM devices")) {
+    if($result) {
         if(mysqli_num_rows($result) > 0){
           // Generate the table.
             echo "<table class='table table-sm'>";
@@ -172,31 +178,44 @@ class devices {
   public function selectAllDevicesCRUD() {
     // Connect to the database.
     $conn = $this->dbconnect();
+    $result = mysqli_query($conn, "SELECT * FROM devices");
+
+    if (!$result) {
+      echo("Error description: " . mysqli_error($con));
+    }
 
     // If results is true.
-    if($result = mysqli_query($conn, "SELECT * FROM devices")) {
+    if($result) {
         if(mysqli_num_rows($result) > 0){
           // Generate the table.
             echo "<table class='table table-sm'>";
                 echo "<tr>";
+                    echo "<th class='text-center'>ID</th>";
                     echo "<th class='text-center'>Name</th>";
                     echo "<th class='text-center'>Location</th>";
                     echo "<th class='text-center'>Last Seen</th>";
+                    echo "<th class='text-center'># Records</th>";
                     echo "<th class='text-center'>Conf. Threshold</th>";
                     echo "<th class='text-center'>Ver.</th>";
                     echo "<th class='text-center'>GPS</th>";
+                    echo "<th class='text-center'>Edit</th>";
                 echo "</tr>";
 
             // For Each.
             while($row = mysqli_fetch_array($result)) {
-
                 // Map variables.
                 $deviceID = $row['device_id'];
                 $deviceName = $row['device_name'];
                 $deviceLocation = $row['device_location'];
+                $deviceNumRecords = '0';
                 $deviceConfidence = $row['device_confidenceThreshold'];
 
-                emptyClientVersion($clientVersion);
+                // If there is no records
+                if (empty($deviceNumRecords) || $deviceNumRecords == 0) {
+                  $deviceNumRecords = 'N/A';
+                }
+
+                // emptyClientVersion($clientVersion);
 
                 $deviceLastSeen = date("H:i:s d/m/y", strtotime($this->countDeviceLastTime($deviceID)));
 
@@ -217,9 +236,11 @@ class devices {
 
                 // Generate Table Rows.
                 echo "<tr>";
+                    echo "<td>{$deviceID}</td>";
                     echo "<td>{$deviceName}</td>";
                     echo "<td class='text-center'>{$deviceLocation}</td>";
                     echo "<td class='text-center'>{$deviceLastSeen}</td>";
+                    echo "<td class='text-center'>{$deviceNumRecords}</td>";
                     echo "<td class='text-center'>{$deviceConfidence}</td>";
                     echo "<td class='text-center' title='{$clientVesion}'><i class='fas fa-code-branch'></i></td>";
 
@@ -229,6 +250,8 @@ class devices {
                     } else {
                       echo "<td class='text-center'><i class='fas fa-globe-europe' title='{$latLong}'></i></td>";
                     }
+
+                    echo "<td class='text-center'><a href='#'><i class='fas fa-edit'></i></a></td>";
 
                 echo "</tr>";
             }
