@@ -176,7 +176,7 @@ class devices {
 
     // If results is true.
     if($result) {
-      $headers = array("Name","Location","Last Seen","# Records","Conf. Threshold","Ver.","GPS");
+      $headers = array("Name","Location","IP","Last Seen","# Records","Conf. Threshold","Ver.","GPS");
         if(mysqli_num_rows($result) > 0){
           // Generate the table.
             echo "<table class='table table-sm'>";
@@ -193,16 +193,13 @@ class devices {
                 $deviceID = $row['device_id'];
                 $deviceName = $row['device_name'];
                 $deviceLocation = $row['device_location'];
+                $deviceIP = $row['device_ip'];
                 $deviceConfidence = $row['device_confidenceThreshold'];
                 $deviceNumRecords = $this->countDeviceRows($deviceID);
                 $deviceLastSeen = date("H:i:s d/m/y", strtotime($this->countDeviceLastTime($deviceID)));
                 $this->emptyClientVersion($clientVersion);
 
-                // If no date.
-                if ($deviceLastSeen == "00:00:00 01/01/70" || empty($deviceLastSeen)) {
-                  // Never Seen
-                  $deviceLastSeen = "Never Seen";
-                }
+                ifNoDate($deviceLastSeen);
 
                 $lat = $this->countDeviceLastGPS($deviceID)[0];
                 $long = $this->countDeviceLastGPS($deviceID)[1];
@@ -224,6 +221,7 @@ class devices {
                 echo "<tr>";
                     echo "<td>{$deviceName}</td>";
                     echo "<td class='text-center'>{$deviceLocation}</td>";
+                    echo "<td class='text-center'>{$deviceIP}</td>";
                     echo "<td class='text-center'>{$deviceLastSeen}</td>";
                     echo "<td class='text-center'>{$deviceNumRecords}</td>";
                     echo "<td class='text-center ".formatConfidenceColours($deviceConfidence)."'>".formatConfidence($deviceConfidence)."</td>";
@@ -269,7 +267,7 @@ class devices {
 
     // If results is true.
     if($result) {
-      $headers = array("ID","Name","Location","Last Seen","# Records","Conf. Threshold","Ver.","Mission","GPS","Save");
+      $headers = array("ID","Name","Location","IP","Last Seen","Last Ping","# Records","Conf. Threshold","Ver.","Mission","GPS","Ping","Save");
         if(mysqli_num_rows($result) > 0){
           // Generate the table.
             echo "<table class='table table-sm'>";
@@ -284,11 +282,13 @@ class devices {
               // Map variables.
               $deviceID = $row['device_id'];
               $deviceName = $row['device_name'];
+              $deviceIP = $row['device_ip'];
               $deviceLocation = $row['device_location'];
               $deviceNumRecords = $this->countDeviceRows($deviceID);
               $deviceConfidence = $row['device_confidenceThreshold'];
               $deviceClientVersion = $row['device_clientVersion'];
               $deviceLastSeen = date("H:i:s d/m/y", strtotime($this->countDeviceLastTime($deviceID)));
+              $deviceLastPing = date("H:i:s d/m/y", strtotime($deviceLastPing));
               $this->emptyClientVersion($deviceClientVersion);
 
               // If there is no records
@@ -298,11 +298,9 @@ class devices {
                 $deviceNumRecords = $deviceNumRecords . "/" . $this->countDeviceRowsTotal($deviceID);;
               }
 
-              // If no date.
-              if ($deviceLastSeen == "00:00:00 01/01/70" || empty($deviceLastSeen)) {
-                // Never Seen
-                $deviceLastSeen = "Never Seen";
-              }
+              // Check if there is a date.
+              $deviceLastSeen = ifNoDate($deviceLastSeen);
+              $deviceLastPing = ifNoDate($deviceLastPing);
 
               $lat = $this->countDeviceLastGPS($deviceID)[0];
               $long = $this->countDeviceLastGPS($deviceID)[1];
@@ -318,7 +316,9 @@ class devices {
                 echo "<td class='text-center'>{$deviceID}</td>";
                 echo "<td>{$deviceName}</td>";
                 echo "<td class='text-center'>{$deviceLocation}</td>";
+                echo "<td class='text-center'>{$deviceIP}</td>";
                 echo "<td class='text-center'>{$deviceLastSeen}</td>";
+                echo "<td class='text-center'>{$deviceLastPing}</td>";
                 echo "<td class='text-center'>{$deviceNumRecords}</td>";
                 echo "<td class='text-center'><input name='{$deviceID}' class='text-center' type='text' value='{$deviceConfidence}'></input></td>";
                 echo "<td class='text-center'>".listMissions()."</td>";
@@ -329,6 +329,14 @@ class devices {
                   echo "<td class='text-center'></td>";
                 } else {
                   echo "<td class='text-center'><i class='fas fa-globe-europe' title='{$latLong}'></i></td>";
+                }
+
+                // Can Ping?
+                // Cannot ping if there is no IP address.
+                if (!empty($deviceIP)) {
+                  echo "<td class='text-center'><a href='#'><i class='fas fa-broadcast-tower'></i></a></td>";
+                } else {
+                  echo "<td></td>";
                 }
 
                 echo "<td class='text-center'><a href='#'><i class='fas fa-save'></i></a></td>";

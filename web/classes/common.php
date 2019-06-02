@@ -7,6 +7,36 @@ function testFunction() {
 }
 
 # ============================================================================
+# If no date
+# ============================================================================
+function ifNoDate($date) {
+  if ($date == "00:00:00 01/01/70" || empty($date)) {
+    // Never Seen
+    $date = "Never Seen";
+  }
+
+  return $date;
+}
+
+# ============================================================================
+# Ping Device
+# ============================================================================
+function pingDomain($domain) {
+    $starttime = microtime(true);
+    $file      = fsockopen ($domain, 80, $errno, $errstr, 10);
+    $stoptime  = microtime(true);
+    $status    = 0;
+
+    if (!$file) $status = -1;  // Site is down
+    else {
+        fclose($file);
+        $status = ($stoptime - $starttime) * 1000;
+        $status = floor($status);
+    }
+    return $status;
+}
+
+# ============================================================================
 # Format number 1k, 1m, 1b
 # ============================================================================
 function numberFormatShort($n) {

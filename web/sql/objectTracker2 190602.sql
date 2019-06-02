@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jun 02, 2019 at 10:04 AM
+-- Generation Time: Jun 02, 2019 at 09:19 PM
 -- Server version: 5.7.23
 -- PHP Version: 7.2.8
 
@@ -185,10 +185,10 @@ INSERT INTO `counter` (`count_id`, `count_deviceID`, `count_class`, `count_time`
 (37, 1, '0', '2019-06-01 21:40:42', 0.976687, '52.134600', '-0.466300', 311, 311, 1383, 787),
 (38, 1, '67', '2019-06-01 21:40:42', 0.955643, '52.134600', '-0.466300', 311, 311, 1383, 787),
 (39, 1, '57', '2019-06-01 21:40:43', 0.84728, '52.134600', '-0.466300', 382, 431, 1543, 979),
-(40, 1, '0', '2019-06-01 21:40:43', 0.969907, '52.134600', '-0.466300', 382, 431, 1543, 979),
+(40, 3, '0', '2019-06-01 21:40:43', 0.969907, '52.134600', '-0.466300', 382, 431, 1543, 979),
 (41, 1, '67', '2019-06-01 21:40:43', 0.902174, '52.134600', '-0.466300', 382, 431, 1543, 979),
 (42, 1, '67', '2019-06-01 21:40:45', 0.9497, '52.134600', '-0.466300', 9, 139, 404, 484),
-(43, 1, '0', '2019-06-01 21:40:45', 0.776227, '52.134600', '-0.466300', 9, 139, 404, 484),
+(43, 3, '0', '2019-06-01 21:40:45', 0.776227, '52.134600', '-0.466300', 9, 139, 404, 484),
 (44, 1, '0', '2019-06-01 21:40:46', 0.851412, '52.134600', '-0.466300', 95, 128, 1172, 692),
 (45, 1, '0', '2019-06-01 21:40:47', 0.845137, '52.134600', '-0.466300', 77, 158, 1196, 666),
 (46, 1, '56', '2019-06-01 21:40:47', 0.746102, '52.134600', '-0.466300', 77, 158, 1196, 666),
@@ -200,7 +200,10 @@ INSERT INTO `counter` (`count_id`, `count_deviceID`, `count_class`, `count_time`
 (52, 1, '56', '2019-06-01 21:47:05', 0.754986, '52.134600', '-0.466300', -33, 150, 1184, 668),
 (53, 1, '0', '2019-06-01 21:47:06', 0.92456, '52.134600', '-0.466300', -40, 138, 1195, 677),
 (54, 1, '0', '2019-06-01 21:47:07', 0.92811, '52.134600', '-0.466300', -26, 129, 1181, 683),
-(55, 1, '0', '2019-06-01 21:47:08', 0.946173, '52.134600', '-0.466300', 67, 112, 1208, 631);
+(55, 1, '0', '2019-06-01 21:47:08', 0.946173, '52.134600', '-0.466300', 67, 112, 1208, 631),
+(56, 1, '0', '2019-06-02 19:36:51', 0.859107, '52.134600', '-0.466300', 8, 174, 1138, 670),
+(57, 1, '57', '2019-06-02 19:36:51', 0.492985, '52.134600', '-0.466300', 8, 174, 1138, 670),
+(58, 1, '56', '2019-06-02 19:36:51', 0.326408, '52.134600', '-0.466300', 8, 174, 1138, 670);
 
 -- --------------------------------------------------------
 
@@ -212,6 +215,8 @@ CREATE TABLE `devices` (
   `device_id` int(11) NOT NULL COMMENT 'Device ID',
   `device_name` varchar(100) DEFAULT NULL COMMENT 'Name of the Device',
   `device_location` varchar(100) DEFAULT NULL COMMENT 'Location of the Device',
+  `device_ip` varchar(20) DEFAULT NULL COMMENT 'Devices IP address.',
+  `device_lastPing` timestamp NULL DEFAULT NULL COMMENT 'Last time device was pinged.',
   `device_clientVersion` varchar(30) DEFAULT NULL COMMENT 'Version of the client software being run',
   `device_confidenceThreshold` float NOT NULL DEFAULT '0.5' COMMENT 'Confidence Threshold',
   `device_classToDetect` varchar(200) DEFAULT NULL COMMENT 'Delimited list of classes to detect'
@@ -221,9 +226,10 @@ CREATE TABLE `devices` (
 -- Dumping data for table `devices`
 --
 
-INSERT INTO `devices` (`device_id`, `device_name`, `device_location`, `device_clientVersion`, `device_confidenceThreshold`, `device_classToDetect`) VALUES
-(1, 'Client 1', 'Office', '1.01', 0.7, ''),
-(2, 'Client 2', 'Car Park', '', 0.5, '57');
+INSERT INTO `devices` (`device_id`, `device_name`, `device_location`, `device_ip`, `device_lastPing`, `device_clientVersion`, `device_confidenceThreshold`, `device_classToDetect`) VALUES
+(1, 'Client 1', 'Office', '192.168.1.123', NULL, '1.01', 0.7, ''),
+(2, 'Client 2', 'Car Park', NULL, NULL, '', 0.5, '57'),
+(3, 'Front Door', 'Main entrance front door counter.', NULL, NULL, '1.01', 0.7, '0');
 
 -- --------------------------------------------------------
 
@@ -288,13 +294,13 @@ ALTER TABLE `class_types`
 -- AUTO_INCREMENT for table `counter`
 --
 ALTER TABLE `counter`
-  MODIFY `count_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
+  MODIFY `count_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 
 --
 -- AUTO_INCREMENT for table `devices`
 --
 ALTER TABLE `devices`
-  MODIFY `device_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Device ID', AUTO_INCREMENT=3;
+  MODIFY `device_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Device ID', AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `mission`
