@@ -36,6 +36,17 @@ class objectDetection {
   }
 
   # ============================================================================
+  # Database Error
+  # ============================================================================
+  public function dbError($sql,$conn) {
+    if (!$sql) {
+      $error = "<div class='text-center alert alert-danger'>ERROR: Could not able to execute $sql. " . mysqli_error($conn) . "</div>";
+    }
+
+    return $error;
+  }
+
+  # ============================================================================
   # Detected Objects Table
   # ============================================================================
   public function selectAllTable() {
@@ -43,17 +54,14 @@ class objectDetection {
     // SELECT * FROM `counter` INNER JOIN class_types ON counter.count_class = class_types.class_number
     $conn = $this->dbconnect();
     if($result = mysqli_query($conn, "SELECT * FROM `counter` INNER JOIN `class_types` ON counter.count_class = class_types.class_number INNER JOIN `devices` ON counter.count_deviceID = devices.device_id ORDER BY `count_id` DESC")) {
+        $headers = array("ID","Device Name","Class","Time","Conf.","Loc.","GPS");
         if(mysqli_num_rows($result) > 0){
             echo "<table class='table table-sm'>";
                 echo "<tr>";
                     echo "<th class='text-center'><input id='doSelectAll' class='doCheckbox' type='checkbox'></th>";
-                    echo "<th onclick='sortTable(0)' class='text-center'>ID</th>";
-                    echo "<th onclick='sortTable(1)' class='text-center'>Device Name</th>";
-                    echo "<th onclick='sortTable(2)' class='text-center'>Class</th>";
-                    echo "<th onclick='sortTable(3)' class='text-center'>Time</th>";
-                    echo "<th onclick='sortTable(4)' class='text-center'>Conf.</th>";
-                    echo "<th onclick='sortTable(5)' class='text-center'>Loc.</th>";
-                    echo "<th onclick='sortTable(6)' class='text-center'>GPS</th>";
+                    for ($i=0; $i < count($headers); $i++) {
+                      echo "<th onclick='sortTable($i)' class='text-center'>{$headers[$i]}</th>";
+                    }
                 echo "</tr>";
             while($row = mysqli_fetch_array($result)){
                 // Assign fetched variables to class
@@ -88,10 +96,10 @@ class objectDetection {
             // Free result set
             mysqli_free_result($result);
         } else {
-            echo "No records matching your query were found.";
+          echo "No records matching your query were found.";
         }
     } else {
-        echo "ERROR: Could not able to execute $sql. " . mysqli_error($conn);
+      echo $this->dbError($sql,$conn);
     }
 
     //free memory associated with result
@@ -142,13 +150,14 @@ class objectDetection {
 
     // If results is true.
     if($result = mysqli_query($conn, $sql)) {
+      $headers = array("Icon","Class","Count");
         if(mysqli_num_rows($result) > 0){
           // Generate the table.
             echo "<table class='table table-sm'>";
                 echo "<tr>";
-                    echo "<th class='text-center'>Icon</th>";
-                    echo "<th class='text-center'>Class</th>";
-                    echo "<th class='text-center'>Count</th>";
+                  for ($i=0; $i < count($headers); $i++) {
+                    echo "<th onclick='sortTable($i)' class='text-center'>{$headers[$i]}</th>";
+                  }
                 echo "</tr>";
 
             // For Each.
@@ -173,7 +182,7 @@ class objectDetection {
             echo "No records matching your query were found.";
         }
     } else{
-        echo "ERROR: Could not able to execute $sql. " . mysqli_error($conn);
+        echo $this->dbError($sql,$conn);
     }
 
     //free memory associated with result

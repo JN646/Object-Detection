@@ -35,6 +35,17 @@ class devices {
   }
 
   # ============================================================================
+  # Database Error
+  # ============================================================================
+  public function dbError($sql,$conn) {
+    if (!$sql) {
+      $error = "<div class='text-center alert alert-danger'>ERROR: Could not able to execute $sql. " . mysqli_error($conn) . "</div>";
+    }
+
+    return $error;
+  }
+
+  # ============================================================================
   # Count Devices
   # ============================================================================
   public function countDevices($input) {
@@ -72,6 +83,44 @@ class devices {
       // Client Version not seen.
       $clientVersion = "Unknown";
     }
+  }
+
+  # ============================================================================
+  # Count Device Rows
+  # ============================================================================
+  public function countDeviceRows($deviceID) {
+    // Attempt select query execution
+    $conn = $this->dbconnect();
+    $sql = $conn->query("SELECT COUNT(`count_id`) FROM `counter` WHERE `count_deviceID` = $deviceID ORDER BY `count_id` DESC LIMIT 1");
+    $row = $sql->fetch_row();
+    $count = $row[0];
+
+    //free memory associated with result
+    $sql->close();
+
+    // Close connection
+    mysqli_close($conn);
+
+    return $count;
+  }
+
+  # ============================================================================
+  # Count Device Rows
+  # ============================================================================
+  public function countDeviceRowsTotal($deviceID) {
+    // Attempt select query execution
+    $conn = $this->dbconnect();
+    $sql = $conn->query("SELECT COUNT(`count_id`) FROM `counter` ORDER BY `count_id` DESC LIMIT 1");
+    $row = $sql->fetch_row();
+    $count = $row[0];
+
+    //free memory associated with result
+    $sql->close();
+
+    // Close connection
+    mysqli_close($conn);
+
+    return $count;
   }
 
   # ============================================================================
@@ -127,16 +176,14 @@ class devices {
 
     // If results is true.
     if($result) {
+      $headers = array("Name","Location","Last Seen","# Records","Conf. Threshold","Ver.","GPS");
         if(mysqli_num_rows($result) > 0){
           // Generate the table.
             echo "<table class='table table-sm'>";
                 echo "<tr>";
-                    echo "<th class='text-center'>Name</th>";
-                    echo "<th class='text-center'>Location</th>";
-                    echo "<th class='text-center'>Last Seen</th>";
-                    echo "<th class='text-center'>Conf. Threshold</th>";
-                    echo "<th class='text-center'>Ver.</th>";
-                    echo "<th class='text-center'>GPS</th>";
+                  for ($i=0; $i < count($headers); $i++) {
+                    echo "<th onclick='sortTable($i)' class='text-center'>{$headers[$i]}</th>";
+                  }
                 echo "</tr>";
 
             // For Each.
@@ -147,10 +194,9 @@ class devices {
                 $deviceName = $row['device_name'];
                 $deviceLocation = $row['device_location'];
                 $deviceConfidence = $row['device_confidenceThreshold'];
-
-                $this->emptyClientVersion($clientVersion);
-
+                $deviceNumRecords = $this->countDeviceRows($deviceID);
                 $deviceLastSeen = date("H:i:s d/m/y", strtotime($this->countDeviceLastTime($deviceID)));
+                $this->emptyClientVersion($clientVersion);
 
                 // If no date.
                 if ($deviceLastSeen == "00:00:00 01/01/70" || empty($deviceLastSeen)) {
@@ -162,6 +208,13 @@ class devices {
                 $long = $this->countDeviceLastGPS($deviceID)[1];
                 $latLong = $lat . " " . $long;
 
+                // If there is no records
+                if (empty($deviceNumRecords) || $deviceNumRecords == 0) {
+                  $deviceNumRecords = 'N/A';
+                } else {
+                  $deviceNumRecords = $deviceNumRecords . "/" . $this->countDeviceRowsTotal($deviceID);;
+                }
+
                 // If blank
                 if ($name == "") {
                   $name = "N/A";
@@ -172,6 +225,7 @@ class devices {
                     echo "<td>{$deviceName}</td>";
                     echo "<td class='text-center'>{$deviceLocation}</td>";
                     echo "<td class='text-center'>{$deviceLastSeen}</td>";
+                    echo "<td class='text-center'>{$deviceNumRecords}</td>";
                     echo "<td class='text-center ".formatConfidenceColours($deviceConfidence)."'>".formatConfidence($deviceConfidence)."</td>";
                     echo "<td class='text-center' title='{$clientVesion}'><i class='fas fa-code-branch'></i></td>";
 
@@ -191,7 +245,7 @@ class devices {
             echo "No records matching your query were found.";
         }
     } else {
-        echo "ERROR: Could not able to execute $sql. " . mysqli_error($conn);
+      echo $this->dbError($sql,$conn);
     }
 
     //free memory associated with result
@@ -215,86 +269,79 @@ class devices {
 
     // If results is true.
     if($result) {
+      $headers = array("ID","Name","Location","Last Seen","# Records","Conf. Threshold","Ver.","Mission","GPS","Save");
         if(mysqli_num_rows($result) > 0){
           // Generate the table.
             echo "<table class='table table-sm'>";
                 echo "<tr>";
-                    echo "<th class='text-center'>ID</th>";
-                    echo "<th class='text-center'>Name</th>";
-                    echo "<th class='text-center'>Location</th>";
-                    echo "<th class='text-center'>Last Seen</th>";
-                    echo "<th class='text-center'># Records</th>";
-                    echo "<th class='text-center'>Conf. Threshold</th>";
-                    echo "<th class='text-center'>Mission</th>";
-                    echo "<th class='text-center'>Ver.</th>";
-                    echo "<th class='text-center'>GPS</th>";
-                    echo "<th class='text-center'>Save</th>";
+                  for ($i=0; $i < count($headers); $i++) {
+                    echo "<th onclick='sortTable($i)' class='text-center'>{$headers[$i]}</th>";
+                  }
                 echo "</tr>";
 
             // For Each.
             while($row = mysqli_fetch_array($result)) {
-                // Map variables.
-                $deviceID = $row['device_id'];
-                $deviceName = $row['device_name'];
-                $deviceLocation = $row['device_location'];
-                $deviceNumRecords = '0';
-                $deviceConfidence = $row['device_confidenceThreshold'];
-                $deviceClientVersion = $row['device_clientVersion'];
+              // Map variables.
+              $deviceID = $row['device_id'];
+              $deviceName = $row['device_name'];
+              $deviceLocation = $row['device_location'];
+              $deviceNumRecords = $this->countDeviceRows($deviceID);
+              $deviceConfidence = $row['device_confidenceThreshold'];
+              $deviceClientVersion = $row['device_clientVersion'];
+              $deviceLastSeen = date("H:i:s d/m/y", strtotime($this->countDeviceLastTime($deviceID)));
+              $this->emptyClientVersion($deviceClientVersion);
 
-                // If there is no records
-                if (empty($deviceNumRecords) || $deviceNumRecords == 0) {
-                  $deviceNumRecords = 'N/A';
+              // If there is no records
+              if (empty($deviceNumRecords) || $deviceNumRecords == 0) {
+                $deviceNumRecords = 'N/A';
+              } else {
+                $deviceNumRecords = $deviceNumRecords . "/" . $this->countDeviceRowsTotal($deviceID);;
+              }
+
+              // If no date.
+              if ($deviceLastSeen == "00:00:00 01/01/70" || empty($deviceLastSeen)) {
+                // Never Seen
+                $deviceLastSeen = "Never Seen";
+              }
+
+              $lat = $this->countDeviceLastGPS($deviceID)[0];
+              $long = $this->countDeviceLastGPS($deviceID)[1];
+              $latLong = $lat . " " . $long;
+
+              // If blank
+              if ($name == "") {
+                $name = "N/A";
+              }
+
+              // Generate Table Rows.
+              echo "<tr>";
+                echo "<td class='text-center'>{$deviceID}</td>";
+                echo "<td>{$deviceName}</td>";
+                echo "<td class='text-center'>{$deviceLocation}</td>";
+                echo "<td class='text-center'>{$deviceLastSeen}</td>";
+                echo "<td class='text-center'>{$deviceNumRecords}</td>";
+                echo "<td class='text-center'><input name='{$deviceID}' class='text-center' type='text' value='{$deviceConfidence}'></input></td>";
+                echo "<td class='text-center'>".listMissions()."</td>";
+                echo "<td class='text-center' title='{$clientVesion}'><i class='fas fa-code-branch'></i></td>";
+
+                // Check if there is a GPS coord.
+                if (empty($lat) || empty($long)) {
+                  echo "<td class='text-center'></td>";
+                } else {
+                  echo "<td class='text-center'><i class='fas fa-globe-europe' title='{$latLong}'></i></td>";
                 }
 
-                $this->emptyClientVersion($deviceClientVersion);
-
-                $deviceLastSeen = date("H:i:s d/m/y", strtotime($this->countDeviceLastTime($deviceID)));
-
-                // If no date.
-                if ($deviceLastSeen == "00:00:00 01/01/70" || empty($deviceLastSeen)) {
-                  // Never Seen
-                  $deviceLastSeen = "Never Seen";
-                }
-
-                $lat = $this->countDeviceLastGPS($deviceID)[0];
-                $long = $this->countDeviceLastGPS($deviceID)[1];
-                $latLong = $lat . " " . $long;
-
-                // If blank
-                if ($name == "") {
-                  $name = "N/A";
-                }
-
-                // Generate Table Rows.
-                echo "<tr>";
-                    echo "<td class='text-center'>{$deviceID}</td>";
-                    echo "<td>{$deviceName}</td>";
-                    echo "<td class='text-center'>{$deviceLocation}</td>";
-                    echo "<td class='text-center'>{$deviceLastSeen}</td>";
-                    echo "<td class='text-center'>{$deviceNumRecords}</td>";
-                    echo "<td class='text-center'><input name='{$deviceID}' class='text-center' type='text' value='{$deviceConfidence}'></input></td>";
-                    echo "<td class='text-center'>".listMissions()."</td>";
-                    echo "<td class='text-center' title='{$clientVesion}'><i class='fas fa-code-branch'></i></td>";
-
-                    // Check if there is a GPS coord.
-                    if (empty($lat) || empty($long)) {
-                      echo "<td class='text-center'></td>";
-                    } else {
-                      echo "<td class='text-center'><i class='fas fa-globe-europe' title='{$latLong}'></i></td>";
-                    }
-
-                    echo "<td class='text-center'><a href='#'><i class='fas fa-save'></i></a></td>";
-
-                echo "</tr>";
+                echo "<td class='text-center'><a href='#'><i class='fas fa-save'></i></a></td>";
+              echo "</tr>";
             }
             echo "</table>";
             // Free result set
             mysqli_free_result($result);
         } else {
-            echo "No records matching your query were found.";
+          echo "No records matching your query were found.";
         }
     } else {
-        echo "ERROR: Could not able to execute $sql. " . mysqli_error($conn);
+      echo $this->dbError($sql,$conn);
     }
 
     //free memory associated with result

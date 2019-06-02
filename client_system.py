@@ -34,8 +34,9 @@ class SystemManagement:
     """
 
     # Init
-    def __init__(self, systemName):
+    def __init__(self, systemName, systemID):
         self.systemName = systemName
+        self.systemID = systemID
 
     # Get IP
     def getIP(self):
@@ -83,6 +84,23 @@ class SystemManagement:
         print("System IP:",self.getIP())
         print("System Connection:",self.is_connected())
         print("RAM:",self.getAvailableRAM(),"/",self.getTotalRAM())
+
+    # Write detected object to database.
+    def writeIPToDatabase(self):
+        newConnection = ServerConnection("localhost","root","","objectTracker2")
+        newConnection.databaseConnect()
+        # newConnection.databaseInfo()
+
+        sql = "UPDATE devices SET device_ip = %s WHERE device_id = %s"
+        val = (str(SystemManagement.getIP(self)),self.systemID)
+
+        try:
+            newConnection.mycursor.execute(sql, val)
+            newConnection.mydb.commit()
+            newConnection.mydb.close()
+        except mysql.connector.Error as err:
+            print("[DANGER] Something went wrong: {}".format(err))
+            sys.exit()
 
 # ==============================================================================
 # Server Connection
@@ -292,13 +310,15 @@ try:
     # newConnection.tableTruncate()
     print("Total Rows:",newConnection.countRows())
     deviceParameters = newConnection.getDeviceParameters()
-    confThreshold = deviceParameters[4]
+    # confThreshold = float(deviceParameters[4])
     print("Device Name:",deviceParameters[1])
     print("Threshold:",deviceParameters[4])
 
-
     # SYSTEM MANAGEMENT CLASS
-    newSystem = SystemManagement(deviceParameters[1])
+    newSystem = SystemManagement(deviceParameters[1],deviceParameters[0])
+    newSystem.writeIPToDatabase()
+
+    print("Device ID:",deviceID)
     # newSystem.softwareInformation()
 
     # Get Camera Footage
@@ -365,7 +385,7 @@ while(True):
                         scores = detection[5:]
                         classId = np.argmax(scores)
                         confidence = scores[classId]
-                        if confidence > confThreshold:
+                        if confidence > 0:
                             center_x = int(detection[0] * frameWidth)
                             center_y = int(detection[1] * frameHeight)
                             width = int(detection[2] * frameWidth)

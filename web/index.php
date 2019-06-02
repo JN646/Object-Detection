@@ -153,8 +153,12 @@ $foo = new ObjectDetection();
           <!-- Devices Found -->
           <div id='devicesFoundTable' class="card">
             <?php $bar = new devices(); ?>
-            <h5 class='card-header text-center'>Devices Found
-              <span class='badge badge-secondary'><?php echo numberFormatShort($bar->countDevices('device_id')) ?></span></h5>
+            <a href='devices.php'>
+              <h5 class='card-header text-center'>
+                Devices Found
+                <span class='badge badge-secondary'><?php echo numberFormatShort($bar->countDevices('device_id')) ?></span>
+              </h5>
+            </a>
             <div class="card-body">
               <?php $bar->selectAllDevices() ?>
             </div>
