@@ -11,6 +11,19 @@ require_once 'partials/_header.php';
 // Create new object.
 $foo = new ObjectDetection();
 ?>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    refreshTable();
+  });
+
+  function refreshTable(){
+    $('#div1').load('demo.php', function(){
+      console.log("Test");
+      setTimeout(refreshTable, 1000);
+    });
+  }
+</script>
 <!-- Main container -->
 <div class='fluid-container'>
   <div class='col-md-12'>
@@ -127,6 +140,7 @@ $foo = new ObjectDetection();
               <div id='dataFunctionsFieldset' class="card">
                 <h5 class='card-header text-center'>Global Settings</h5>
                 <div class="card-body">
+                  <div id='div1' class=""></div>
                   <form class="" action="functions/global.php" method="POST">
                     <button class='btn btn-outline-primary' type="submit" name="btnDark"><i class="fas fa-moon"></i></button>
                     <button class='btn btn-outline-danger' type="button" name="btnTruncate" disabled>Truncate</button>

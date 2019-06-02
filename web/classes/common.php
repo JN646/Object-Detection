@@ -43,6 +43,22 @@ function formatConfidence($input) {
 }
 
 # ============================================================================
+# Format Confidence Colours
+# ============================================================================
+function formatConfidenceColours($confidence) {
+  // Low
+  if (number_format($confidence,2)) {$color = "text-danger";}
+
+  // Medium
+  if (number_format($confidence,2) > 0.75) {$color = "text-warning";}
+
+  // Good
+  if (number_format($confidence,2) > 0.9) {$color = "text-success";}
+
+  return $color;
+}
+
+# ============================================================================
 # List Missions
 # ============================================================================
 function listMissions() {

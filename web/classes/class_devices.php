@@ -172,7 +172,7 @@ class devices {
                     echo "<td>{$deviceName}</td>";
                     echo "<td class='text-center'>{$deviceLocation}</td>";
                     echo "<td class='text-center'>{$deviceLastSeen}</td>";
-                    echo "<td class='text-center'>{$deviceConfidence}</td>";
+                    echo "<td class='text-center ".formatConfidenceColours($deviceConfidence)."'>".formatConfidence($deviceConfidence)."</td>";
                     echo "<td class='text-center' title='{$clientVesion}'><i class='fas fa-code-branch'></i></td>";
 
                     // Check if there is a GPS coord.

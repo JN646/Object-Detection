@@ -36,22 +36,6 @@ class objectDetection {
   }
 
   # ============================================================================
-  # Format Confidence Colours
-  # ============================================================================
-  public function formatConfidenceColours() {
-    // Low
-    if (number_format($this->confidence,2) > 0.5) {$color = "text-danger";}
-
-    // Medium
-    if (number_format($this->confidence,2) > 0.75) {$color = "text-warning";}
-
-    // Good
-    if (number_format($this->confidence,2) > 0.9) {$color = "text-success";}
-
-    return $color;
-  }
-
-  # ============================================================================
   # Detected Objects Table
   # ============================================================================
   public function selectAllTable() {
@@ -91,8 +75,8 @@ class objectDetection {
                     echo "<td class='text-center'>{$deviceID}</td>";
                     echo "<td>{$classIcon} {$class}</td>";
                     echo "<td>" . date("H:i:s d/m/y", strtotime($time)) . "</td>";
-                    echo "<td class='text-center {$this->formatConfidenceColours()}'>".formatConfidence($this->confidence)."</td>";
-                    echo "<td class='text-center'><i class='fas fa-vector-square' title='{$loc[0]} {$loc[1]} {$loc[2]} {$loc[3]}'></i></td>";
+                    echo "<td class='text-center ".formatConfidenceColours($this->confidence)."'>".formatConfidence($this->confidence)."</td>";
+                    echo "<td class='text-center'><i class='fas fa-vector-square' title='← {$loc[0]} ↑ {$loc[1]} → {$loc[2]} ↓ {$loc[3]}'></i></td>";
                     if (empty($lat) || empty($long)) {
                       echo "<td class='text-center'></td>";
                     } else {
