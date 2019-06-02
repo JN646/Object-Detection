@@ -239,7 +239,7 @@ class devices {
 
                 // Generate Table Rows.
                 echo "<tr>";
-                    echo "<td>{$deviceID}</td>";
+                    echo "<td class='text-center'>{$deviceID}</td>";
                     echo "<td>{$deviceName}</td>";
                     echo "<td class='text-center'>{$deviceLocation}</td>";
                     echo "<td class='text-center'>{$deviceLastSeen}</td>";
