@@ -28,8 +28,8 @@ $foo = new ObjectDetection();
     <div class="row Row1">
         <div class="col-sm-12 col-md-6">
           <!-- CSV Reporting -->
-          <fieldset class='fieldsetMain' id='csvExport'>
-            <legend class='legendMain'>Reporting</legend>
+          <fieldset class='fieldsetMain  border border-dark' id='csvExport'>
+            <legend class='legendMain bg-light border border-dark'>Reporting</legend>
             <!-- Button Toolbar -->
             <form class="" action="functions/reports.php" method="POST">
               <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
@@ -43,8 +43,8 @@ $foo = new ObjectDetection();
             <div class='row'>
               <!-- Block 1 -->
               <div class='col'>
-                <fieldset class='fieldsetInner'>
-                  <legend class='legendInner'>Date</legend>
+                <fieldset class='fieldsetInner border border-dark'>
+                  <legend class='legendInner bg-light border border-dark'>Date</legend>
                   <form class="" action="functions/reports.php" method="POST">
                     <div class="row">
                       <div class="col-md-12 col-lg-5">
@@ -63,16 +63,16 @@ $foo = new ObjectDetection();
 
               <!-- Block 2 -->
               <div class='col'>
-                <fieldset class='fieldsetInner'>
-                  <legend class='legendInner'>Something Else</legend>
+                <fieldset class='fieldsetInner border border-dark'>
+                  <legend class='legendInner bg-light border border-dark'>Something Else</legend>
                 </fieldset>
               </div>
             </div>
           </fieldset>
 
           <!-- Detected Object Table -->
-          <fieldset class='fieldsetMain' id='detectedObjectAllTable'>
-            <legend class='legendMain'>Detected Objects
+          <fieldset class='fieldsetMain border border-dark' id='detectedObjectAllTable'>
+            <legend class='legendMain bg-light border border-dark'>Detected Objects
               <span>(<?php echo numberFormatShort($foo->countThings("All")) ?>)</span>
             </legend>
             <div id="detectedObjectAllTableInner">
@@ -86,8 +86,8 @@ $foo = new ObjectDetection();
           <div class='row'>
             <div class="col-sm-12 col-md-6">
               <!-- Stats -->
-              <fieldset class='fieldsetMain' id='statsTable'>
-                <legend class='legendMain'>Stats</legend>
+              <fieldset class='fieldsetMain border border-dark' id='statsTable'>
+                <legend class='legendMain bg-light border border-dark'>Stats</legend>
                 <div class="">
                   <?php $foo->tableStats(); ?>
                 </div>
@@ -96,8 +96,8 @@ $foo = new ObjectDetection();
 
             <div class="col-sm-12 col-md-6">
               <!-- Live Count -->
-              <fieldset class='fieldsetMain' id='liveCount'>
-                <legend class='legendMain'>Live Count</legend>
+              <fieldset class='fieldsetMain border border-dark' id='liveCount'>
+                <legend class='legendMain bg-light border border-dark'>Live Count</legend>
                 <div class="">
                   <!-- <h1 class='text-center'><?php echo $foo->liveObjectCounter("person",2); ?></h1> -->
                   <h1 class='display-2 text-center'><?php echo $foo->liveObjectCounter("ALL","ALL"); ?></h1>
@@ -107,8 +107,8 @@ $foo = new ObjectDetection();
 
             <div class="col-sm-12 col-md-6">
               <!-- Classes Found -->
-              <fieldset class='fieldsetMain' id='classesFoundTable'>
-                <legend class='legendMain'>Classes Found
+              <fieldset class='fieldsetMain border border-dark' id='classesFoundTable'>
+                <legend class='legendMain bg-light border border-dark'>Classes Found
                   <span>(<?php echo numberFormatShort($foo->countThings('count_class')) ?>)</span>
                 </legend>
                 <div class="">
@@ -118,12 +118,12 @@ $foo = new ObjectDetection();
             </div>
 
             <div class="col-sm-12 col-md-6">
-              <!-- Data Functions -->
-              <fieldset class='fieldsetMain' id='dataFunctionsFieldset'>
-                <legend class='legendMain'>Data Functions</legend>
+              <!-- Global Settiings -->
+              <fieldset class='fieldsetMain border border-dark' id='dataFunctionsFieldset'>
+                <legend class='legendMain bg-light border border-dark'>Global Settings</legend>
                 <div class="">
-                  <?php echo Application::getAppDetails(); ?>
-                  <form class="" action="index.php" method="post">
+                  <form class="" action="functions/global.php" method="POST">
+                    <button class='btn btn-outline-primary' type="submit" name="btnDark"><i class="fas fa-moon"></i></button>
                     <button class='btn btn-outline-danger' type="button" name="btnTruncate" disabled>Truncate</button>
                   </form>
                 </div>
@@ -132,8 +132,8 @@ $foo = new ObjectDetection();
           </div>
 
           <!-- Devices Found -->
-          <fieldset class='fieldsetMain' id='devicesFoundTable'>
-            <a href='devices.php'><legend class='legendMain'>Devices Found
+          <fieldset class='fieldsetMain border border-dark' id='devicesFoundTable'>
+            <a href='devices.php'><legend class='legendMain bg-light border border-dark'>Devices Found
               <span>(<?php echo numberFormatShort($foo->countThings('count_deviceID')) ?>)</span>
             </legend></a>
             <div class="">

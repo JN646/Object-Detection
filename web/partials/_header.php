@@ -4,13 +4,26 @@
     <meta charset="utf-8">
     <!-- <meta http-equiv="refresh" content="5" /> -->
     <title>Object Detection</title>
+
+    <!-- Light -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    <?php if ($darkMode == 1): ?>
+
+    <?php
+    // Start session
+    session_start();
+    ?>
+
+    <!-- Check dark mode -->
+    <?php if ($_SESSION["darkMode"] == 1): ?>
+      <!-- Dark -->
       <link rel="stylesheet" href="css/dark.bootstrap.min.css">
     <?php endif; ?>
+
+    <!-- Other CSS -->
     <link rel="stylesheet" href="css/all.css">
     <link rel="stylesheet" href="css/main.css">
   </head>
+
   <body>
   <!-- Start Clock -->
   <body onload="startTime()">
