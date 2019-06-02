@@ -28,119 +28,123 @@ $foo = new ObjectDetection();
     <div class="row Row1">
         <div class="col-sm-12 col-md-6">
           <!-- CSV Reporting -->
-          <fieldset class='fieldsetMain  border border-dark' id='csvExport'>
-            <legend class='legendMain bg-light border border-dark'>Reporting</legend>
-            <!-- Button Toolbar -->
-            <form class="" action="functions/reports.php" method="POST">
-              <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-                <div class="btn-group mr-2" role="group" aria-label="First group">
-                  <button class='btn btn-outline-primary' type="submit" name="csvOutput">All</button>
-                  <button class='btn btn-outline-primary' type="submit" name="csvTodayOutput">Today</button>
+          <div id='csvExport' class="card">
+            <h5 class='card-header text-center'>Reporting</h5>
+            <div class="card-body">
+              <!-- Button Toolbar -->
+              <form class="" action="functions/reports.php" method="POST">
+                <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                  <div class="btn-group mr-2" role="group" aria-label="First group">
+                    <button class='btn btn-outline-primary' type="submit" name="csvOutput">All</button>
+                    <button class='btn btn-outline-primary' type="submit" name="csvTodayOutput">Today</button>
+                  </div>
+                </div>
+              </form>
+              <br>
+              <div class='row'>
+                <!-- Block 1 -->
+                <div class='col'>
+                  <div class="card">
+                    <h5 class='card-header text-center'>Date</h5>
+                    <div class="card-body">
+                      <form class="" action="functions/reports.php" method="POST">
+                        <div class="row">
+                          <div class="col-md-12">
+                            <input type="datetime-local" class='form-control' name='dateSelectStart' value="<?php echo date("Y-m-d H:i:s",$timestamp); ?>"/>
+                          </div>
+                          <div class="col-md-12">
+                            <input type="datetime-local" class='form-control' name='dateSelectEnd' value="<?php echo date("Y-m-d H:i:s",$timestamp); ?>"/>
+                          </div>
+                          <div class="col-md-12">
+                            <button class='form-control btn btn-outline-success' type="submit" name="csvDateSelectGo">Go</button>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <!-- Block 2 -->
+                <div class='col'>
+                  <div class="card">
+                    <h5 class='card-header text-center'>Something Else</h5>
+                    <div class="card-body">
+                    </div>
+                  </div>
                 </div>
               </div>
-            </form>
-            <br>
-            <div class='row'>
-              <!-- Block 1 -->
-              <div class='col'>
-                <fieldset class='fieldsetInner border border-dark'>
-                  <legend class='legendInner bg-light border border-dark'>Date</legend>
-                  <form class="" action="functions/reports.php" method="POST">
-                    <div class="row">
-                      <div class="col-md-12 col-lg-5">
-                        <input type="datetime-local" class='form-control' name='dateSelectStart' value="<?php echo date("Y-m-d H:i:s",$timestamp); ?>"/>
-                      </div>
-                      <div class="col-md-12 col-lg-5">
-                        <input type="datetime-local" class='form-control' name='dateSelectEnd' value="<?php echo date("Y-m-d H:i:s",$timestamp); ?>"/>
-                      </div>
-                      <div class="col-md-12 col-lg-2">
-                        <button class='form-control btn btn-outline-success' type="submit" name="csvDateSelectGo">Go</button>
-                      </div>
-                    </div>
-                  </form>
-                </fieldset>
-              </div>
-
-              <!-- Block 2 -->
-              <div class='col'>
-                <fieldset class='fieldsetInner border border-dark'>
-                  <legend class='legendInner bg-light border border-dark'>Something Else</legend>
-                </fieldset>
-              </div>
             </div>
-          </fieldset>
+          </div>
 
           <!-- Detected Object Table -->
-          <fieldset class='fieldsetMain border border-dark' id='detectedObjectAllTable'>
-            <legend class='legendMain bg-light border border-dark'>Detected Objects
-              <span>(<?php echo numberFormatShort($foo->countThings("All")) ?>)</span>
-            </legend>
-            <div id="detectedObjectAllTableInner">
-              <?php $foo->selectAllTable(); ?>
+          <div id='detectedObjectAllTable' class="card">
+            <h5 class='card-header text-center'>Detected Objects
+              <span class='badge badge-secondary'><?php echo numberFormatShort($foo->countThings("All")) ?></span></h5>
+            <div class="card-body">
+              <div id="detectedObjectAllTableInner">
+                <?php $foo->selectAllTable(); ?>
+              </div>
             </div>
-          </fieldset>
+          </div>
         </div>
 
         <!-- Second Column -->
         <div class="col-sm-12 col-md-6">
           <div class='row'>
             <div class="col-sm-12 col-md-6">
+
               <!-- Stats -->
-              <fieldset class='fieldsetMain border border-dark' id='statsTable'>
-                <legend class='legendMain bg-light border border-dark'>Stats</legend>
-                <div class="">
+              <div id='statsTable' class="card">
+                <h5 class='card-header text-center'>Stats</h5>
+                <div class="card-body">
                   <?php $foo->tableStats(); ?>
                 </div>
-              </fieldset>
+              </div>
             </div>
 
             <div class="col-sm-12 col-md-6">
               <!-- Live Count -->
-              <fieldset class='fieldsetMain border border-dark' id='liveCount'>
-                <legend class='legendMain bg-light border border-dark'>Live Count</legend>
-                <div class="">
-                  <!-- <h1 class='text-center'><?php echo $foo->liveObjectCounter("person",2); ?></h1> -->
+              <div id='liveCount' class="card">
+                <h5 class='card-header text-center'>Live Count</h5>
+                <div class="card-body">
                   <h1 class='display-2 text-center'><?php echo $foo->liveObjectCounter("ALL","ALL"); ?></h1>
                 </div>
-              </fieldset>
+              </div>
             </div>
 
             <div class="col-sm-12 col-md-6">
               <!-- Classes Found -->
-              <fieldset class='fieldsetMain border border-dark' id='classesFoundTable'>
-                <legend class='legendMain bg-light border border-dark'>Classes Found
-                  <span>(<?php echo numberFormatShort($foo->countThings('count_class')) ?>)</span>
-                </legend>
-                <div class="">
+              <div id='classesFoundTable' class="card">
+                <h5 class='card-header text-center'>Classes Found
+                  <span class='badge badge-secondary'><?php echo numberFormatShort($foo->countThings('count_class')) ?></span></h5>
+                <div class="card-body">
                   <?php $foo->selectAllClassTypes(); ?>
                 </div>
-              </fieldset>
+              </div>
             </div>
 
             <div class="col-sm-12 col-md-6">
               <!-- Global Settiings -->
-              <fieldset class='fieldsetMain border border-dark' id='dataFunctionsFieldset'>
-                <legend class='legendMain bg-light border border-dark'>Global Settings</legend>
-                <div class="">
+              <div id='dataFunctionsFieldset' class="card">
+                <h5 class='card-header text-center'>Global Settings</h5>
+                <div class="card-body">
                   <form class="" action="functions/global.php" method="POST">
                     <button class='btn btn-outline-primary' type="submit" name="btnDark"><i class="fas fa-moon"></i></button>
                     <button class='btn btn-outline-danger' type="button" name="btnTruncate" disabled>Truncate</button>
                   </form>
                 </div>
-              </fieldset>
+              </div>
             </div>
           </div>
 
           <!-- Devices Found -->
-          <fieldset class='fieldsetMain border border-dark' id='devicesFoundTable'>
-            <a href='devices.php'><legend class='legendMain bg-light border border-dark'>Devices Found
-              <span>(<?php echo numberFormatShort($foo->countThings('count_deviceID')) ?>)</span>
-            </legend></a>
-            <div class="">
-              <?php $bar = new devices(); ?>
+          <div id='devicesFoundTable' class="card">
+            <?php $bar = new devices(); ?>
+            <h5 class='card-header text-center'>Devices Found
+              <span class='badge badge-secondary'><?php echo numberFormatShort($bar->countDevices('device_id')) ?></span></h5>
+            <div class="card-body">
               <?php $bar->selectAllDevices() ?>
             </div>
-          </fieldset>
+          </div>
         </div> <!-- Col 6 -->
       </div> <!-- Row -->
     </div>

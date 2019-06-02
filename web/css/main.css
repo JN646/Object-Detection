@@ -3,6 +3,10 @@
   font-size: small;
 }
 
+.card {
+  margin-bottom: 10px;
+}
+
 legend.legendMain {
   text-align: center;
   background-color: #f8f9fa;
@@ -34,7 +38,7 @@ fieldset.fieldsetInner {
 
 #detectedObjectAllTableInner {
   overflow-y: auto;
-  height: 90%;
+  height: 500px;
 }
 
 fieldset#detectedObjectAllTable {

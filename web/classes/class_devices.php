@@ -35,6 +35,34 @@ class devices {
   }
 
   # ============================================================================
+  # Count Devices
+  # ============================================================================
+  public function countDevices($input) {
+    // Attempt select query execution
+    $conn = $this->dbconnect();
+
+    // Adapt query based on input variable.
+    if ($input == "All") {
+      $sql = $conn->query("SELECT COUNT(DISTINCT `device_id`) FROM `devices`");
+    } else {
+      $sql = $conn->query("SELECT COUNT(DISTINCT $input) FROM `devices`");
+    }
+
+    if (!$sql) {
+      die("Error:" . mysqli_error($conn));
+    }
+
+    // Get rows
+    $row = $sql->fetch_row();
+    $count = $row[0];
+
+    // Close connection
+    mysqli_close($conn);
+
+    return $count;
+  }
+
+  # ============================================================================
   # Empty Client Version
   # ============================================================================
   public function emptyClientVersion($clientVersion) {
