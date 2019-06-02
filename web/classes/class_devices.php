@@ -245,7 +245,7 @@ class devices {
                     echo "<td class='text-center'>{$deviceLastSeen}</td>";
                     echo "<td class='text-center'>{$deviceNumRecords}</td>";
                     echo "<td class='text-center'><input name='{$deviceID}' class='text-center' type='text' value='{$deviceConfidence}'></input></td>";
-                    echo "<td class='text-center'><select>". listMissions() ."</select></td>";
+                    echo "<td class='text-center'>".listMissions()."</td>";
                     echo "<td class='text-center' title='{$clientVesion}'><i class='fas fa-code-branch'></i></td>";
 
                     // Check if there is a GPS coord.

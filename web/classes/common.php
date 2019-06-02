@@ -1,5 +1,12 @@
 <?php
 # ============================================================================
+# Test funciton to test an echo.
+# ============================================================================
+function testFunction() {
+  echo "This is a test";
+}
+
+# ============================================================================
 # Format number 1k, 1m, 1b
 # ============================================================================
 function numberFormatShort($n) {
@@ -39,10 +46,43 @@ function formatConfidence($input) {
 # List Missions
 # ============================================================================
 function listMissions() {
-  $mission = array('1 - People', '2 - Cars');
+  $conn = mysqli_connect("localhost", "root", "", "objectTracker2");
+  // Connect to the database.
+  $result = mysqli_query($conn, "SELECT * FROM mission");
 
-  for ($i=0; $i < count($mission); $i++) {
-    return "<option>{$mission[$i]}</option>";
+  if (!$result) {
+    echo("Error description: " . mysqli_error($con));
   }
+
+  // If results is true.
+  if($result) {
+    if(mysqli_num_rows($result) > 0) {
+      $select = '<select name="select">';
+      // For Each.
+      while($row = mysqli_fetch_array($result)) {
+        // Variables
+        $missionID = $row['mission_id'];
+        $missionName = $row['mission_name'];
+
+        // Create option values.
+        $select .= "<option value='{$missionID}'>{$missionName}</option>";
+      }
+      mysqli_free_result($result);
+    } else {
+      echo "No Values";
+    }
+  } else {
+    echo "Error.";
+  }
+
+  $select .= '</select>';
+
+  return $select;
+
+  //free memory associated with result
+  $result->close();
+
+  // Close connection
+  mysqli_close($conn);
 }
 ?>
