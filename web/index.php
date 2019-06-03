@@ -127,10 +127,13 @@ $foo = new ObjectDetection();
             <div class="col-sm-12 col-md-6">
               <!-- Classes Found -->
               <div id='classesFoundTable' class="card">
-                <h5 class='card-header text-center'>Classes Found
-                  <span class='badge badge-secondary'><?php echo numberFormatShort($foo->countThings('count_class')) ?></span></h5>
+                <a data-toggle="modal" data-target="#classesFoundModal">
+                  <h5 class='card-header text-center'>Classes Found
+                    <span class='badge badge-secondary'><?php echo numberFormatShort($foo->countThings('count_class')) ?></span>
+                  </h5>
+                </a>
                 <div class="card-body">
-                  <?php $foo->selectAllClassTypes(); ?>
+                  <?php $foo->selectAllClassTypes(5); ?>
                 </div>
               </div>
             </div>
@@ -165,6 +168,26 @@ $foo = new ObjectDetection();
           </div>
         </div> <!-- Col 6 -->
       </div> <!-- Row -->
+    </div>
+
+    <!-- Classes Found Modal -->
+    <div class="modal fade" id="classesFoundModal" tabindex="-1" role="dialog" aria-labelledby="classesFoundLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="classesFoundLabel">Classes Found</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <?php $foo->selectAllClassTypes(0); ?>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
     </div>
 
 <!-- Footer -->

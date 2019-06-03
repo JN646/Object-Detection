@@ -137,16 +137,21 @@ class objectDetection {
   # ============================================================================
   # Select All Class Types
   # ============================================================================
-  public function selectAllClassTypes() {
+  public function selectAllClassTypes($limit) {
     // Connect to the database.
     $conn = $this->dbconnect();
 
     // SQL
+    if ($limit != 0) {
+      $limitString = "LIMIT " . $limit;
+    } else {
+      $limitString = "";
+    }
+
     $sql = "SELECT class_types.class_name, class_types.class_icon, COUNT(class_types.class_name) AS `count` FROM `counter`
       JOIN class_types ON counter.count_class = class_types.class_number
       GROUP BY class_types.class_name, class_types.class_icon
-      ORDER BY `count` DESC
-      LIMIT 5";
+      ORDER BY `count` DESC $limitString";
 
     // If results is true.
     if($result = mysqli_query($conn, $sql)) {

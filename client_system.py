@@ -272,7 +272,7 @@ inpSize = [416,416]                     # Width and Height of network's input im
 ProcessVideo = True
 frameCount = 0
 frameExtractRate = 24
-deviceID = 1
+deviceID = 3
 videoInput = 0
 
 # Network Config
