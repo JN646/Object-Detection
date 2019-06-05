@@ -5,11 +5,13 @@
 require_once 'classes/class_objectDetection.php';
 require_once 'classes/class_application.php';
 require_once 'classes/class_devices.php';
+require_once 'classes/class_notification.php';
 require_once 'classes/common.php';
 require_once 'partials/_header.php';
 
 // Create new object.
 $foo = new ObjectDetection();
+$baz = new notification();
 ?>
 
 <script type="text/javascript">
@@ -41,57 +43,22 @@ $foo = new ObjectDetection();
     <div class="row Row1">
         <div class="col-sm-12 col-md-6">
           <!-- CSV Reporting -->
-          <div id='csvExport' class="card">
-            <h5 class='card-header text-center'>Reporting</h5>
+          <div id='notificationPane' class="card">
+            <a data-toggle="modal" data-target="#notificationModal">
+              <h5 class='card-header text-center'>Notifications
+                <span class='badge badge-secondary'><?php echo numberFormatShort($baz->countThings("All")) ?></span>
+              </h5>
+            </a>
             <div class="card-body">
-              <!-- Button Toolbar -->
-              <form class="" action="functions/reports.php" method="POST">
-                <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-                  <div class="btn-group mr-2" role="group" aria-label="First group">
-                    <button class='btn btn-outline-primary' type="submit" name="csvOutput">All</button>
-                    <button class='btn btn-outline-primary' type="submit" name="csvTodayOutput">Today</button>
-                  </div>
-                </div>
-              </form>
-              <br>
-              <div class='row'>
-                <!-- Block 1 -->
-                <div class='col'>
-                  <div class="card">
-                    <h5 class='card-header text-center'>Date</h5>
-                    <div class="card-body">
-                      <form class="" action="functions/reports.php" method="POST">
-                        <div class="row">
-                          <div class="col-md-12">
-                            <input type="datetime-local" class='form-control' name='dateSelectStart' value="<?php echo date("Y-m-d H:i:s",$timestamp); ?>"/>
-                          </div>
-                          <div class="col-md-12">
-                            <input type="datetime-local" class='form-control' name='dateSelectEnd' value="<?php echo date("Y-m-d H:i:s",$timestamp); ?>"/>
-                          </div>
-                          <div class="col-md-12">
-                            <button class='form-control btn btn-outline-success' type="submit" name="csvDateSelectGo">Go</button>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-                <!-- Block 2 -->
-                <div class='col'>
-                  <div class="card">
-                    <h5 class='card-header text-center'>Something Else</h5>
-                    <div class="card-body">
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <?php $baz->selectAllNotifications() ?>
             </div>
           </div>
 
           <!-- Detected Object Table -->
           <div id='detectedObjectAllTable' class="card">
             <h5 class='card-header text-center'>Detected Objects
-              <span class='badge badge-secondary'><?php echo numberFormatShort($foo->countThings("All")) ?></span></h5>
+              <span class='badge badge-secondary'><?php echo numberFormatShort($foo->countThings("All")) ?></span>
+            </h5>
             <div class="card-body">
               <div id="detectedObjectAllTableInner">
                 <?php $foo->selectAllTable(); ?>
@@ -143,10 +110,29 @@ $foo = new ObjectDetection();
               <div id='dataFunctionsFieldset' class="card">
                 <h5 class='card-header text-center'>Global Settings</h5>
                 <div class="card-body">
-                  <div id='div1' class=""></div>
                   <form class="" action="functions/global.php" method="POST">
                     <button class='btn btn-outline-primary' type="submit" name="btnDark"><i class="fas fa-moon"></i></button>
                     <button class='btn btn-outline-danger' type="button" name="btnTruncate" disabled>Truncate</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-sm-12 col-md-6">
+              <!-- CSV Reporting -->
+              <div id='csvExport' class="card">
+                <a data-toggle="modal" data-target="#reportingModal">
+                  <h5 class='card-header text-center'>Reporting</h5>
+                </a>
+                <div class="card-body">
+                  <!-- Button Toolbar -->
+                  <form class="" action="functions/reports.php" method="POST">
+                    <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                      <div class="btn-group mr-2" role="group" aria-label="First group">
+                        <button class='btn btn-outline-primary' type="submit" name="csvOutput">All</button>
+                        <button class='btn btn-outline-primary' type="submit" name="csvTodayOutput">Today</button>
+                      </div>
+                    </div>
                   </form>
                 </div>
               </div>
@@ -156,7 +142,7 @@ $foo = new ObjectDetection();
           <!-- Devices Found -->
           <div id='devicesFoundTable' class="card">
             <?php $bar = new devices(); ?>
-            <a href='devices.php'>
+            <a data-toggle="modal" data-target="#devicesFoundModal">
               <h5 class='card-header text-center'>
                 Devices Found
                 <span class='badge badge-secondary'><?php echo numberFormatShort($bar->countDevices('device_id')) ?></span>
@@ -168,6 +154,26 @@ $foo = new ObjectDetection();
           </div>
         </div> <!-- Col 6 -->
       </div> <!-- Row -->
+    </div>
+
+    <!-- Notifcation Modal -->
+    <div class="modal fade" id="notificationModal" tabindex="-1" role="dialog" aria-labelledby="notificationLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="notificationLabel">Notifications</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <?php $baz->selectAllNotifications() ?>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Classes Found Modal -->
@@ -182,6 +188,85 @@ $foo = new ObjectDetection();
           </div>
           <div class="modal-body">
             <?php $foo->selectAllClassTypes(0); ?>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Devices Found Modal -->
+    <div class="modal fade" id="devicesFoundModal" tabindex="-1" role="dialog" aria-labelledby="devicesFoundLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="devicesFoundLabel">Devices Found</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <?php $bar->selectAllDevicesCRUD() ?>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reporting Modal -->
+    <div class="modal fade" id="reportingModal" tabindex="-1" role="dialog" aria-labelledby="reportingLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="reportingLabel">Reporting</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <!-- CSV Reporting -->
+            <div id='csvExport' class="card">
+              <h5 class='card-header text-center'>Reporting</h5>
+              <div class="card-body">
+                <!-- Button Toolbar -->
+                <form class="" action="functions/reports.php" method="POST">
+                  <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                    <div class="btn-group mr-2" role="group" aria-label="First group">
+                      <button class='btn btn-outline-primary' type="submit" name="csvOutput">All</button>
+                      <button class='btn btn-outline-primary' type="submit" name="csvTodayOutput">Today</button>
+                    </div>
+                  </div>
+                </form>
+                <br>
+                <div class='row'>
+                  <!-- Block 1 -->
+                  <div class='col'>
+                    <div class="card">
+                      <h5 class='card-header text-center'>Date</h5>
+                      <div class="card-body">
+                        <form class="" action="functions/reports.php" method="POST">
+                          <div class="row">
+                            <div class="col-md-12">
+                              <input type="datetime-local" class='form-control' name='dateSelectStart' value="<?php echo date("Y-m-d H:i:s",$timestamp); ?>"/>
+                            </div>
+                            <div class="col-md-12">
+                              <input type="datetime-local" class='form-control' name='dateSelectEnd' value="<?php echo date("Y-m-d H:i:s",$timestamp); ?>"/>
+                            </div>
+                            <div class="col-md-12">
+                              <button class='form-control btn btn-outline-success' type="submit" name="csvDateSelectGo">Go</button>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

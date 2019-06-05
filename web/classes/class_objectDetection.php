@@ -54,7 +54,7 @@ class objectDetection {
     // SELECT * FROM `counter` INNER JOIN class_types ON counter.count_class = class_types.class_number
     $conn = $this->dbconnect();
     if($result = mysqli_query($conn, "SELECT * FROM `counter` INNER JOIN `class_types` ON counter.count_class = class_types.class_number INNER JOIN `devices` ON counter.count_deviceID = devices.device_id ORDER BY `count_id` DESC")) {
-        $headers = array("ID","Device Name","Class","Time","Conf.","Loc.","GPS");
+        $headers = array("#","Device Name","Class","Time","Conf.","Loc.","GPS");
         if(mysqli_num_rows($result) > 0){
             echo "<table class='table table-sm'>";
                 echo "<tr>";
@@ -189,9 +189,6 @@ class objectDetection {
     } else{
         echo $this->dbError($sql,$conn);
     }
-
-    //free memory associated with result
-    $result->close();
 
     // Close connection
     mysqli_close($conn);

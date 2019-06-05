@@ -131,4 +131,46 @@ function listMissions() {
   // Close connection
   mysqli_close($conn);
 }
+
+# ============================================================================
+# Get Notification Priority
+# ============================================================================
+function getPriority($notificationPriority) {
+  // Get Priority
+  switch ($notificationPriority) {
+    case 0:
+      return "<i class='text-info fas fa-info'></i>";
+      break;
+    case 1:
+      return "<i class='text-warning fas fa-exclamation'></i>";
+      break;
+    case 2:
+      return "<i class='text-danger fas fa-exclamation-triangle'></i>";
+      break;
+    default:
+      return "Other";
+      break;
+  }
+}
+
+# ============================================================================
+# Get Notification Category
+# ============================================================================
+function getCategory($notificationCategory) {
+  // Get Priority
+  switch ($notificationCategory) {
+    case 0:
+      return "Info";
+      break;
+    case 1:
+      return "Weather";
+      break;
+    case 2:
+      return "Incident";
+      break;
+    default:
+      return "Other";
+      break;
+  }
+}
 ?>

@@ -78,7 +78,7 @@ class devices {
   # ============================================================================
   public function emptyClientVersion($clientVersion) {
     if (empty($clientVersion)) {
-      $clientVersion = $row['device_clientVersion'];
+      $clientVersion = $clientVersion;
     } else {
       // Client Version not seen.
       $clientVersion = "Unknown";
@@ -194,12 +194,13 @@ class devices {
                 $deviceName = $row['device_name'];
                 $deviceLocation = $row['device_location'];
                 $deviceIP = $row['device_ip'];
+                $clientVersion = $row['device_clientVersion'];
                 $deviceConfidence = $row['device_confidenceThreshold'];
                 $deviceNumRecords = $this->countDeviceRows($deviceID);
                 $deviceLastSeen = date("H:i:s d/m/y", strtotime($this->countDeviceLastTime($deviceID)));
                 $this->emptyClientVersion($clientVersion);
 
-                ifNoDate($deviceLastSeen);
+                $deviceLastSeen = ifNoDate($deviceLastSeen);
 
                 $lat = $this->countDeviceLastGPS($deviceID)[0];
                 $long = $this->countDeviceLastGPS($deviceID)[1];
@@ -213,8 +214,8 @@ class devices {
                 }
 
                 // If blank
-                if ($name == "") {
-                  $name = "N/A";
+                if ($deviceName == "") {
+                  $deviceName = "N/A";
                 }
 
                 // Generate Table Rows.
@@ -225,7 +226,7 @@ class devices {
                     echo "<td class='text-center'>{$deviceLastSeen}</td>";
                     echo "<td class='text-center'>{$deviceNumRecords}</td>";
                     echo "<td class='text-center ".formatConfidenceColours($deviceConfidence)."'>".formatConfidence($deviceConfidence)."</td>";
-                    echo "<td class='text-center' title='{$clientVesion}'><i class='fas fa-code-branch'></i></td>";
+                    echo "<td class='text-center' title='{$clientVersion}'><i class='fas fa-code-branch'></i></td>";
 
                     // Check if there is a GPS coord.
                     if (empty($lat) || empty($long)) {
@@ -245,9 +246,6 @@ class devices {
     } else {
       echo $this->dbError($sql,$conn);
     }
-
-    //free memory associated with result
-    $result->close();
 
     // Close connection
     mysqli_close($conn);
@@ -283,12 +281,13 @@ class devices {
               $deviceID = $row['device_id'];
               $deviceName = $row['device_name'];
               $deviceIP = $row['device_ip'];
+              $clientVersion = $row['device_clientVersion'];
               $deviceLocation = $row['device_location'];
               $deviceNumRecords = $this->countDeviceRows($deviceID);
               $deviceConfidence = $row['device_confidenceThreshold'];
               $deviceClientVersion = $row['device_clientVersion'];
               $deviceLastSeen = date("H:i:s d/m/y", strtotime($this->countDeviceLastTime($deviceID)));
-              $deviceLastPing = date("H:i:s d/m/y", strtotime($deviceLastPing));
+              $deviceLastPing = date("H:i:s d/m/y", strtotime($row['device_lastPing']));
               $this->emptyClientVersion($deviceClientVersion);
 
               // If there is no records
@@ -307,8 +306,8 @@ class devices {
               $latLong = $lat . " " . $long;
 
               // If blank
-              if ($name == "") {
-                $name = "N/A";
+              if ($deviceName == "") {
+                $deviceName = "N/A";
               }
 
               // Generate Table Rows.
@@ -322,7 +321,7 @@ class devices {
                 echo "<td class='text-center'>{$deviceNumRecords}</td>";
                 echo "<td class='text-center'><input name='{$deviceID}' class='text-center' type='text' value='{$deviceConfidence}'></input></td>";
                 echo "<td class='text-center'>".listMissions()."</td>";
-                echo "<td class='text-center' title='{$clientVesion}'><i class='fas fa-code-branch'></i></td>";
+                echo "<td class='text-center' title='{$clientVersion}'><i class='fas fa-code-branch'></i></td>";
 
                 // Check if there is a GPS coord.
                 if (empty($lat) || empty($long)) {
@@ -351,9 +350,6 @@ class devices {
     } else {
       echo $this->dbError($sql,$conn);
     }
-
-    //free memory associated with result
-    $result->close();
 
     // Close connection
     mysqli_close($conn);
