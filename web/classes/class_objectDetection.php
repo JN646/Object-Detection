@@ -2,7 +2,7 @@
 /**
  * Object Detection
  */
-require_once 'classes/common.php';
+require_once 'common.php';
 
 class objectDetection {
   public $id;
@@ -102,9 +102,6 @@ class objectDetection {
       echo $this->dbError($sql,$conn);
     }
 
-    //free memory associated with result
-    $result->close();
-
     // Close connection
     mysqli_close($conn);
   }
@@ -124,9 +121,6 @@ class objectDetection {
     }
     $row = $sql->fetch_row();
     $count = $row[0];
-
-    //free memory associated with result
-    $sql->close();
 
     // Close connection
     mysqli_close($conn);

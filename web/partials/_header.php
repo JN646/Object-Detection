@@ -2,7 +2,6 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <!-- <meta http-equiv="refresh" content="5" /> -->
     <title>Object Detection</title>
 
     <!-- Light -->
@@ -12,9 +11,15 @@
     // Start session
     session_start();
 
+    // Error
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
+
+    // Test Session
+    if (!isset($_SESSION["darkMode"])) {
+      $_SESSION["darkMode"] = 0;
+    }
     ?>
 
     <!-- Check dark mode -->
