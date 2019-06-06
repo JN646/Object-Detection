@@ -35,30 +35,3 @@ if (document.getElementById('doSelectAll')) {
     }
   });
 }
-
-//  Dashboard toggle buttons
-function toggleDetectedObj() {
-  $("#detectedObjectAllTable").toggle();
-}
-
-function toggleClasses() {
-  $("#classesFoundTable").toggle();
-}
-
-function toggleDevices() {
-  $("#devicesFoundTable").toggle();
-}
-
-function toggleStats() {
-  $("#statsTable").toggle();
-}
-
-function toggleLiveCount() {
-  $("#liveCount").toggle();
-}
-
-function toggleDataFunctions() {
-  $("#dataFunctionsFieldset").toggle();
-}
-
-// Table Sorting

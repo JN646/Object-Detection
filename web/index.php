@@ -13,19 +13,6 @@ require_once 'partials/_header.php';
 $foo = new ObjectDetection();
 $baz = new notification();
 ?>
-
-<script type="text/javascript">
-  $(document).ready(function(){
-    refreshTable();
-  });
-
-  function refreshTable(){
-    $('#div1').load('demo.php', function(){
-      console.log("Test");
-      setTimeout(refreshTable, 1000);
-    });
-  }
-</script>
 <!-- Main container -->
 <div class='fluid-container'>
   <div class='col-md-12'>
@@ -61,6 +48,8 @@ $baz = new notification();
             </h5>
             <div class="card-body">
               <div id="detectedObjectAllTableInner">
+                <input class='form-control' type="text" id="myInput" onkeyup="myFunction()" placeholder="Filter classes.." title="Filter classes">
+                <br>
                 <?php $foo->selectAllTable(); ?>
               </div>
             </div>
@@ -254,6 +243,7 @@ $baz = new notification();
               </div> <!-- Row -->
 
               <script type="text/javascript">
+                // Table Sorting
                 const getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
 
                 const comparer = (idx, asc) => (a, b) => ((v1, v2) =>
@@ -267,6 +257,31 @@ $baz = new notification();
                       .sort(comparer(Array.from(th.parentNode.children).indexOf(th), this.asc = !this.asc))
                       .forEach(tr => table.appendChild(tr) );
                 })));
+
+                // Filter table
+                function myFunction() {
+                  // Set Variables
+                  var input, filter, table, tr, td, i, txtValue;
+
+                  // Map to IDs
+                  input = document.getElementById("myInput");
+                  filter = input.value.toUpperCase();
+                  table = document.getElementById("detectedObjectAllTable");
+                  tr = table.getElementsByTagName("tr");
+
+                  // Loop
+                  for (i = 0; i < tr.length; i++) {
+                    td = tr[i].getElementsByTagName("td")[3];
+                    if (td) {
+                      txtValue = td.textContent || td.innerText;
+                      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                      } else {
+                        tr[i].style.display = "none";
+                      }
+                    }
+                  }
+                }
               </script>
 
           </div>
