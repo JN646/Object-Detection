@@ -107,7 +107,7 @@ class notification {
                 echo "<tr>";
                   echo "<th class='text-center'><input id='noteSelectAll' class='noteCheckbox' type='checkbox'></th>";
                   for ($i=0; $i < count($headers); $i++) {
-                    echo "<th onclick='sortTable($i)' class='text-center'>{$headers[$i]}</th>";
+                    echo "<th class='text-center'>{$headers[$i]}</th>";
                   }
                 echo "</tr>";
 

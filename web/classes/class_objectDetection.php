@@ -51,16 +51,15 @@ class objectDetection {
   # ============================================================================
   public function selectAllTable() {
     // Attempt select query execution
-    // SELECT * FROM `counter` INNER JOIN class_types ON counter.count_class = class_types.class_number
     $conn = $this->dbconnect();
     if($result = mysqli_query($conn, "SELECT * FROM `counter` INNER JOIN `class_types` ON counter.count_class = class_types.class_number INNER JOIN `devices` ON counter.count_deviceID = devices.device_id ORDER BY `count_id` DESC")) {
         $headers = array("#","Device Name","Class","Time","Conf.","Loc.","GPS");
         if(mysqli_num_rows($result) > 0){
-            echo "<table class='table table-sm'>";
+            echo "<table id='detectedObjectAllTable' class='table table-sm'>";
                 echo "<tr>";
                     echo "<th class='text-center'><input id='doSelectAll' class='doCheckbox' type='checkbox'></th>";
                     for ($i=0; $i < count($headers); $i++) {
-                      echo "<th onclick='sortTable($i)' class='text-center'>{$headers[$i]}</th>";
+                      echo "<th class='text-center'>{$headers[$i]}</th>";
                     }
                 echo "</tr>";
             while($row = mysqli_fetch_array($result)){
@@ -112,13 +111,21 @@ class objectDetection {
   public function countFirstLastTime($input) {
     // Attempt select query execution
     $conn = $this->dbconnect();
-    if ($input == "MIN") {
-      $sql = $conn->query("SELECT MIN(`count_time`) FROM `counter` LIMIT 1");
+
+    // Get either first or last time.
+    switch ($input) {
+      // First
+      case 'MIN':
+        $sql = $conn->query("SELECT MIN(`count_time`) FROM `counter` LIMIT 1");
+        break;
+
+      // Last
+      case 'MAX':
+        $sql = $conn->query("SELECT MAX(`count_time`) FROM `counter` LIMIT 1");
+        break;
     }
 
-    if ($input == "MAX") {
-      $sql = $conn->query("SELECT MAX(`count_time`) FROM `counter` LIMIT 1");
-    }
+    // Get Rows
     $row = $sql->fetch_row();
     $count = $row[0];
 
@@ -155,7 +162,7 @@ class objectDetection {
             echo "<table class='table table-sm'>";
                 echo "<tr>";
                   for ($i=0; $i < count($headers); $i++) {
-                    echo "<th onclick='sortTable($i)' class='text-center'>{$headers[$i]}</th>";
+                    echo "<th class='text-center'>{$headers[$i]}</th>";
                   }
                 echo "</tr>";
 
