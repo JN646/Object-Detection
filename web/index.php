@@ -157,7 +157,11 @@ $baz = new notification();
             </button>
           </div>
           <div class="modal-body">
-            <?php $baz->selectAllNotifications() ?>
+            <?php
+            // $baz->createNotification(1,2,"This is a new test with a function.",2);
+            // $baz->deleteNotification(11);
+            $baz->selectAllNotifications();
+            ?>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

@@ -6,11 +6,12 @@ require_once 'common.php';
  * Notification class
  */
 class notification {
-  public $deviceID;
-  public $deviceName;
-  public $deviceLocation;
-  public $deviceConfidence;
-  public $deviceClientVersion;
+  public $notificationID;
+  public $notificationDeviceID;
+  public $notificationCategory;
+  public $notificationDatetime;
+  public $notificationMessage;
+  public $notificationPriority;
 
   # ============================================================================
   # Constructor
@@ -74,16 +75,53 @@ class notification {
   }
 
   # ============================================================================
-  # Empty Client Version
+  # Create a notification
   # ============================================================================
-  // public function emptyClientVersion($clientVersion) {
-  //   if (empty($clientVersion)) {
-  //     $clientVersion = $row['device_clientVersion'];
-  //   } else {
-  //     // Client Version not seen.
-  //     $clientVersion = "Unknown";
-  //   }
-  // }
+  public function createNotification($notificationDeviceID,$notificationCategory,$notificationMessage,$notificationPriority) {
+    // Map Variables
+    $this->notificationDeviceID = $notificationDeviceID;
+    $this->notificationCategory = $notificationCategory;
+    $this->notificationMessage = $notificationMessage;
+    $this->notificationPriority = $notificationPriority;
+
+    // Attempt select query execution
+    $conn = $this->dbconnect();
+
+    // INSERT query.
+    $query = "INSERT INTO `notification` (`notification_deviceID`, `notification_category`, `notification_message`, `notification_priority`)
+    VALUES ('$notificationDeviceID', '$notificationCategory', '$notificationMessage', '$notificationPriority')";
+
+    // Adapt query based on input variable.
+    $sql = $conn->query($query);
+
+    if (!$sql) {
+      die("Error:" . mysqli_error($conn));
+    }
+
+    // Close connection
+    mysqli_close($conn);
+  }
+
+  # ============================================================================
+  # Delete a notification
+  # ============================================================================
+  public function deleteNotification($notificationID) {
+    // Attempt select query execution
+    $conn = $this->dbconnect();
+
+    // INSERT query.
+    $query = "DELETE FROM `notification` WHERE `notification_id` = '$notificationID'";
+
+    // Adapt query based on input variable.
+    $sql = $conn->query($query);
+
+    if (!$sql) {
+      die("Error:" . mysqli_error($conn));
+    }
+
+    // Close connection
+    mysqli_close($conn);
+  }
 
   # ============================================================================
   # Select All Devices
@@ -100,7 +138,7 @@ class notification {
 
     // If results is true.
     if($result) {
-      $headers = array("Priority","Device","Category","Time","Message");
+      $headers = array("Priority","Device","Category","Time","Message","");
         if(mysqli_num_rows($result) > 0){
           // Generate the table.
             echo "<table class='table table-sm'>";
@@ -129,6 +167,7 @@ class notification {
                 echo "<td class='text-center'>".getCategory($notificationCategory)."</td>";
                 echo "<td>" . date("H:i:s d/m/y", strtotime($notificationDatetime)) . "</td>";
                 echo "<td>{$notificationMessage}</td>";
+                echo "<td><a href='functions/func_notification.php?delete_id={$notificationID}'><i class='text-danger fas fa-trash'></i></a></td>";
               echo "</tr>";
             }
             echo "</table>";

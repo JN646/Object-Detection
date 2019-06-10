@@ -44,3 +44,15 @@ fieldset.fieldsetInner {
 fieldset#detectedObjectAllTable {
   height: 500px;
 }
+
+/* Modal Styling FS */
+.modal-dialog {
+  max-width: unset;
+  width: 98%;
+  height: 92%;
+  padding: 0;
+}
+
+.modal-content {
+  height: 99%;
+}
