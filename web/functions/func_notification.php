@@ -39,4 +39,16 @@ if (isset($_GET['delete_id'])) {
   header('Location: ' . $_SERVER['HTTP_REFERER']);
 }
 
+# ============================================================================
+# Delete All
+# ============================================================================
+if (isset($_GET['delete_all'])) {
+  // Delete record.
+  $baz = new notification();
+  $baz->deleteAllNotification();
+
+  // Return to page
+  header('Location: ' . $_SERVER['HTTP_REFERER']);
+}
+
 ?>

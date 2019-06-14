@@ -36,12 +36,11 @@ require_once 'functions/reports.php';
 
         <!-- Columns -->
         <label for="selectColumn">Column</label>
-        <select class="" name="selectColumn" id="col">
-        </select>
+        <select class="" name="selectColumn" id="col"></select>
         <script>
           var selectBox = document.getElementById('col');
           var tableColumns = ["foo", "bar", "baz"]; // this needs to come from the SQL result above
-          tableColumns.forEach(option => selectBox.add( new Option(option) );
+          tableColumns.forEach(option => selectBox.add(new Option(option)));
         </script>
 
         <!-- Count -->

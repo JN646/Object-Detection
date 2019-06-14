@@ -105,7 +105,7 @@ $baz = new notification();
                 <div class="card-body">
                   <form class="" action="functions/global.php" method="POST">
                     <button class='btn btn-outline-primary' type="submit" name="btnDark"><i class="fas fa-moon"></i></button>
-                    <button class='btn btn-outline-danger' type="button" name="btnTruncate" disabled>Truncate</button>
+                    <button class='btn btn-outline-danger' type="button" name="btnTruncate" onclick='return confirm("Are you sure you want to truncate the database?");' disabled>Truncate</button>
                   </form>
                 </div>
               </div>
@@ -152,153 +152,32 @@ $baz = new notification();
 
     <!-- Notifcation Modal -->
     <div class="modal fade" id="notificationModal" tabindex="-1" role="dialog" aria-labelledby="notificationLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="notificationLabel">Notifications</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <?php
-            // $baz->createNotification(1,2,"This is a new test with a function.",2);
-            // $baz->deleteNotification(11);
-            $baz->selectAllNotifications();
-            ?>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
+      <?php include 'partials/_mod_notification.php' ?>
     </div>
 
     <!-- Classes Found Modal -->
     <div class="modal fade" id="classesFoundModal" tabindex="-1" role="dialog" aria-labelledby="classesFoundLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="classesFoundLabel">Classes Found</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <?php $foo->selectAllClassTypes(0); ?>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
+      <?php include 'partials/_mod_classes.php' ?>
     </div>
 
     <!-- Devices Found Modal -->
     <div class="modal fade" id="devicesFoundModal" tabindex="-1" role="dialog" aria-labelledby="devicesFoundLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="devicesFoundLabel">Devices Found</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <?php $bar->selectAllDevicesCRUD() ?>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
+      <?php include 'partials/_mod_devices.php' ?>
     </div>
 
     <!-- Counter Modal -->
     <div class="modal fade" id="counterModal" tabindex="-1" role="dialog" aria-labelledby="counterLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="counterLabel">Counter</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div id='counterBody'>
-              <h1 id='counterLarge' class='display-1 text-center'>
-                <?php echo $foo->liveObjectCounter("ALL","ALL"); ?>
-              </h1>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
+      <?php include 'partials/_mod_counter.php' ?>
     </div>
 
     <!-- Detect Object Modal -->
     <div class="modal fade" id="detectedObjectModal" tabindex="-1" role="dialog" aria-labelledby="detectedObjectLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="detectedObjectLabel">Detected Objects</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <?php $foo->selectAllTable(); ?>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
+      <?php include 'partials/_mod_detectedObjects.php' ?>
     </div>
 
     <!-- Reporting Modal -->
     <div class="modal fade" id="reportingModal" tabindex="-1" role="dialog" aria-labelledby="reportingLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="reportingLabel">Reporting</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <!-- CSV Reporting -->
-            <div class='row'>
-              <!-- Block 1 -->
-              <div class='col'>
-                <div class="card">
-                  <h5 class='card-header text-center'>Date</h5>
-                  <div class="card-body">
-                    <form class="" action="functions/reports.php" method="POST">
-                      <div class="row">
-                        <div class="col-md-12">
-                          <input type="datetime-local" class='form-control' name='dateSelectStart' value=""/>
-                        </div>
-                        <div class="col-md-12">
-                          <input type="datetime-local" class='form-control' name='dateSelectEnd' value=""/>
-                        </div>
-                        <div class="col-md-12">
-                          <button class='form-control btn btn-outline-success' type="submit" name="csvDateSelectGo">Go</button>
-                        </div>
-                      </div>
-                    </form>
-                  </div> <!-- Card Body -->
-                </div> <!-- Card -->
-              </div> <!-- Col -->
-            </div> <!-- Row -->
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
+      <?php include 'partials/_mod_reporting.php' ?>
     </div>
 
     <script type="text/javascript">

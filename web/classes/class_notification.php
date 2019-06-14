@@ -124,6 +124,27 @@ class notification {
   }
 
   # ============================================================================
+  # Delete a notification
+  # ============================================================================
+  public function deleteAllNotification() {
+    // Attempt select query execution
+    $conn = $this->dbconnect();
+
+    // INSERT query.
+    $query = "DELETE FROM `notification` WHERE `notification_id` = '$notificationID'";
+
+    // Adapt query based on input variable.
+    $sql = $conn->query($query);
+
+    if (!$sql) {
+      die("Error:" . mysqli_error($conn));
+    }
+
+    // Close connection
+    mysqli_close($conn);
+  }
+
+  # ============================================================================
   # Select All Devices
   # ============================================================================
   public function selectAllNotifications() {

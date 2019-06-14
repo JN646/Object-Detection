@@ -231,12 +231,8 @@ class objectDetection {
             echo "<td class='text-center'>". numberFormatShort($this->countThings('count_deviceID')) ."</td>";
         echo "</tr>";
         echo "<tr>";
-            echo "<td>First Event</td>";
-            echo "<td class='text-center'><i class='far fa-clock' title='".date('h:i:s d/m/y', strtotime($this->countFirstLastTime("MIN")))."'></i></td>";
-        echo "</tr>";
-        echo "<tr>";
-            echo "<td>Last Event</td>";
-            echo "<td class='text-center'><i class='far fa-clock' title='".date('h:i:s d/m/y', strtotime($this->countFirstLastTime("MAX")))."'></i></td>";
+            echo "<td>First/Last Event</td>";
+            echo "<td class='text-center'><i class='far fa-clock' title='".date('h:i:s d/m/y', strtotime($this->countFirstLastTime("MIN")))."'></i> <i class='far fa-clock' title='".date('h:i:s d/m/y', strtotime($this->countFirstLastTime("MAX")))."'></i></td>";
         echo "</tr>";
     echo "</table>";
   }
