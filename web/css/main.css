@@ -56,3 +56,8 @@ fieldset#detectedObjectAllTable {
 .modal-content {
   height: 99%;
 }
+
+/* Large Counter */
+h1#counterLarge {
+  font-size: 20rem;
+}

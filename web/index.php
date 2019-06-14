@@ -73,7 +73,9 @@ $baz = new notification();
             <div class="col-sm-12 col-md-6">
               <!-- Live Count -->
               <div id='liveCount' class="card">
-                <h5 class='card-header text-center'>Live Count</h5>
+                <a data-toggle="modal" data-target="#counterModal">
+                  <h5 class='card-header text-center'>Live Count</h5>
+                </a>
                 <div class="card-body">
                   <h1 class='display-2 text-center'><?php echo $foo->liveObjectCounter("ALL","ALL"); ?></h1>
                 </div>
@@ -210,6 +212,26 @@ $baz = new notification();
       </div>
     </div>
 
+    <!-- Counter Modal -->
+    <div class="modal fade" id="counterModal" tabindex="-1" role="dialog" aria-labelledby="counterLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="counterLabel">Counter</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <h1 id='counterLarge' class='display-1 text-center'><?php echo $foo->liveObjectCounter("ALL","ALL"); ?></h1>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Reporting Modal -->
     <div class="modal fade" id="reportingModal" tabindex="-1" role="dialog" aria-labelledby="reportingLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
@@ -222,72 +244,29 @@ $baz = new notification();
           </div>
           <div class="modal-body">
             <!-- CSV Reporting -->
-              <div class='row'>
-                <!-- Block 1 -->
-                <div class='col'>
-                  <div class="card">
-                    <h5 class='card-header text-center'>Date</h5>
-                    <div class="card-body">
-                      <form class="" action="functions/reports.php" method="POST">
-                        <div class="row">
-                          <div class="col-md-12">
-                            <input type="datetime-local" class='form-control' name='dateSelectStart' value=""/>
-                          </div>
-                          <div class="col-md-12">
-                            <input type="datetime-local" class='form-control' name='dateSelectEnd' value=""/>
-                          </div>
-                          <div class="col-md-12">
-                            <button class='form-control btn btn-outline-success' type="submit" name="csvDateSelectGo">Go</button>
-                          </div>
+            <div class='row'>
+              <!-- Block 1 -->
+              <div class='col'>
+                <div class="card">
+                  <h5 class='card-header text-center'>Date</h5>
+                  <div class="card-body">
+                    <form class="" action="functions/reports.php" method="POST">
+                      <div class="row">
+                        <div class="col-md-12">
+                          <input type="datetime-local" class='form-control' name='dateSelectStart' value=""/>
                         </div>
-                      </form>
-                    </div> <!-- Card Body -->
-                  </div> <!-- Card -->
-                </div> <!-- Col -->
-              </div> <!-- Row -->
-
-              <script type="text/javascript">
-                // Table Sorting
-                const getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
-
-                const comparer = (idx, asc) => (a, b) => ((v1, v2) =>
-                  v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2)
-                  )(getCellValue(asc ? a : b, idx), getCellValue(asc ? b : a, idx));
-
-                // do the work...
-                document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() => {
-                  const table = th.closest('table');
-                  Array.from(table.querySelectorAll('tr:nth-child(n+2)'))
-                      .sort(comparer(Array.from(th.parentNode.children).indexOf(th), this.asc = !this.asc))
-                      .forEach(tr => table.appendChild(tr) );
-                })));
-
-                // Filter table
-                function myFunction() {
-                  // Set Variables
-                  var input, filter, table, tr, td, i, txtValue;
-
-                  // Map to IDs
-                  input = document.getElementById("myInput");
-                  filter = input.value.toUpperCase();
-                  table = document.getElementById("detectedObjectAllTable");
-                  tr = table.getElementsByTagName("tr");
-
-                  // Loop
-                  for (i = 0; i < tr.length; i++) {
-                    td = tr[i].getElementsByTagName("td")[3];
-                    if (td) {
-                      txtValue = td.textContent || td.innerText;
-                      if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                        tr[i].style.display = "";
-                      } else {
-                        tr[i].style.display = "none";
-                      }
-                    }
-                  }
-                }
-              </script>
-
+                        <div class="col-md-12">
+                          <input type="datetime-local" class='form-control' name='dateSelectEnd' value=""/>
+                        </div>
+                        <div class="col-md-12">
+                          <button class='form-control btn btn-outline-success' type="submit" name="csvDateSelectGo">Go</button>
+                        </div>
+                      </div>
+                    </form>
+                  </div> <!-- Card Body -->
+                </div> <!-- Card -->
+              </div> <!-- Col -->
+            </div> <!-- Row -->
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -295,6 +274,48 @@ $baz = new notification();
         </div>
       </div>
     </div>
+
+    <script type="text/javascript">
+      // Table Sorting
+      const getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
+
+      const comparer = (idx, asc) => (a, b) => ((v1, v2) =>
+        v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2)
+        )(getCellValue(asc ? a : b, idx), getCellValue(asc ? b : a, idx));
+
+      // do the work...
+      document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() => {
+        const table = th.closest('table');
+        Array.from(table.querySelectorAll('tr:nth-child(n+2)'))
+            .sort(comparer(Array.from(th.parentNode.children).indexOf(th), this.asc = !this.asc))
+            .forEach(tr => table.appendChild(tr) );
+      })));
+
+      // Filter table
+      function myFunction() {
+        // Set Variables
+        var input, filter, table, tr, td, i, txtValue;
+
+        // Map to IDs
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("detectedObjectAllTable");
+        tr = table.getElementsByTagName("tr");
+
+        // Loop
+        for (i = 0; i < tr.length; i++) {
+          td = tr[i].getElementsByTagName("td")[3];
+          if (td) {
+            txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+              tr[i].style.display = "";
+            } else {
+              tr[i].style.display = "none";
+            }
+          }
+        }
+      }
+    </script>
 
 <!-- Footer -->
 <?php require_once 'partials/_footer.php'; ?>

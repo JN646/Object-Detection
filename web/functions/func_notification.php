@@ -29,6 +29,7 @@ function dbconnect() {
 if (isset($_GET['delete_id'])) {
   // echo "Your ID is... " . $_GET['delete_id'];
   $record = $_GET['delete_id'];
+  $record = htmlspecialchars($record, ENT_QUOTES, 'UTF-8');
 
   // Delete record.
   $baz = new notification();
