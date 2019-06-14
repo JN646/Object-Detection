@@ -61,3 +61,13 @@ fieldset#detectedObjectAllTable {
 h1#counterLarge {
   font-size: 20rem;
 }
+
+div#counterBody {
+  left: 0;
+  line-height: 200px;
+  margin: auto;
+  margin-top: -200px;
+  position: absolute;
+  top: 50%;
+  width: 100%;
+}

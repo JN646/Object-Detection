@@ -223,7 +223,11 @@ $baz = new notification();
             </button>
           </div>
           <div class="modal-body">
-            <h1 id='counterLarge' class='display-1 text-center'><?php echo $foo->liveObjectCounter("ALL","ALL"); ?></h1>
+            <div id='counterBody'>
+              <h1 id='counterLarge' class='display-1 text-center'>
+                <?php echo $foo->liveObjectCounter("ALL","ALL"); ?>
+              </h1>
+            </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
