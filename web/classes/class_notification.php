@@ -152,21 +152,21 @@ class notification {
             // For Each.
             while($row = mysqli_fetch_array($result)) {
               // Variables
-              $notificationID = $row['notification_id'];
-              $notificationDeviceID = $row['device_name'];
-              $notificationCategory= $row['notification_category'];
-              $notificationDatetime = $row['notification_datetime'];
-              $notificationMessage = $row['notification_message'];
-              $notificationPriority = $row['notification_priority'];
+              $this->notificationID = $row['notification_id'];
+              $this->notificationDeviceID = $row['device_name'];
+              $this->notificationCategory = $row['notification_category'];
+              $this->notificationDatetime = $row['notification_datetime'];
+              $this->notificationMessage = $row['notification_message'];
+              $this->notificationPriority = $row['notification_priority'];
 
               // Generate Table Rows.
               echo "<tr>";
-                echo "<td class='text-center'><input class='doCheckbox' type='checkbox' value='{$notificationID}'></td>";
-                echo "<td class='text-center'>".getPriority($notificationPriority)."</td>";
-                echo "<td class='text-center'>{$notificationDeviceID}</td>";
-                echo "<td class='text-center'>".getCategory($notificationCategory)."</td>";
-                echo "<td>" . date("H:i:s d/m/y", strtotime($notificationDatetime)) . "</td>";
-                echo "<td>{$notificationMessage}</td>";
+                echo "<td class='text-center'><input class='doCheckbox' type='checkbox' value='{$this->notificationID}'></td>";
+                echo "<td class='text-center'>".getPriority($this->notificationPriority)."</td>";
+                echo "<td class='text-center'>{$this->notificationDeviceID}</td>";
+                echo "<td class='text-center'>".getCategory($this->notificationCategory)."</td>";
+                echo "<td>" . date("H:i:s d/m/y", strtotime($this->notificationDatetime)) . "</td>";
+                echo "<td>{$this->notificationMessage}</td>";
                 echo "<td><div class='dropdown show'>";
                   echo "<a class='btn btn-link dropdown-toggle' href='#' role='button' id='dropdownMenuLink' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'></a>";
                   echo "<div class='dropdown-menu' aria-labelledby='dropdownMenuLink'>";

@@ -7,6 +7,10 @@
   margin-bottom: 10px;
 }
 
+.card-body {
+  overflow: auto;
+}
+
 legend.legendMain {
   text-align: center;
   background-color: #f8f9fa;

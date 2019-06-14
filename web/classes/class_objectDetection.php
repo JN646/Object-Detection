@@ -75,6 +75,11 @@ class objectDetection {
                 $loc = [$row['count_left'],$row['count_top'],$row['count_right'],$row['count_bottom']];
                 $latLong = $lat . " " . $long;
 
+                // If icon is empty.
+                if ($classIcon == '') {
+                  $classIcon = "<i class='fas fa-question'></i>";
+                }
+
                 // Draw table
                 echo "<tr>";
                     echo "<td class='text-center'><input class='doCheckbox' type='checkbox' value='{$id}'></td>";
@@ -173,6 +178,11 @@ class objectDetection {
                 $this->class = $row['class_name'];
                 $count = $row['count'];
                 $classIcon = $row['class_icon'];
+
+                // If icon is empty.
+                if ($classIcon == '') {
+                  $classIcon = "<i class='fas fa-question'></i>";
+                }
 
                 // Generate Table Rows.
                 echo "<tr>";
