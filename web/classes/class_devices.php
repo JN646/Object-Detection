@@ -179,7 +179,7 @@ class devices {
       $headers = array("Name","Location","IP","Last Seen","# Records","Conf. Threshold","Ver.","GPS");
         if(mysqli_num_rows($result) > 0){
           // Generate the table.
-            echo "<table class='table table-sm'>";
+            echo "<table class='table table-sm table-bordered'>";
                 echo "<tr>";
                   for ($i=0; $i < count($headers); $i++) {
                     echo "<th onclick='sortTable($i)' class='text-center'>{$headers[$i]}</th>";
@@ -268,7 +268,7 @@ class devices {
       $headers = array("ID","Name","Location","IP","Last Seen","Last Ping","# Records","Conf. Threshold","Ver.","Mission","GPS","Ping","Save");
         if(mysqli_num_rows($result) > 0){
           // Generate the table.
-            echo "<table class='table table-sm'>";
+            echo "<table class='table table-sm table-bordered'>";
                 echo "<tr>";
                   for ($i=0; $i < count($headers); $i++) {
                     echo "<th onclick='sortTable($i)' class='text-center'>{$headers[$i]}</th>";

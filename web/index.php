@@ -43,9 +43,11 @@ $baz = new notification();
 
           <!-- Detected Object Table -->
           <div id='detectedObjectAllTable' class="card">
-            <h5 class='card-header text-center'>Detected Objects
-              <span class='badge badge-secondary'><?php echo numberFormatShort($foo->countThings("All")) ?></span>
-            </h5>
+            <a data-toggle="modal" data-target="#detectedObjectModal">
+              <h5 class='card-header text-center'>Detected Objects
+                <span class='badge badge-secondary'><?php echo numberFormatShort($foo->countThings("All")) ?></span>
+              </h5>
+            </a>
             <div class="card-body">
               <div id="detectedObjectAllTableInner">
                 <input class='form-control' type="text" id="myInput" onkeyup="myFunction()" placeholder="Filter classes.." title="Filter classes">
@@ -97,7 +99,7 @@ $baz = new notification();
             </div>
 
             <div class="col-sm-12 col-md-6">
-              <!-- Global Settiings -->
+              <!-- Global Settings -->
               <div id='dataFunctionsFieldset' class="card">
                 <h5 class='card-header text-center'>Global Settings</h5>
                 <div class="card-body">
@@ -228,6 +230,26 @@ $baz = new notification();
                 <?php echo $foo->liveObjectCounter("ALL","ALL"); ?>
               </h1>
             </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detect Object Modal -->
+    <div class="modal fade" id="detectedObjectModal" tabindex="-1" role="dialog" aria-labelledby="detectedObjectLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="detectedObjectLabel">Detected Objects</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <?php $foo->selectAllTable(); ?>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

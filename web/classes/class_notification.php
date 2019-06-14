@@ -141,7 +141,7 @@ class notification {
       $headers = array("Priority","Device","Category","Time","Message","");
         if(mysqli_num_rows($result) > 0){
           // Generate the table.
-            echo "<table class='table table-sm'>";
+            echo "<table class='table table-sm table-bordered'>";
                 echo "<tr>";
                   echo "<th class='text-center'><input id='noteSelectAll' class='noteCheckbox' type='checkbox'></th>";
                   for ($i=0; $i < count($headers); $i++) {

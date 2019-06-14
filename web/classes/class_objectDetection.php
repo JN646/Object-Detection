@@ -55,7 +55,7 @@ class objectDetection {
     if($result = mysqli_query($conn, "SELECT * FROM `counter` INNER JOIN `class_types` ON counter.count_class = class_types.class_number INNER JOIN `devices` ON counter.count_deviceID = devices.device_id ORDER BY `count_id` DESC")) {
         $headers = array("#","Device Name","Class","Time","Conf.","Loc.","GPS");
         if(mysqli_num_rows($result) > 0){
-            echo "<table id='detectedObjectAllTable' class='table table-sm'>";
+            echo "<table id='detectedObjectAllTable' class='table table-sm table-bordered'>";
                 echo "<tr>";
                     echo "<th class='text-center'><input id='doSelectAll' class='doCheckbox' type='checkbox'></th>";
                     for ($i=0; $i < count($headers); $i++) {
@@ -159,7 +159,7 @@ class objectDetection {
       $headers = array("Icon","Class","Count");
         if(mysqli_num_rows($result) > 0){
           // Generate the table.
-            echo "<table class='table table-sm'>";
+            echo "<table class='table table-sm table-bordered'>";
                 echo "<tr>";
                   for ($i=0; $i < count($headers); $i++) {
                     echo "<th class='text-center'>{$headers[$i]}</th>";
@@ -203,7 +203,7 @@ class objectDetection {
   # ============================================================================
   public function tableStats() {
     // Attempt select query execution
-    echo "<table class='table table-sm'>";
+    echo "<table class='table table-sm table-bordered'>";
         echo "<tr>";
             echo "<th class='text-center'>Stats</th>";
             echo "<th class='text-center'>Count</th>";
