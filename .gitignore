@@ -5,6 +5,7 @@ network/yolov3.weights
 grabs/.DS_Store
 data/*.*
 Documents/
+models/
 
 *.jpg
 *.mp4

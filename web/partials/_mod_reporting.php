@@ -10,34 +10,50 @@
       <!-- CSV Reporting -->
       <div class='col-md-12'>
         <div class="row">
-          <form class="" action="functions/reports.php" method="POST">
+          <form class="col-md-12" action="functions/reports.php" method="POST">
             <p>Use these buttons to output CSV files of the data in the system.</p>
             <div class='row'>
               <div class='col'>
-                <h3>Detected Objects</h3>
-                <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-                  <div class="btn-group mr-2" role="group" aria-label="First group">
-                    <button class='btn btn-outline-primary' type="submit" name="csvOutput">All</button>
-                    <button class='btn btn-outline-primary' type="submit" name="csvTodayOutput">Today</button>
+                <div class="card">
+                  <h5 class='card-header text-center'>Detected Objects</h5>
+                  <div class="card-body">
+                    <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                      <div class="btn-group mr-2" role="group" aria-label="First group">
+                        <button class='btn btn-outline-primary' type="submit" name="csvOutput">All</button>
+                        <button class='btn btn-outline-primary' type="submit" name="csvTodayOutput">Today</button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
               <div class='col'>
-                <h3>Notifications</h3>
-                <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-                  <div class="btn-group mr-2" role="group" aria-label="Second group">
-                    <button class='btn btn-outline-primary' type="submit" name="csvNotificationOutput">All</button>
+                <div class="card">
+                  <h5 class='card-header text-center'>Notifications</h5>
+                  <div class="card-body">
+                    <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                      <div class="btn-group mr-2" role="group" aria-label="Second group">
+                        <button class='btn btn-outline-primary' type="submit" name="csvNotificationOutput">All</button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
               <div class='col'>
-                <h3>Classes</h3>
+                <div class="card">
+                  <h5 class='card-header text-center'>Classes</h5>
+                  <div class="card-body">
+                  </div>
+                </div>
               </div>
 
               <div class='col'>
-                <h3>Devices</h3>
+                <div class="card">
+                  <h5 class='card-header text-center'>Devices</h5>
+                  <div class="card-body">
+                  </div>
+                </div>
               </div>
             </div>
           </form>
