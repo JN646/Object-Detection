@@ -111,6 +111,71 @@ class objectDetection {
   }
 
   # ============================================================================
+  # Detected Objects Table
+  # ============================================================================
+  public function selectAllTableExtended() {
+    // Attempt select query execution
+    $conn = $this->dbconnect();
+    if($result = mysqli_query($conn, "SELECT * FROM `counter` INNER JOIN `class_types` ON counter.count_class = class_types.class_number INNER JOIN `devices` ON counter.count_deviceID = devices.device_id ORDER BY `count_id` DESC")) {
+        $headers = array("#","Device Name","Class","Time","Conf.","Loc.","GPS","Delete");
+        if(mysqli_num_rows($result) > 0){
+            echo "<table id='detectedObjectAllTable' class='table table-sm table-bordered'>";
+                echo "<tr>";
+                    echo "<th class='text-center'><input id='doSelectAll' class='doCheckbox' type='checkbox'></th>";
+                    for ($i=0; $i < count($headers); $i++) {
+                      echo "<th class='text-center'>{$headers[$i]}</th>";
+                    }
+                echo "</tr>";
+            while($row = mysqli_fetch_array($result)){
+                // Assign fetched variables to class
+                $id = $row['count_id'];
+                $deviceID = $row['device_name'];
+                $classIcon = $row['class_icon'];
+                $class = ucfirst($row['class_name']);
+                $time = $row['count_time'];
+                $this->confidence = $row['count_confidence'];
+                $lat = $row['count_lat'];
+                $long = $row['count_long'];
+                $loc = [$row['count_left'],$row['count_top'],$row['count_right'],$row['count_bottom']];
+                $latLong = $lat . " " . $long;
+
+                // If icon is empty.
+                if ($classIcon == '') {
+                  $classIcon = "<i class='fas fa-question'></i>";
+                }
+
+                // Draw table
+                echo "<tr>";
+                    echo "<td class='text-center'><input class='doCheckbox' type='checkbox' value='{$id}'></td>";
+                    echo "<td class='text-center'>{$id}</td>";
+                    echo "<td class='text-center'>{$deviceID}</td>";
+                    echo "<td>{$classIcon} {$class}</td>";
+                    echo "<td>" . date("H:i:s d/m/y", strtotime($time)) . "</td>";
+                    echo "<td class='text-center ".formatConfidenceColours($this->confidence)."'>".formatConfidence($this->confidence)."</td>";
+                    echo "<td class='text-center'><i class='fas fa-vector-square' title='← {$loc[0]} ↑ {$loc[1]} → {$loc[2]} ↓ {$loc[3]}'></i></td>";
+                    if (empty($lat) || empty($long)) {
+                      echo "<td class='text-center'></td>";
+                    } else {
+                      echo "<td class='text-center'><i class='fas fa-globe-europe' title='{$latLong}'></i></td>";
+                    }
+                    echo "<td onclick='return confirm('Are you sure you want to delete all notifications?');' class='text-center'><a href='functions/func_detectedObjects.php?delete_id={$id}'><i class='fas fa-trash text-danger'></i></a></td>";
+                echo "</tr>";
+            }
+            echo "</table>";
+            // Free result set
+            mysqli_free_result($result);
+        } else {
+          echo "No records matching your query were found.";
+        }
+    } else {
+      echo $this->dbError($sql,$conn);
+    }
+
+    // Close connection
+    mysqli_close($conn);
+  }
+
+  # ============================================================================
   # Count First Event Time
   # ============================================================================
   public function countFirstLastTime($input) {
@@ -290,6 +355,45 @@ class objectDetection {
     	// If there are no results.
     	return "N/A";
     }
+  }
+
+  # ============================================================================
+  # Delete All Things
+  # ============================================================================
+  public function deleteAllDetectedObjects() {
+    // Attempt select query execution
+    $conn = $this->dbconnect();
+
+    // Delete Everything
+    $sql = $conn->query("TRUCATE TABLE `counter`");
+
+    if (!$sql) {
+      die("Error:" . mysqli_error($conn));
+    }
+
+    // Get rows
+    $row = $sql->fetch_row();
+
+    // Close connection
+    mysqli_close($conn);
+  }
+
+  # ============================================================================
+  # Delete 1 Thing
+  # ============================================================================
+  public function deleteDetectedObject($record) {
+    // Attempt select query execution
+    $conn = $this->dbconnect();
+
+    // Delete Everything
+    $sql = $conn->query("DELETE FROM `counter` WHERE `count_id` = '$record'");
+
+    if (!$sql) {
+      die("Error:" . mysqli_error($conn));
+    }
+
+    // Close connection
+    mysqli_close($conn);
   }
 }
 ?>

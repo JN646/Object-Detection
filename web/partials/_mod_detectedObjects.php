@@ -7,7 +7,12 @@
       </button>
     </div>
     <div class="modal-body">
-      <?php $foo->selectAllTable(); ?>
+      <ul class="nav">
+        <li class="nav-item">
+          <a class="nav-link text-danger" href="functions/func_detectObjects.php?delete_all" onclick='return confirm("Are you sure you want to delete all notifications?");'>Delete All</a>
+        </li>
+      </ul>
+      <?php $foo->selectAllTableExtended(); ?>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
