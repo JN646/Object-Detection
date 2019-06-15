@@ -191,7 +191,7 @@ class notification {
                 echo "<td><div class='dropdown show'>";
                   echo "<a class='btn btn-link dropdown-toggle' href='#' role='button' id='dropdownMenuLink' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'></a>";
                   echo "<div class='dropdown-menu' aria-labelledby='dropdownMenuLink'>";
-                    echo "<a class='dropdown-item' href='<a href='functions/func_notification.php?delete_id={$notificationID}'>Delete <i class='text-danger fas fa-trash'></i></a>";
+                    echo "<a class='dropdown-item' href='<a href='functions/func_notification.php?delete_id={$this->notificationID}'>Delete <i class='text-danger fas fa-trash'></i></a>";
                   echo "</div>";
                 echo "</div></td>";
               echo "</tr>";

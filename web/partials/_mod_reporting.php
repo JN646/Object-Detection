@@ -13,6 +13,8 @@
           <form class="col-md-12" action="functions/reports.php" method="POST">
             <p>Use these buttons to output CSV files of the data in the system.</p>
             <div class='row'>
+
+              <!-- Detected Objects -->
               <div class='col'>
                 <div class="card">
                   <h5 class='card-header text-center'>Detected Objects</h5>
@@ -27,6 +29,7 @@
                 </div>
               </div>
 
+              <!-- Notifications -->
               <div class='col'>
                 <div class="card">
                   <h5 class='card-header text-center'>Notifications</h5>
@@ -40,6 +43,7 @@
                 </div>
               </div>
 
+              <!-- Classes -->
               <div class='col'>
                 <div class="card">
                   <h5 class='card-header text-center'>Classes</h5>
@@ -48,6 +52,7 @@
                 </div>
               </div>
 
+              <!-- Devices -->
               <div class='col'>
                 <div class="card">
                   <h5 class='card-header text-center'>Devices</h5>
