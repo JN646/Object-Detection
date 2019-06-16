@@ -21,8 +21,8 @@
                   <div class="card-body">
                     <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
                       <div class="btn-group mr-2" role="group" aria-label="First group">
-                        <button class='btn btn-outline-primary' type="submit" name="csvOutput">All</button>
-                        <button class='btn btn-outline-primary' type="submit" name="csvTodayOutput">Today</button>
+                        <button class='btn btn-outline-primary' type="submit" name="csvOutput"><i class="fas fa-download"></i> All</button>
+                        <button class='btn btn-outline-primary' type="submit" name="csvTodayOutput"><i class="fas fa-download"></i> Today</button>
                       </div>
                     </div>
                   </div>
@@ -36,7 +36,7 @@
                   <div class="card-body">
                     <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
                       <div class="btn-group mr-2" role="group" aria-label="Second group">
-                        <button class='btn btn-outline-primary' type="submit" name="csvNotificationOutput">All</button>
+                        <button class='btn btn-outline-primary' type="submit" name="csvNotificationOutput"><i class="fas fa-download"></i> All</button>
                       </div>
                     </div>
                   </div>
@@ -48,6 +48,7 @@
                 <div class="card">
                   <h5 class='card-header text-center'>Classes</h5>
                   <div class="card-body">
+                    <button class='btn btn-outline-primary' type="submit" name="csvClassesOutput"><i class="fas fa-download"></i> All</button>
                   </div>
                 </div>
               </div>
@@ -57,6 +58,7 @@
                 <div class="card">
                   <h5 class='card-header text-center'>Devices</h5>
                   <div class="card-body">
+                    <button class='btn btn-outline-primary' type="submit" name="csvDeviceOutput"><i class="fas fa-download"></i> All</button>
                   </div>
                 </div>
               </div>

@@ -1,4 +1,9 @@
 <?php
+// Error
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // require_once 'classes/class_notification.php';
 # ============================================================================
 # Database Connection
@@ -53,12 +58,27 @@ if (isset($_POST['csvTodayOutput'])) {
       $f = fopen('php://memory', 'w');
 
       //set column headers
-      $fields = array('ID', 'Device', 'Class', 'Confidence', 'Lat', 'Long');
+      $fields = array(
+        'ID',
+        'Device',
+        'Class',
+        'Confidence',
+        'Lat',
+        'Long'
+      );
       fputcsv($f, $fields, $delimiter);
 
       //output each row of the data, format line as csv and write to file pointer
       while($row = $query->fetch_assoc()){
-          $lineData = array($row['count_time'], $row['count_id'], $row['device_name'], $row['class_name'], $row['count_confidence'], $row['count_lat'], $row['count_long']);
+          $lineData = array(
+            $row['count_time'],
+            $row['count_id'],
+            $row['device_name'],
+            $row['class_name'],
+            $row['count_confidence'],
+            $row['count_lat'],
+            $row['count_long']
+          );
           fputcsv($f, $lineData, $delimiter);
       }
 
@@ -107,12 +127,33 @@ if (isset($_POST['csvDateSelectGo'])) {
       $f = fopen('php://memory', 'w');
 
       //set column headers
-      $fields = array('ID', 'Device', 'Class', 'Confidence', 'Lat', 'Long');
+      $fields = array(
+        'ID',
+        'Device', '
+        Class',
+        'Confidence',
+        'Left',
+        'Top',
+        'Right',
+        'Bottom',
+        'Lat',
+        'Long');
       fputcsv($f, $fields, $delimiter);
 
       //output each row of the data, format line as csv and write to file pointer
       while($row = $query->fetch_assoc()){
-          $lineData = array($row['count_time'], $row['count_id'], $row['device_name'], $row['class_name'], $row['count_confidence'], $row['count_lat'], $row['count_long']);
+          $lineData = array(
+            $row['count_time'],
+            $row['count_id'],
+            $row['device_name'],
+            $row['class_name'],
+            $row['count_left'],
+            $row['count_top'],
+            $row['count_right'],
+            $row['count_bottom'],
+            $row['count_confidence'],
+            $row['count_lat'],
+            $row['count_long']);
           fputcsv($f, $lineData, $delimiter);
       }
 
@@ -126,7 +167,7 @@ if (isset($_POST['csvDateSelectGo'])) {
       //output all remaining data on a file pointer
       fpassthru($f);
   } else {
-    echo "No Data Today";
+    echo "<div class='alert alert-danger'>No Data Today</div>";
   }
   exit;
 }
@@ -136,6 +177,20 @@ if (isset($_POST['csvDateSelectGo'])) {
 # ============================================================================
 if (isset($_POST['csvNotificationOutput'])) {
   csvNotificationOutput();
+}
+
+# ============================================================================
+# Output Devices
+# ============================================================================
+if (isset($_POST['csvDeviceOutput'])) {
+  csvDeviceOutput();
+}
+
+# ============================================================================
+# Output Classes
+# ============================================================================
+if (isset($_POST['csvClassesOutput'])) {
+  csvClassesOutput();
 }
 
 # ============================================================================
@@ -178,7 +233,7 @@ function csvNotificationOutput() {
       //output all remaining data on a file pointer
       fpassthru($f);
   } else {
-    echo "No Notifications";
+    echo "<div class='alert alert-danger'>No Notifications</div>";
   }
   exit;
 }
@@ -190,7 +245,13 @@ function csvOutput() {
   $db = dbconnect();
 
   //get records from database
-  $query = $db->query("SELECT * FROM `counter` INNER JOIN `class_types` ON counter.count_class = class_types.class_number INNER JOIN `devices` ON counter.count_deviceID = devices.device_id ORDER BY `count_id` DESC");
+  $sql = "SELECT * FROM `counter`
+  INNER JOIN `class_types` ON counter.count_class = class_types.class_number
+  INNER JOIN `devices` ON counter.count_deviceID = devices.device_id
+  ORDER BY `count_id`
+  DESC";
+
+  $query = $db->query($sql);
 
   // If there are returned rows.
   if($query->num_rows > 0){
@@ -201,12 +262,83 @@ function csvOutput() {
       $f = fopen('php://memory', 'w');
 
       //set column headers
-      $fields = array('ID', 'Device', 'Class', 'Confidence', 'Lat', 'Long');
+      $fields = array(
+        'ID',
+        'Device', '
+        Class',
+        'Confidence',
+        'Left',
+        'Top',
+        'Right',
+        'Bottom',
+        'Lat',
+        'Long');
       fputcsv($f, $fields, $delimiter);
 
       //output each row of the data, format line as csv and write to file pointer
       while($row = $query->fetch_assoc()){
-          $lineData = array($row['count_id'], $row['device_name'], $row['class_name'], $row['count_confidence'], $row['count_lat'], $row['count_long']);
+          $lineData = array(
+            $row['count_time'],
+            $row['count_id'],
+            $row['device_name'],
+            $row['class_name'],
+            $row['count_left'],
+            $row['count_top'],
+            $row['count_right'],
+            $row['count_bottom'],
+            $row['count_confidence'],
+            $row['count_lat'],
+            $row['count_long']
+          );
+
+          fputcsv($f, $lineData, $delimiter);
+      }
+      //move back to beginning of file
+      fseek($f, 0);
+
+      //set headers to download file rather than displayed
+      header('Content-Type: text/csv');
+      header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+      //output all remaining data on a file pointer
+      fpassthru($f);
+  }
+  exit;
+}
+
+# ============================================================================
+# CSV Devices
+# ============================================================================
+function csvDeviceOutput() {
+  $db = dbconnect();
+
+  //get records from database
+  $query = $db->query("SELECT * FROM `devices`");
+
+  // If there are returned rows.
+  if($query->num_rows > 0){
+      $delimiter = ",";
+      $filename = "devices_data_" . date('Y-m-d') . ".csv";
+
+      //create a file pointer
+      $f = fopen('php://memory', 'w');
+
+      //set column headers
+      $fields = array('ID', 'Name', 'Location', 'IP', 'Last Ping', 'Version', 'Confidence Threshold');
+      fputcsv($f, $fields, $delimiter);
+
+      //output each row of the data, format line as csv and write to file pointer
+      while($row = $query->fetch_assoc()){
+          $lineData = array(
+            $row['device_id'],
+            $row['device_name'],
+            $row['device_location'],
+            $row['device_ip'],
+            $row['device_lastPing'],
+            $row['device_clientVersion'],
+            $row['device_confidenceThreshold']
+          );
+
           fputcsv($f, $lineData, $delimiter);
       }
 
@@ -219,7 +351,66 @@ function csvOutput() {
 
       //output all remaining data on a file pointer
       fpassthru($f);
+  } else {
+    echo "<div class='alert alert-danger'>No Devices</div>";
   }
+
+  if (!$query) {
+    die("Error:" . mysqli_error($db));
+  }
+
+  exit;
+}
+
+# ============================================================================
+# CSV Devices
+# ============================================================================
+function csvClassesOutput() {
+  $db = dbconnect();
+
+  //get records from database
+  $query = $db->query("SELECT * FROM `class_types`");
+
+  // If there are returned rows.
+  if($query->num_rows > 0){
+      $delimiter = ",";
+      $filename = "classes_data_" . date('Y-m-d') . ".csv";
+
+      //create a file pointer
+      $f = fopen('php://memory', 'w');
+
+      //set column headers
+      $fields = array('ID', 'Number', 'Class Name');
+      fputcsv($f, $fields, $delimiter);
+
+      //output each row of the data, format line as csv and write to file pointer
+      while($row = $query->fetch_assoc()){
+          $lineData = array(
+            $row['class_id'],
+            $row['class_number'],
+            $row['class_name'],
+          );
+
+          fputcsv($f, $lineData, $delimiter);
+      }
+
+      //move back to beginning of file
+      fseek($f, 0);
+
+      //set headers to download file rather than displayed
+      header('Content-Type: text/csv');
+      header('Content-Disposition: attachment; filename="' . $filename . '";');
+
+      //output all remaining data on a file pointer
+      fpassthru($f);
+  } else {
+    echo "<div class='alert alert-danger'>No Classes</div>";
+  }
+
+  if (!$query) {
+    die("Error:" . mysqli_error($db));
+  }
+
   exit;
 }
 

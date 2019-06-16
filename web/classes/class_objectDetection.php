@@ -88,11 +88,11 @@ class objectDetection {
                     echo "<td>{$classIcon} {$class}</td>";
                     echo "<td>" . date("H:i:s d/m/y", strtotime($time)) . "</td>";
                     echo "<td class='text-center ".formatConfidenceColours($this->confidence)."'>".formatConfidence($this->confidence)."</td>";
-                    echo "<td class='text-center'><i class='fas fa-vector-square' title='← {$loc[0]} ↑ {$loc[1]} → {$loc[2]} ↓ {$loc[3]}'></i></td>";
+                    echo "<td class='text-center'><i class='fas fa-vector-square' data-toggle='tooltip' title='← {$loc[0]} ↑ {$loc[1]} → {$loc[2]} ↓ {$loc[3]}'></i></td>";
                     if (empty($lat) || empty($long)) {
                       echo "<td class='text-center'></td>";
                     } else {
-                      echo "<td class='text-center'><i class='fas fa-globe-europe' title='{$latLong}'></i></td>";
+                      echo "<td class='text-center'><i class='fas fa-globe-europe' data-toggle='tooltip' title='{$latLong}'></i></td>";
                     }
                 echo "</tr>";
             }
