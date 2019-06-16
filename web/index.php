@@ -123,9 +123,17 @@ $baz = new notification();
                   <form class="" action="functions/reports.php" method="POST">
                     <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
                       <div class="btn-group mr-2" role="group" aria-label="First group">
-                        <button class='btn btn-outline-primary' type="submit" name="csvOutput">All</button>
+                        <button class='btn btn-outline-primary' type="submit" name="csvOutput">Objects</button>
                         <button class='btn btn-outline-primary' type="submit" name="csvTodayOutput">Today</button>
+                      </div>
+                      <div class="btn-group mr-2" role="group" aria-label="Second group">
                         <button class='btn btn-outline-primary' type="submit" name="csvNotificationOutput">Notif.</button>
+                      </div>
+                      <div class="btn-group mr-2" role="group" aria-label="Third group">
+                        <button class='btn btn-outline-primary' type="submit" name="csvClassesOutput">Classes</button>
+                      </div>
+                      <div class="btn-group mr-2" role="group" aria-label="Fourth group">
+                        <button class='btn btn-outline-primary' type="submit" name="csvDeviceOutput">Devices</button>
                       </div>
                     </div>
                   </form>
