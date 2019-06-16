@@ -55,6 +55,22 @@ class Database {
   }
 
   # ============================================================================
+  # Database Trucate Counter Database Table
+  # ============================================================================
+  public function truncateCounterTableDatabase() {
+    // Attempt select query execution
+    $conn = $this->dbconnect();
+
+    $sql = $conn->query("TRUNCATE TABLE counter");
+
+    if (!$sql) {
+      $error = "<div class='text-center alert alert-danger'>ERROR: Could not able to execute $sql. " . mysqli_error($conn) . "</div>";
+    }
+
+    return $error;
+  }
+
+  # ============================================================================
   # Count Tables
   # ============================================================================
   public function countTables() {

@@ -40,6 +40,9 @@ function pingDomain($domain) {
 # Format number 1k, 1m, 1b
 # ============================================================================
 function numberFormatShort($n) {
+  $n_format = 0;
+  $suffix = '';
+  
   if ($n > 0 && $n < 1000) {
     // 1 - 999
     $n_format = floor($n);

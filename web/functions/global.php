@@ -58,4 +58,16 @@ if (isset($_POST['btnImportDatabase'])) {
   // return to previous page.
   header('Location: ' . $_SERVER['HTTP_REFERER']);
 }
+
+# ============================================================================
+# Truncate Counter Database Table
+# ============================================================================
+if (isset($_POST['btnTruncateCounterDatabase'])) {
+  $far = new Database();
+
+  $far->truncateCounterTableDatabase();
+
+  // return to previous page.
+  header('Location: ' . $_SERVER['HTTP_REFERER']);
+}
 ?>
