@@ -32,6 +32,29 @@ class Database {
   }
 
   # ============================================================================
+  # Database Import Database
+  # ============================================================================
+  public function createDatabase() {
+    // Attempt select query execution
+    $conn = $this->dbconnect();
+
+    $file = '../sql/objectTracker2.sql';
+
+    if($fp = file_get_contents($file)) {
+      $var_array = explode(';',$fp);
+      foreach($var_array as $value) {
+        $sql = mysqli_query($conn,$value.';');
+      }
+    }
+
+    if (!$sql) {
+      $error = "<div class='text-center alert alert-danger'>ERROR: Could not able to execute $sql. " . mysqli_error($conn) . "</div>";
+    }
+
+    return $error;
+  }
+
+  # ============================================================================
   # Count Tables
   # ============================================================================
   public function countTables() {

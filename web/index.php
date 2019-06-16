@@ -105,6 +105,7 @@ $baz = new notification();
                 <div class="card-body">
                   <form class="" action="functions/global.php" method="POST">
                     <button class='btn btn-outline-primary' type="submit" name="btnDark"><i class="fas fa-moon"></i></button>
+                    <button class='btn btn-outline-primary' type="submit" name="btnImportDatabase" onclick='return confirm("Are you sure you want to import the database?");'><i class="fas fa-database"></i></button>
                     <button class='btn btn-outline-danger' type="button" name="btnTruncate" onclick='return confirm("Are you sure you want to truncate the database?");' disabled>Truncate</button>
                   </form>
                 </div>
