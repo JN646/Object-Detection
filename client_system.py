@@ -282,7 +282,7 @@ modelWeights = 'network/yolov3.weights'
 classesFile = "network/coco.names";
 
 # Modules
-mod_writeToFile = 0
+mod_writeToFile = 1
 mod_writeToDatabase = 1
 
 # ==============================================================================
@@ -316,7 +316,7 @@ try:
 
     # SYSTEM MANAGEMENT CLASS
     newSystem = SystemManagement(deviceParameters[1],deviceParameters[0])
-    newSystem.writeIPToDatabase()
+    # newSystem.writeIPToDatabase()
 
     print("Device ID:",deviceID)
     # newSystem.softwareInformation()
@@ -438,7 +438,7 @@ while(True):
                         newImage.objectLocBottom)
 
                         if mod_writeToFile == 1:
-                            newImage.writeToDatabase()
+                            newImage.writeToFile()
 
                         if mod_writeToDatabase == 1:
                             newImage.writeToDatabase()

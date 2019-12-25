@@ -54,11 +54,7 @@ class notification {
     $conn = $this->dbconnect();
 
     // Adapt query based on input variable.
-    if ($input == "All") {
-      $sql = $conn->query("SELECT COUNT(DISTINCT `notification_id`) FROM `notifications`");
-    } else {
-      $sql = $conn->query("SELECT COUNT(DISTINCT $input) FROM `notifications`");
-    }
+    $sql = ($input == "All") ? $conn->query("SELECT COUNT(DISTINCT `notification_id`) FROM `notifications`") : $conn->query("SELECT COUNT(DISTINCT $input) FROM `notifications`");
 
     if (!$sql) {
       die("Error:" . mysqli_error($conn));
@@ -218,11 +214,7 @@ class notification {
     $conn = $this->dbconnect();
 
     // Adapt query based on input variable.
-    if ($input == "All") {
-      $sql = $conn->query("SELECT COUNT(DISTINCT `notification_id`) FROM `notification` LIMIT 5");
-    } else {
-      $sql = $conn->query("SELECT COUNT(DISTINCT $input) FROM `notification` LIMIT 5");
-    }
+    $sql = ($input == "All") ? $conn->query("SELECT COUNT(DISTINCT `notification_id`) FROM `notification` LIMIT 5") : $conn->query("SELECT COUNT(DISTINCT $input) FROM `notification` LIMIT 5");
 
     if (!$sql) {
       die("Error:" . mysqli_error($conn));

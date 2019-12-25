@@ -213,11 +213,7 @@ class objectDetection {
     $conn = $this->dbconnect();
 
     // SQL
-    if ($limit != 0) {
-      $limitString = "LIMIT " . $limit;
-    } else {
-      $limitString = "";
-    }
+    ($limit != 0) ? $limitString = "LIMIT " . $limit : $limitString = "";
 
     $sql = "SELECT class_types.class_name, class_types.class_icon, COUNT(class_types.class_name) AS `count` FROM `counter`
       JOIN class_types ON counter.count_class = class_types.class_number
@@ -310,11 +306,7 @@ class objectDetection {
     $conn = $this->dbconnect();
 
     // Adapt query based on input variable.
-    if ($input == "All") {
-      $sql = $conn->query("SELECT COUNT(DISTINCT `count_id`) FROM `counter`");
-    } else {
-      $sql = $conn->query("SELECT COUNT(DISTINCT $input) FROM `counter`");
-    }
+    $sql = ($input == "All") ? $conn->query("SELECT COUNT(DISTINCT `count_id`) FROM `counter`") : $conn->query("SELECT COUNT(DISTINCT $input) FROM `counter`");
 
     if (!$sql) {
       die("Error:" . mysqli_error($conn));
