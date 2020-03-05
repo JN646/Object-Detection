@@ -1,34 +1,105 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>Object Tracker 2020</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"> </script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"> </script>
-    <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
-  </head>
-  <body>
-    <img id="img" src="city.jpg"/>
 
-    <div id='respsonse' class=""></div>
+<head>
+  <meta charset="utf-8">
+  <title>Object Tracker 2020</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <style media="screen">
+    #myCanvas {
+      width: 720px;
+      height: 600px;
+      border: 1px solid black;
+    }
+  </style>
+</head>
 
-    <script>
-      const img = document.getElementById('img');
+<body>
+  <div class='container-fluid'>
+    <!-- <div class='row'> -->
+      <div class='col'>
+        <img id="img" src="cat.jpg" width="720px" height="600px" />
+      </div>
+      <div class='col'>
+        <canvas id="myCanvas"></canvas>
+      </div>
+    <!-- </div> -->
 
-      // Load the model.
-      cocoSsd.load().then(model => {
-        // detect objects in the image.
-        model.detect(img).then(predictions => {
-          var responseDiv = document.getElementById('respsonse');
-          console.log('Predictions: ', predictions);
+      <h1>Predictions</h1>
+
+      <table class="table table-bordered table-sm">
+        <thead>
+          <tr>
+            <th>Count</th>
+            <th>Class</th>
+            <th>Confidence</th>
+            <th>X/Y</th>
+          </tr>
+        </thead>
+        <tbody id="output">
+        </tbody>
+      </table>
+    </div>
+</body>
+<script>
+  processImage();
+
+  function processImage() {
+    const img = document.getElementById('img');
+    var count = 1;
+    // Draw
+    // var c = document.getElementById("myCanvas");
+    // var ctx = c.getContext("2d");
+    // ctx.beginPath();
+    // ctx.lineWidth = "1";
+    // ctx.strokeStyle = "green";
+    // ctx.rect(10, 10, 50, 50);
+    // ctx.stroke();
+
+    // Load the model.
+    cocoSsd.load().then(model => {
+      // detect objects in the image.
+      model.detect(img).then(predictions => {
+        // var c = document.getElementById("myCanvas");
+        // var ctx = c.getContext("2d");
+
+        console.log('Predictions: ', predictions);
+
+        predictions.forEach(prediction => {
+          const x = prediction.bbox[0].toFixed(3);
+          const y = prediction.bbox[1].toFixed(3);
+          const width = prediction.bbox[2];
+          const height = prediction.bbox[3];
+          const objClass = prediction.class;
+          const objScore = prediction.score.toFixed(2);
+
+          // Draw
+          var c = document.getElementById("myCanvas");
+          var ctx = c.getContext("2d");
+          ctx.scale(0.7,0.7);
+          ctx.beginPath();
+          ctx.lineWidth = "1";
+          ctx.strokeStyle = "green";
+          ctx.rect(x, y, width, height);
+          ctx.stroke();
+
+          var output = document.getElementById('output')
 
           $(document).ready(function() {
-            for (var i = 0; i < predictions.length; i++) {
-              $('#respsonse').append("<span>" + predictions[i].class + " : " + predictions[i].score.toFixed(2) + "</span></br>");
-            }
+            $("#output").append("<tr>");
+            $("#output").append("<td>" + count++ + "</td>");
+            $("#output").append("<td>" + objClass + "</td>");
+            $("#output").append("<td>" + objScore + "</td>");
+            $("#output").append("<td>[" + x + ", " + y + "]</td>");
+            $("#output").append("</tr>");
           });
         });
       });
-    </script>
-  </body>
+    });
+  }
+</script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
 </html>
